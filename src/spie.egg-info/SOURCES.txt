@@ -1,0 +1,7 @@
+pyproject.toml
+src/spie.egg-info/PKG-INFO
+src/spie.egg-info/SOURCES.txt
+src/spie.egg-info/dependency_links.txt
+src/spie.egg-info/entry_points.txt
+src/spie.egg-info/requires.txt
+src/spie.egg-info/top_level.txt

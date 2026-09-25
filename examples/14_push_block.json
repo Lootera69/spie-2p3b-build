@@ -1,0 +1,160 @@
+{
+  "actions": [
+    {
+      "cost": 1,
+      "effects": [
+        {
+          "key": "worker",
+          "value": {
+            "p": "mid"
+          }
+        },
+        {
+          "key": "crate",
+          "value": {
+            "p": "dst"
+          }
+        }
+      ],
+      "name": "push",
+      "params": [
+        {
+          "is_node": true,
+          "name": "src",
+          "values": [
+            "P0",
+            "P1",
+            "P2",
+            "P3",
+            "P4"
+          ]
+        },
+        {
+          "is_node": true,
+          "name": "mid",
+          "values": [
+            "P0",
+            "P1",
+            "P2",
+            "P3",
+            "P4"
+          ]
+        },
+        {
+          "is_node": true,
+          "name": "dst",
+          "values": [
+            "P0",
+            "P1",
+            "P2",
+            "P3",
+            "P4"
+          ]
+        }
+      ],
+      "precondition": {
+        "and": [
+          {
+            "eq": [
+              {
+                "v": "worker"
+              },
+              {
+                "p": "src"
+              }
+            ]
+          },
+          {
+            "eq": [
+              {
+                "v": "crate"
+              },
+              {
+                "p": "mid"
+              }
+            ]
+          },
+          {
+            "edge": [
+              {
+                "p": "src"
+              },
+              {
+                "p": "mid"
+              }
+            ]
+          },
+          {
+            "edge": [
+              {
+                "p": "mid"
+              },
+              {
+                "p": "dst"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ],
+  "edges": [
+    [
+      "P0",
+      "P1"
+    ],
+    [
+      "P1",
+      "P2"
+    ],
+    [
+      "P2",
+      "P3"
+    ],
+    [
+      "P3",
+      "P4"
+    ]
+  ],
+  "id": "14_push_block",
+  "initial": {
+    "crate": "P1",
+    "worker": "P0"
+  },
+  "nodes": [
+    "P0",
+    "P1",
+    "P2",
+    "P3",
+    "P4"
+  ],
+  "notes": "Push the crate P1->P4; the worker follows one cell behind. Length 3, unique.",
+  "objective": {
+    "goal": {
+      "eq": [
+        {
+          "v": "crate"
+        },
+        {
+          "node": "P4"
+        }
+      ]
+    },
+    "invariants": [],
+    "max_horizon": 8,
+    "requires_unique": true,
+    "trap_policy": "allowed"
+  },
+  "seed": 14,
+  "title": "The Loading Dock",
+  "variables": [
+    {
+      "key": "worker",
+      "kind": "Loc"
+    },
+    {
+      "key": "crate",
+      "kind": "Loc"
+    }
+  ]
+}

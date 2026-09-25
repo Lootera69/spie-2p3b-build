@@ -1,0 +1,142 @@
+{
+  "actions": [
+    {
+      "cost": 1,
+      "effects": [],
+      "name": "wait",
+      "params": [],
+      "precondition": {
+        "eq": [
+          {
+            "v": "done"
+          },
+          {
+            "c": 0
+          }
+        ]
+      }
+    },
+    {
+      "cost": 1,
+      "effects": [
+        {
+          "key": "done",
+          "value": {
+            "c": 1
+          }
+        }
+      ],
+      "name": "commit0",
+      "params": [],
+      "precondition": {
+        "and": [
+          {
+            "eq": [
+              {
+                "v": "signal"
+              },
+              {
+                "c": 0
+              }
+            ]
+          },
+          {
+            "eq": [
+              {
+                "v": "done"
+              },
+              {
+                "c": 0
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "cost": 1,
+      "effects": [
+        {
+          "key": "done",
+          "value": {
+            "c": 1
+          }
+        }
+      ],
+      "name": "commit1",
+      "params": [],
+      "precondition": {
+        "and": [
+          {
+            "eq": [
+              {
+                "v": "signal"
+              },
+              {
+                "c": 1
+              }
+            ]
+          },
+          {
+            "eq": [
+              {
+                "v": "done"
+              },
+              {
+                "c": 0
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ],
+  "edges": [],
+  "id": "19_delayed_signal",
+  "initial": {
+    "done": 0,
+    "signal": 0
+  },
+  "initial_belief": {
+    "signal": [
+      0,
+      1
+    ]
+  },
+  "nodes": [
+    "Room"
+  ],
+  "notes": "Wait for the 2-tick-lagged gauge to reveal the signal, then commit; depth 3.",
+  "objective": {
+    "goal": {
+      "eq": [
+        {
+          "v": "done"
+        },
+        {
+          "c": 1
+        }
+      ]
+    },
+    "invariants": [],
+    "max_horizon": 5,
+    "requires_unique": true,
+    "trap_policy": "allowed"
+  },
+  "seed": 19,
+  "title": "The Lagging Gauge",
+  "variables": [
+    {
+      "delay": 2,
+      "hi": 1,
+      "key": "signal",
+      "kind": "Int",
+      "lo": 0,
+      "obs": "delayed"
+    },
+    {
+      "key": "done",
+      "kind": "Bool"
+    }
+  ]
+}

@@ -1,0 +1,224 @@
+{
+  "actions": [
+    {
+      "cost": 1,
+      "effects": [],
+      "name": "peek",
+      "params": [],
+      "precondition": {
+        "eq": [
+          {
+            "v": "found"
+          },
+          {
+            "c": 0
+          }
+        ]
+      },
+      "senses": [
+        "prize"
+      ]
+    },
+    {
+      "cost": 1,
+      "effects": [
+        {
+          "key": "pos",
+          "value": {
+            "node": "RoomL"
+          }
+        }
+      ],
+      "name": "go_left",
+      "params": [],
+      "precondition": {
+        "eq": [
+          {
+            "v": "pos"
+          },
+          {
+            "node": "Hall"
+          }
+        ]
+      }
+    },
+    {
+      "cost": 1,
+      "effects": [
+        {
+          "key": "pos",
+          "value": {
+            "node": "RoomR"
+          }
+        }
+      ],
+      "name": "go_right",
+      "params": [],
+      "precondition": {
+        "eq": [
+          {
+            "v": "pos"
+          },
+          {
+            "node": "Hall"
+          }
+        ]
+      }
+    },
+    {
+      "cost": 1,
+      "effects": [
+        {
+          "key": "found",
+          "value": {
+            "c": 1
+          }
+        }
+      ],
+      "name": "grab_left",
+      "params": [],
+      "precondition": {
+        "and": [
+          {
+            "eq": [
+              {
+                "v": "pos"
+              },
+              {
+                "node": "RoomL"
+              }
+            ]
+          },
+          {
+            "eq": [
+              {
+                "v": "prize"
+              },
+              {
+                "c": 0
+              }
+            ]
+          },
+          {
+            "eq": [
+              {
+                "v": "found"
+              },
+              {
+                "c": 0
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "cost": 1,
+      "effects": [
+        {
+          "key": "found",
+          "value": {
+            "c": 1
+          }
+        }
+      ],
+      "name": "grab_right",
+      "params": [],
+      "precondition": {
+        "and": [
+          {
+            "eq": [
+              {
+                "v": "pos"
+              },
+              {
+                "node": "RoomR"
+              }
+            ]
+          },
+          {
+            "eq": [
+              {
+                "v": "prize"
+              },
+              {
+                "c": 1
+              }
+            ]
+          },
+          {
+            "eq": [
+              {
+                "v": "found"
+              },
+              {
+                "c": 0
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ],
+  "edges": [
+    [
+      "Hall",
+      "RoomL"
+    ],
+    [
+      "Hall",
+      "RoomR"
+    ]
+  ],
+  "id": "15_which_door",
+  "initial": {
+    "found": 0,
+    "pos": "Hall",
+    "prize": 0
+  },
+  "initial_belief": {
+    "prize": [
+      0,
+      1
+    ]
+  },
+  "nodes": [
+    "Hall",
+    "RoomL",
+    "RoomR"
+  ],
+  "notes": "Peek to learn the prize room, then commit; a branching plan of worst-case depth 3.",
+  "objective": {
+    "goal": {
+      "eq": [
+        {
+          "v": "found"
+        },
+        {
+          "c": 1
+        }
+      ]
+    },
+    "invariants": [],
+    "max_horizon": 6,
+    "requires_unique": true,
+    "trap_policy": "allowed"
+  },
+  "seed": 15,
+  "title": "Which Door",
+  "variables": [
+    {
+      "key": "prize",
+      "kind": "Bool",
+      "obs": "hidden"
+    },
+    {
+      "key": "pos",
+      "kind": "Loc"
+    },
+    {
+      "key": "found",
+      "kind": "Bool"
+    }
+  ]
+}

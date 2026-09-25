@@ -1,0 +1,125 @@
+{
+  "actions": [
+    {
+      "cost": 1,
+      "effects": [
+        {
+          "key": "pressure",
+          "value": {
+            "add": [
+              {
+                "v": "pressure"
+              },
+              {
+                "c": 1
+              }
+            ]
+          }
+        }
+      ],
+      "name": "pump",
+      "params": [],
+      "precondition": {
+        "and": [
+          {
+            "eq": [
+              {
+                "v": "sealed"
+              },
+              {
+                "c": 0
+              }
+            ]
+          },
+          {
+            "le": [
+              {
+                "v": "pressure"
+              },
+              {
+                "c": 2
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "cost": 1,
+      "effects": [
+        {
+          "key": "sealed",
+          "value": {
+            "c": 1
+          }
+        }
+      ],
+      "name": "seal",
+      "params": [],
+      "precondition": {
+        "and": [
+          {
+            "eq": [
+              {
+                "v": "pressure"
+              },
+              {
+                "c": 3
+              }
+            ]
+          },
+          {
+            "eq": [
+              {
+                "v": "sealed"
+              },
+              {
+                "c": 0
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ],
+  "edges": [],
+  "id": "10_pressure",
+  "initial": {
+    "pressure": 0,
+    "sealed": 0
+  },
+  "nodes": [
+    "Vessel"
+  ],
+  "notes": "Pump to pressure 3 then seal; unique solution of length 4.",
+  "objective": {
+    "goal": {
+      "eq": [
+        {
+          "v": "sealed"
+        },
+        {
+          "c": 1
+        }
+      ]
+    },
+    "invariants": [],
+    "max_horizon": 6,
+    "requires_unique": true,
+    "trap_policy": "allowed"
+  },
+  "seed": 10,
+  "title": "Pressure Valve",
+  "variables": [
+    {
+      "hi": 3,
+      "key": "pressure",
+      "kind": "Int",
+      "lo": 0
+    },
+    {
+      "key": "sealed",
+      "kind": "Bool"
+    }
+  ]
+}

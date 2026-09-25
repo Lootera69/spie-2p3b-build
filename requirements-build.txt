@@ -1,0 +1,9 @@
+# Exact pins for the distributed 2.3b certify-gate build (see tools/conceptnet_build/shard.py).
+#
+# These are the ONLY third-party imports in the whole engine; everything else is the Python 3.12
+# standard library. A cloud verdict is trusted by key WITHOUT re-proof, so a runner must compute a
+# byte-identical verdict to this machine's -- which is why these are hard ==-pinned and why
+# `merge_verdicts validate` diffs cloud vs local before any cloud verdict is merged. z3's rlimit
+# makes each check machine-independent *for a given z3 version*, so the version pin is load-bearing.
+z3-solver==4.13.4
+clingo==5.8.2

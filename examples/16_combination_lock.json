@@ -1,0 +1,346 @@
+{
+  "actions": [
+    {
+      "cost": 1,
+      "effects": [
+        {
+          "key": "stage",
+          "value": {
+            "c": 1
+          }
+        }
+      ],
+      "name": "probeA",
+      "params": [],
+      "precondition": {
+        "eq": [
+          {
+            "v": "stage"
+          },
+          {
+            "c": 0
+          }
+        ]
+      },
+      "senses": [
+        "bitA"
+      ]
+    },
+    {
+      "cost": 1,
+      "effects": [
+        {
+          "key": "stage",
+          "value": {
+            "c": 2
+          }
+        }
+      ],
+      "name": "probeB",
+      "params": [],
+      "precondition": {
+        "eq": [
+          {
+            "v": "stage"
+          },
+          {
+            "c": 1
+          }
+        ]
+      },
+      "senses": [
+        "bitB"
+      ]
+    },
+    {
+      "cost": 1,
+      "effects": [
+        {
+          "key": "open",
+          "value": {
+            "c": 1
+          }
+        }
+      ],
+      "name": "dial00",
+      "params": [],
+      "precondition": {
+        "and": [
+          {
+            "eq": [
+              {
+                "v": "stage"
+              },
+              {
+                "c": 2
+              }
+            ]
+          },
+          {
+            "eq": [
+              {
+                "v": "open"
+              },
+              {
+                "c": 0
+              }
+            ]
+          },
+          {
+            "eq": [
+              {
+                "v": "bitA"
+              },
+              {
+                "c": 0
+              }
+            ]
+          },
+          {
+            "eq": [
+              {
+                "v": "bitB"
+              },
+              {
+                "c": 0
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "cost": 1,
+      "effects": [
+        {
+          "key": "open",
+          "value": {
+            "c": 1
+          }
+        }
+      ],
+      "name": "dial01",
+      "params": [],
+      "precondition": {
+        "and": [
+          {
+            "eq": [
+              {
+                "v": "stage"
+              },
+              {
+                "c": 2
+              }
+            ]
+          },
+          {
+            "eq": [
+              {
+                "v": "open"
+              },
+              {
+                "c": 0
+              }
+            ]
+          },
+          {
+            "eq": [
+              {
+                "v": "bitA"
+              },
+              {
+                "c": 0
+              }
+            ]
+          },
+          {
+            "eq": [
+              {
+                "v": "bitB"
+              },
+              {
+                "c": 1
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "cost": 1,
+      "effects": [
+        {
+          "key": "open",
+          "value": {
+            "c": 1
+          }
+        }
+      ],
+      "name": "dial10",
+      "params": [],
+      "precondition": {
+        "and": [
+          {
+            "eq": [
+              {
+                "v": "stage"
+              },
+              {
+                "c": 2
+              }
+            ]
+          },
+          {
+            "eq": [
+              {
+                "v": "open"
+              },
+              {
+                "c": 0
+              }
+            ]
+          },
+          {
+            "eq": [
+              {
+                "v": "bitA"
+              },
+              {
+                "c": 1
+              }
+            ]
+          },
+          {
+            "eq": [
+              {
+                "v": "bitB"
+              },
+              {
+                "c": 0
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "cost": 1,
+      "effects": [
+        {
+          "key": "open",
+          "value": {
+            "c": 1
+          }
+        }
+      ],
+      "name": "dial11",
+      "params": [],
+      "precondition": {
+        "and": [
+          {
+            "eq": [
+              {
+                "v": "stage"
+              },
+              {
+                "c": 2
+              }
+            ]
+          },
+          {
+            "eq": [
+              {
+                "v": "open"
+              },
+              {
+                "c": 0
+              }
+            ]
+          },
+          {
+            "eq": [
+              {
+                "v": "bitA"
+              },
+              {
+                "c": 1
+              }
+            ]
+          },
+          {
+            "eq": [
+              {
+                "v": "bitB"
+              },
+              {
+                "c": 1
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ],
+  "edges": [],
+  "id": "16_combination_lock",
+  "initial": {
+    "bitA": 0,
+    "bitB": 0,
+    "open": 0,
+    "stage": 0
+  },
+  "initial_belief": {
+    "bitA": [
+      0,
+      1
+    ],
+    "bitB": [
+      0,
+      1
+    ]
+  },
+  "nodes": [
+    "Room"
+  ],
+  "notes": "Probe both hidden bits in order, then dial the matching combo; depth 3, 4 worlds.",
+  "objective": {
+    "goal": {
+      "eq": [
+        {
+          "v": "open"
+        },
+        {
+          "c": 1
+        }
+      ]
+    },
+    "invariants": [],
+    "max_horizon": 6,
+    "requires_unique": true,
+    "trap_policy": "allowed"
+  },
+  "seed": 16,
+  "title": "The Combination Lock",
+  "variables": [
+    {
+      "key": "bitA",
+      "kind": "Bool",
+      "obs": "hidden"
+    },
+    {
+      "key": "bitB",
+      "kind": "Bool",
+      "obs": "hidden"
+    },
+    {
+      "hi": 2,
+      "key": "stage",
+      "kind": "Int",
+      "lo": 0
+    },
+    {
+      "key": "open",
+      "kind": "Bool"
+    }
+  ]
+}

@@ -1,0 +1,10 @@
+# The filtered-edge cache is gzip and is the ONE reproducibility-critical data input the runners
+# read. Git must never apply line-ending conversion to it (that would corrupt the bytes and break
+# byte-reproducibility). Mark all gzip explicitly binary so this never depends on autodetection.
+*.gz binary
+*.tsv.gz binary
+
+# Normalize Python source to LF in the repo, so a Linux runner and this Windows machine check out
+# identical source. Python is newline-agnostic, so this cannot affect a gate verdict; it only keeps
+# the tree consistent across the two operating systems.
+*.py text eol=lf

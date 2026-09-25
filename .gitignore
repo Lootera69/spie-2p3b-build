@@ -1,0 +1,20 @@
+# Virtualenvs, byte-caches and build cruft: none of it belongs in the throwaway build repo.
+.venv/
+venv/
+__pycache__/
+*.pyc
+*.log
+
+# Build-tool working files under the cache dir. The ONE exception is the ~444KB filtered-edge
+# cache: it is the only data input the runners need (they never see the 497MB dump), so it is
+# force-included below.
+tools/conceptnet_build/.cache/*
+!tools/conceptnet_build/.cache/edges.tsv.gz
+build.lock
+
+# Verdict caches (local ground truth, shard outputs, merged results) are transient build artifacts,
+# never committed. The runners regenerate their shards from edges.tsv.gz alone.
+verdicts*.tsv
+
+# The raw ConceptNet dump: far too large for git and unneeded on the runners.
+*.csv.gz

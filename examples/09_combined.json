@@ -1,0 +1,201 @@
+{
+  "actions": [
+    {
+      "cost": 1,
+      "effects": [
+        {
+          "key": "pos",
+          "value": {
+            "p": "dst"
+          }
+        }
+      ],
+      "name": "move",
+      "params": [
+        {
+          "is_node": true,
+          "name": "src",
+          "values": [
+            "Home",
+            "Well"
+          ]
+        },
+        {
+          "is_node": true,
+          "name": "dst",
+          "values": [
+            "Home",
+            "Well"
+          ]
+        }
+      ],
+      "precondition": {
+        "and": [
+          {
+            "eq": [
+              {
+                "v": "pos"
+              },
+              {
+                "p": "src"
+              }
+            ]
+          },
+          {
+            "edge": [
+              {
+                "p": "src"
+              },
+              {
+                "p": "dst"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "cost": 1,
+      "effects": [
+        {
+          "key": "has_water",
+          "value": {
+            "c": 1
+          }
+        }
+      ],
+      "name": "fill",
+      "params": [],
+      "precondition": {
+        "and": [
+          {
+            "eq": [
+              {
+                "v": "pos"
+              },
+              {
+                "node": "Well"
+              }
+            ]
+          },
+          {
+            "eq": [
+              {
+                "v": "has_water"
+              },
+              {
+                "c": 0
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "cost": 1,
+      "effects": [
+        {
+          "key": "pot_filled",
+          "value": {
+            "c": 1
+          }
+        },
+        {
+          "key": "has_water",
+          "value": {
+            "c": 0
+          }
+        }
+      ],
+      "name": "pour",
+      "params": [],
+      "precondition": {
+        "and": [
+          {
+            "eq": [
+              {
+                "v": "pos"
+              },
+              {
+                "node": "Home"
+              }
+            ]
+          },
+          {
+            "eq": [
+              {
+                "v": "has_water"
+              },
+              {
+                "c": 1
+              }
+            ]
+          },
+          {
+            "eq": [
+              {
+                "v": "pot_filled"
+              },
+              {
+                "c": 0
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ],
+  "edges": [
+    [
+      "Home",
+      "Well"
+    ],
+    [
+      "Well",
+      "Home"
+    ]
+  ],
+  "id": "09_combined",
+  "initial": {
+    "has_water": 0,
+    "pos": "Home",
+    "pot_filled": 0
+  },
+  "nodes": [
+    "Home",
+    "Well"
+  ],
+  "notes": "Go to the well, fill, return, pour; unique solution of length 4.",
+  "objective": {
+    "goal": {
+      "eq": [
+        {
+          "v": "pot_filled"
+        },
+        {
+          "c": 1
+        }
+      ]
+    },
+    "invariants": [],
+    "max_horizon": 8,
+    "requires_unique": true,
+    "trap_policy": "allowed"
+  },
+  "seed": 9,
+  "title": "Fetch Quest",
+  "variables": [
+    {
+      "key": "pos",
+      "kind": "Loc"
+    },
+    {
+      "key": "has_water",
+      "kind": "Bool"
+    },
+    {
+      "key": "pot_filled",
+      "kind": "Bool"
+    }
+  ]
+}

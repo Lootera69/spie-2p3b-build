@@ -1,0 +1,85 @@
+{
+  "actions": [
+    {
+      "cost": 1,
+      "effects": [
+        {
+          "key": "form",
+          "value": {
+            "c": 1
+          }
+        }
+      ],
+      "name": "smelt",
+      "params": [],
+      "precondition": {
+        "eq": [
+          {
+            "v": "form"
+          },
+          {
+            "c": 0
+          }
+        ]
+      }
+    },
+    {
+      "cost": 1,
+      "effects": [
+        {
+          "key": "form",
+          "value": {
+            "c": 2
+          }
+        }
+      ],
+      "name": "forge",
+      "params": [],
+      "precondition": {
+        "eq": [
+          {
+            "v": "form"
+          },
+          {
+            "c": 1
+          }
+        ]
+      }
+    }
+  ],
+  "edges": [],
+  "id": "02_transform",
+  "initial": {
+    "form": 0
+  },
+  "nodes": [
+    "Forge"
+  ],
+  "notes": "Two-step refinement ore->ingot->blade; unique solution of length 2.",
+  "objective": {
+    "goal": {
+      "eq": [
+        {
+          "v": "form"
+        },
+        {
+          "c": 2
+        }
+      ]
+    },
+    "invariants": [],
+    "max_horizon": 5,
+    "requires_unique": true,
+    "trap_policy": "allowed"
+  },
+  "seed": 2,
+  "title": "The Forge",
+  "variables": [
+    {
+      "hi": 2,
+      "key": "form",
+      "kind": "Int",
+      "lo": 0
+    }
+  ]
+}

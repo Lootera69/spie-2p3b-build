@@ -1,0 +1,153 @@
+{
+  "actions": [
+    {
+      "cost": 1,
+      "effects": [
+        {
+          "key": "pos",
+          "value": {
+            "node": "S"
+          }
+        }
+      ],
+      "name": "enter",
+      "params": [],
+      "precondition": {
+        "eq": [
+          {
+            "v": "pos"
+          },
+          {
+            "node": "Gate"
+          }
+        ]
+      }
+    },
+    {
+      "cost": 1,
+      "effects": [
+        {
+          "key": "pos",
+          "value": {
+            "node": "G"
+          }
+        }
+      ],
+      "name": "bridge",
+      "params": [],
+      "precondition": {
+        "eq": [
+          {
+            "v": "pos"
+          },
+          {
+            "node": "S"
+          }
+        ]
+      }
+    },
+    {
+      "cost": 3,
+      "effects": [
+        {
+          "key": "pos",
+          "value": {
+            "p": "dst"
+          }
+        }
+      ],
+      "name": "trek",
+      "params": [
+        {
+          "is_node": true,
+          "name": "src",
+          "values": [
+            "Gate",
+            "S",
+            "A",
+            "G"
+          ]
+        },
+        {
+          "is_node": true,
+          "name": "dst",
+          "values": [
+            "Gate",
+            "S",
+            "A",
+            "G"
+          ]
+        }
+      ],
+      "precondition": {
+        "and": [
+          {
+            "eq": [
+              {
+                "v": "pos"
+              },
+              {
+                "p": "src"
+              }
+            ]
+          },
+          {
+            "edge": [
+              {
+                "p": "src"
+              },
+              {
+                "p": "dst"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ],
+  "edges": [
+    [
+      "S",
+      "A"
+    ],
+    [
+      "A",
+      "G"
+    ]
+  ],
+  "id": "12_toll_bridge",
+  "initial": {
+    "pos": "Gate"
+  },
+  "nodes": [
+    "Gate",
+    "S",
+    "A",
+    "G"
+  ],
+  "notes": "Bridge route is shortest and cheapest; the trek detour is longer and pricier.",
+  "objective": {
+    "goal": {
+      "eq": [
+        {
+          "v": "pos"
+        },
+        {
+          "node": "G"
+        }
+      ]
+    },
+    "invariants": [],
+    "max_horizon": 8,
+    "requires_unique": true,
+    "trap_policy": "allowed"
+  },
+  "seed": 12,
+  "title": "The Toll Bridge",
+  "variables": [
+    {
+      "key": "pos",
+      "kind": "Loc"
+    }
+  ]
+}

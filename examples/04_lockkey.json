@@ -1,0 +1,179 @@
+{
+  "actions": [
+    {
+      "cost": 1,
+      "effects": [
+        {
+          "key": "pos",
+          "value": {
+            "p": "dst"
+          }
+        }
+      ],
+      "name": "move",
+      "params": [
+        {
+          "is_node": true,
+          "name": "src",
+          "values": [
+            "Start",
+            "KeyRoom",
+            "Gate",
+            "Treasure"
+          ]
+        },
+        {
+          "is_node": true,
+          "name": "dst",
+          "values": [
+            "Start",
+            "KeyRoom",
+            "Gate",
+            "Treasure"
+          ]
+        }
+      ],
+      "precondition": {
+        "and": [
+          {
+            "eq": [
+              {
+                "v": "pos"
+              },
+              {
+                "p": "src"
+              }
+            ]
+          },
+          {
+            "edge": [
+              {
+                "p": "src"
+              },
+              {
+                "p": "dst"
+              }
+            ]
+          },
+          {
+            "or": [
+              {
+                "not": {
+                  "eq": [
+                    {
+                      "p": "dst"
+                    },
+                    {
+                      "node": "Treasure"
+                    }
+                  ]
+                }
+              },
+              {
+                "eq": [
+                  {
+                    "v": "has_key"
+                  },
+                  {
+                    "c": 1
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "cost": 1,
+      "effects": [
+        {
+          "key": "has_key",
+          "value": {
+            "c": 1
+          }
+        }
+      ],
+      "name": "pickup",
+      "params": [],
+      "precondition": {
+        "and": [
+          {
+            "eq": [
+              {
+                "v": "pos"
+              },
+              {
+                "node": "KeyRoom"
+              }
+            ]
+          },
+          {
+            "eq": [
+              {
+                "v": "has_key"
+              },
+              {
+                "c": 0
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ],
+  "edges": [
+    [
+      "Start",
+      "KeyRoom"
+    ],
+    [
+      "KeyRoom",
+      "Gate"
+    ],
+    [
+      "Gate",
+      "Treasure"
+    ]
+  ],
+  "id": "04_lockkey",
+  "initial": {
+    "has_key": 0,
+    "pos": "Start"
+  },
+  "nodes": [
+    "Start",
+    "KeyRoom",
+    "Gate",
+    "Treasure"
+  ],
+  "notes": "Fetch the key, then pass the gate; unique solution of length 4.",
+  "objective": {
+    "goal": {
+      "eq": [
+        {
+          "v": "pos"
+        },
+        {
+          "node": "Treasure"
+        }
+      ]
+    },
+    "invariants": [],
+    "max_horizon": 8,
+    "requires_unique": true,
+    "trap_policy": "allowed"
+  },
+  "seed": 4,
+  "title": "The Locked Door",
+  "variables": [
+    {
+      "key": "pos",
+      "kind": "Loc"
+    },
+    {
+      "key": "has_key",
+      "kind": "Bool"
+    }
+  ]
+}

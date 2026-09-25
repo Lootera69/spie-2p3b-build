@@ -1,0 +1,94 @@
+# Distributed 2.3b ConceptNet certify-gate build.
+#
+# The build's whole cost is round 1 of the prune/gate fixpoint: proving ~3,244 words through the
+# full invent -> validate -> certify -> verify -> present stack at 9 seeds. Each word's verdict is a
+# pure function of its depth-2 neighbourhood (keyed by dependency_key), so the work shards cleanly:
+# every runner gates one slice of round1_plan()'s to_gate list against the SAME trial KB, and the
+# per-shard verdict caches merge into one that the local build finishes from in minutes.
+#
+# SOUNDNESS is not assumed. A stored verdict is trusted by key without re-proof, so before any cloud
+# verdict is merged into the shipped build, `merge_verdicts validate` diffs the merged cache against
+# the still-running local build's verdicts on every shared key. One (passed, reason) disagreement is
+# a hard stop. The exact toolchain (Python 3.12 + the == pins in requirements-build.txt) plus z3's
+# deterministic rlimit are what make a Linux runner's verdict reproduce this Windows machine's.
+#
+# Runners need only the committed ~444KB edges.tsv.gz -- never the 497MB dump.
+
+name: build-2p3b
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  NUM_SHARDS: "80"
+  Z3_RLIMIT: "8000000"
+
+jobs:
+  plan:
+    runs-on: ubuntu-latest
+    outputs:
+      shards: ${{ steps.gen.outputs.shards }}
+    steps:
+      - id: gen
+        run: |
+          python -c "import json,os; print('shards=' + json.dumps(list(range(int(os.environ['NUM_SHARDS'])))))" >> "$GITHUB_OUTPUT"
+
+  shard:
+    needs: plan
+    runs-on: ubuntu-latest
+    timeout-minutes: 350          # under the 360-min job cap; a shard is ~40 words, far shorter
+    strategy:
+      fail-fast: false            # one shard failing must not cancel the others
+      max-parallel: 40            # GitHub Pro concurrency
+      matrix:
+        shard: ${{ fromJSON(needs.plan.outputs.shards) }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install pinned toolchain
+        run: pip install -r requirements-build.txt
+      - name: Gate shard ${{ matrix.shard }}
+        run: |
+          python -m tools.conceptnet_build.shard \
+            --shard ${{ matrix.shard }} \
+            --num-shards ${{ env.NUM_SHARDS }} \
+            --z3-rlimit ${{ env.Z3_RLIMIT }} \
+            --out verdicts.shard-${{ matrix.shard }}.tsv
+      - uses: actions/upload-artifact@v4
+        with:
+          name: verdicts-shard-${{ matrix.shard }}
+          path: verdicts.shard-${{ matrix.shard }}.tsv
+          retention-days: 5
+          if-no-files-found: error
+
+  merge:
+    needs: shard
+    if: always()                  # merge whatever shards succeeded; validate decides trust locally
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install pinned toolchain
+        run: pip install -r requirements-build.txt
+      - name: Download all shard caches
+        uses: actions/download-artifact@v4
+        with:
+          path: shards
+          pattern: verdicts-shard-*
+          merge-multiple: true
+      - name: Merge shard caches
+        run: |
+          python -m tools.conceptnet_build.merge_verdicts merge shards/verdicts.shard-*.tsv --out verdicts.merged.tsv
+      - uses: actions/upload-artifact@v4
+        with:
+          name: verdicts-merged
+          path: verdicts.merged.tsv
+          retention-days: 7
+          if-no-files-found: error

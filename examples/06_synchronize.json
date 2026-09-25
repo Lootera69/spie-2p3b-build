@@ -1,0 +1,262 @@
+{
+  "actions": [
+    {
+      "cost": 1,
+      "effects": [
+        {
+          "key": "doorA",
+          "value": {
+            "c": 1
+          }
+        }
+      ],
+      "name": "openA",
+      "params": [],
+      "precondition": {
+        "eq": [
+          {
+            "v": "doorA"
+          },
+          {
+            "c": 0
+          }
+        ]
+      }
+    },
+    {
+      "cost": 1,
+      "effects": [
+        {
+          "key": "doorA",
+          "value": {
+            "c": 0
+          }
+        }
+      ],
+      "name": "closeA",
+      "params": [],
+      "precondition": {
+        "eq": [
+          {
+            "v": "doorA"
+          },
+          {
+            "c": 1
+          }
+        ]
+      }
+    },
+    {
+      "cost": 1,
+      "effects": [
+        {
+          "key": "doorB",
+          "value": {
+            "c": 1
+          }
+        }
+      ],
+      "name": "openB",
+      "params": [],
+      "precondition": {
+        "eq": [
+          {
+            "v": "doorB"
+          },
+          {
+            "c": 0
+          }
+        ]
+      }
+    },
+    {
+      "cost": 1,
+      "effects": [
+        {
+          "key": "pos",
+          "value": {
+            "p": "dst"
+          }
+        }
+      ],
+      "name": "step",
+      "params": [
+        {
+          "is_node": true,
+          "name": "src",
+          "values": [
+            "Outside",
+            "Airlock",
+            "Inside"
+          ]
+        },
+        {
+          "is_node": true,
+          "name": "dst",
+          "values": [
+            "Outside",
+            "Airlock",
+            "Inside"
+          ]
+        }
+      ],
+      "precondition": {
+        "and": [
+          {
+            "eq": [
+              {
+                "v": "pos"
+              },
+              {
+                "p": "src"
+              }
+            ]
+          },
+          {
+            "edge": [
+              {
+                "p": "src"
+              },
+              {
+                "p": "dst"
+              }
+            ]
+          },
+          {
+            "or": [
+              {
+                "and": [
+                  {
+                    "eq": [
+                      {
+                        "p": "dst"
+                      },
+                      {
+                        "node": "Airlock"
+                      }
+                    ]
+                  },
+                  {
+                    "eq": [
+                      {
+                        "v": "doorA"
+                      },
+                      {
+                        "c": 1
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "and": [
+                  {
+                    "eq": [
+                      {
+                        "p": "dst"
+                      },
+                      {
+                        "node": "Inside"
+                      }
+                    ]
+                  },
+                  {
+                    "eq": [
+                      {
+                        "v": "doorB"
+                      },
+                      {
+                        "c": 1
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ],
+  "edges": [
+    [
+      "Outside",
+      "Airlock"
+    ],
+    [
+      "Airlock",
+      "Inside"
+    ]
+  ],
+  "id": "06_synchronize",
+  "initial": {
+    "doorA": 0,
+    "doorB": 0,
+    "pos": "Outside"
+  },
+  "nodes": [
+    "Outside",
+    "Airlock",
+    "Inside"
+  ],
+  "notes": "Airlock: doors never both open (invariant); unique length-5 solution.",
+  "objective": {
+    "goal": {
+      "eq": [
+        {
+          "v": "pos"
+        },
+        {
+          "node": "Inside"
+        }
+      ]
+    },
+    "invariants": [
+      {
+        "not": {
+          "and": [
+            {
+              "eq": [
+                {
+                  "v": "doorA"
+                },
+                {
+                  "c": 1
+                }
+              ]
+            },
+            {
+              "eq": [
+                {
+                  "v": "doorB"
+                },
+                {
+                  "c": 1
+                }
+              ]
+            }
+          ]
+        }
+      }
+    ],
+    "max_horizon": 10,
+    "requires_unique": true,
+    "trap_policy": "allowed"
+  },
+  "seed": 6,
+  "title": "The Airlock",
+  "variables": [
+    {
+      "key": "pos",
+      "kind": "Loc"
+    },
+    {
+      "key": "doorA",
+      "kind": "Bool"
+    },
+    {
+      "key": "doorB",
+      "kind": "Bool"
+    }
+  ]
+}

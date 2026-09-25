@@ -1,0 +1,147 @@
+{
+  "actions": [
+    {
+      "cost": 1,
+      "effects": [
+        {
+          "key": "slot",
+          "value": {
+            "c": 1
+          }
+        }
+      ],
+      "name": "work",
+      "params": [],
+      "precondition": {
+        "eq": [
+          {
+            "v": "slot"
+          },
+          {
+            "c": 0
+          }
+        ]
+      }
+    },
+    {
+      "cost": 1,
+      "effects": [
+        {
+          "key": "level",
+          "value": {
+            "add": [
+              {
+                "v": "level"
+              },
+              {
+                "c": 1
+              }
+            ]
+          }
+        },
+        {
+          "key": "slot",
+          "value": {
+            "c": 2
+          }
+        }
+      ],
+      "name": "bank",
+      "params": [],
+      "precondition": {
+        "and": [
+          {
+            "eq": [
+              {
+                "v": "slot"
+              },
+              {
+                "c": 1
+              }
+            ]
+          },
+          {
+            "le": [
+              {
+                "v": "level"
+              },
+              {
+                "c": 1
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "cost": 1,
+      "effects": [
+        {
+          "reset": true
+        }
+      ],
+      "name": "reboot",
+      "params": [],
+      "precondition": {
+        "c": true
+      }
+    }
+  ],
+  "edges": [],
+  "id": "17_assembly_loop",
+  "initial": {
+    "level": 0,
+    "slot": 0
+  },
+  "nodes": [
+    "Bench"
+  ],
+  "notes": "Two work/bank/reboot cycles bank level to 2; a spent slot forces reboot. Length 6.",
+  "objective": {
+    "goal": {
+      "and": [
+        {
+          "eq": [
+            {
+              "v": "level"
+            },
+            {
+              "c": 2
+            }
+          ]
+        },
+        {
+          "eq": [
+            {
+              "v": "slot"
+            },
+            {
+              "c": 0
+            }
+          ]
+        }
+      ]
+    },
+    "invariants": [],
+    "max_horizon": 8,
+    "requires_unique": true,
+    "trap_policy": "allowed"
+  },
+  "seed": 17,
+  "title": "The Assembly Loop",
+  "variables": [
+    {
+      "hi": 2,
+      "key": "slot",
+      "kind": "Int",
+      "lo": 0
+    },
+    {
+      "hi": 2,
+      "key": "level",
+      "kind": "Int",
+      "lo": 0,
+      "persistent": true
+    }
+  ]
+}

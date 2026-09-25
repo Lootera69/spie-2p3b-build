@@ -1,0 +1,102 @@
+{
+  "actions": [
+    {
+      "cost": 1,
+      "effects": [
+        {
+          "key": "revealed",
+          "value": {
+            "c": 1
+          }
+        }
+      ],
+      "name": "search",
+      "params": [],
+      "precondition": {
+        "eq": [
+          {
+            "v": "revealed"
+          },
+          {
+            "c": 0
+          }
+        ]
+      }
+    },
+    {
+      "cost": 1,
+      "effects": [
+        {
+          "key": "pulled",
+          "value": {
+            "c": 1
+          }
+        }
+      ],
+      "name": "pull",
+      "params": [],
+      "precondition": {
+        "and": [
+          {
+            "eq": [
+              {
+                "v": "revealed"
+              },
+              {
+                "c": 1
+              }
+            ]
+          },
+          {
+            "eq": [
+              {
+                "v": "pulled"
+              },
+              {
+                "c": 0
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ],
+  "edges": [],
+  "id": "07_hidden",
+  "initial": {
+    "pulled": 0,
+    "revealed": 0
+  },
+  "nodes": [
+    "Room"
+  ],
+  "notes": "Reveal the lever before pulling it; unique solution of length 2.",
+  "objective": {
+    "goal": {
+      "eq": [
+        {
+          "v": "pulled"
+        },
+        {
+          "c": 1
+        }
+      ]
+    },
+    "invariants": [],
+    "max_horizon": 5,
+    "requires_unique": true,
+    "trap_policy": "allowed"
+  },
+  "seed": 7,
+  "title": "Hidden Lever",
+  "variables": [
+    {
+      "key": "revealed",
+      "kind": "Bool"
+    },
+    {
+      "key": "pulled",
+      "kind": "Bool"
+    }
+  ]
+}

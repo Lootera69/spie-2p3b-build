@@ -1,0 +1,219 @@
+{
+  "actions": [
+    {
+      "cost": 1,
+      "effects": [
+        {
+          "key": "pos",
+          "value": {
+            "p": "dst"
+          }
+        }
+      ],
+      "name": "move",
+      "params": [
+        {
+          "is_node": true,
+          "name": "src",
+          "values": [
+            "Vault",
+            "Exit"
+          ]
+        },
+        {
+          "is_node": true,
+          "name": "dst",
+          "values": [
+            "Vault",
+            "Exit"
+          ]
+        }
+      ],
+      "precondition": {
+        "and": [
+          {
+            "eq": [
+              {
+                "v": "pos"
+              },
+              {
+                "p": "src"
+              }
+            ]
+          },
+          {
+            "edge": [
+              {
+                "p": "src"
+              },
+              {
+                "p": "dst"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "cost": 1,
+      "effects": [
+        {
+          "key": "has_gem",
+          "value": {
+            "c": 1
+          }
+        }
+      ],
+      "name": "grab",
+      "params": [],
+      "precondition": {
+        "and": [
+          {
+            "eq": [
+              {
+                "v": "pos"
+              },
+              {
+                "node": "Vault"
+              }
+            ]
+          },
+          {
+            "eq": [
+              {
+                "v": "has_gem"
+              },
+              {
+                "c": 0
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "cost": 1,
+      "effects": [
+        {
+          "key": "sealed",
+          "value": {
+            "c": 1
+          }
+        }
+      ],
+      "name": "seal",
+      "params": [],
+      "precondition": {
+        "and": [
+          {
+            "eq": [
+              {
+                "v": "pos"
+              },
+              {
+                "node": "Exit"
+              }
+            ]
+          },
+          {
+            "eq": [
+              {
+                "v": "sealed"
+              },
+              {
+                "c": 0
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ],
+  "edges": [
+    [
+      "Vault",
+      "Exit"
+    ]
+  ],
+  "id": "11_signaled_trap",
+  "initial": {
+    "has_gem": 0,
+    "pos": "Vault",
+    "sealed": 0
+  },
+  "nodes": [
+    "Vault",
+    "Exit"
+  ],
+  "notes": "Leaving empty-handed loses at once, so no silent trap remains; length 3, unique.",
+  "objective": {
+    "goal": {
+      "and": [
+        {
+          "eq": [
+            {
+              "v": "has_gem"
+            },
+            {
+              "c": 1
+            }
+          ]
+        },
+        {
+          "eq": [
+            {
+              "v": "sealed"
+            },
+            {
+              "c": 1
+            }
+          ]
+        }
+      ]
+    },
+    "invariants": [],
+    "loss": {
+      "and": [
+        {
+          "eq": [
+            {
+              "v": "pos"
+            },
+            {
+              "node": "Exit"
+            }
+          ]
+        },
+        {
+          "eq": [
+            {
+              "v": "has_gem"
+            },
+            {
+              "c": 0
+            }
+          ]
+        }
+      ]
+    },
+    "max_horizon": 6,
+    "requires_unique": true,
+    "trap_policy": "signaled"
+  },
+  "seed": 11,
+  "title": "Point of No Return",
+  "variables": [
+    {
+      "key": "pos",
+      "kind": "Loc"
+    },
+    {
+      "key": "has_gem",
+      "kind": "Bool"
+    },
+    {
+      "key": "sealed",
+      "kind": "Bool"
+    }
+  ]
+}

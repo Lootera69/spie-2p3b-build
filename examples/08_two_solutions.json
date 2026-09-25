@@ -1,0 +1,115 @@
+{
+  "actions": [
+    {
+      "cost": 1,
+      "effects": [
+        {
+          "key": "pos",
+          "value": {
+            "p": "dst"
+          }
+        }
+      ],
+      "name": "move",
+      "params": [
+        {
+          "is_node": true,
+          "name": "src",
+          "values": [
+            "S",
+            "L",
+            "R",
+            "G"
+          ]
+        },
+        {
+          "is_node": true,
+          "name": "dst",
+          "values": [
+            "S",
+            "L",
+            "R",
+            "G"
+          ]
+        }
+      ],
+      "precondition": {
+        "and": [
+          {
+            "eq": [
+              {
+                "v": "pos"
+              },
+              {
+                "p": "src"
+              }
+            ]
+          },
+          {
+            "edge": [
+              {
+                "p": "src"
+              },
+              {
+                "p": "dst"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ],
+  "edges": [
+    [
+      "S",
+      "L"
+    ],
+    [
+      "S",
+      "R"
+    ],
+    [
+      "L",
+      "G"
+    ],
+    [
+      "R",
+      "G"
+    ]
+  ],
+  "id": "08_two_solutions",
+  "initial": {
+    "pos": "S"
+  },
+  "nodes": [
+    "S",
+    "L",
+    "R",
+    "G"
+  ],
+  "notes": "Diamond graph with two length-2 routes S->L->G and S->R->G; NOT unique.",
+  "objective": {
+    "goal": {
+      "eq": [
+        {
+          "v": "pos"
+        },
+        {
+          "node": "G"
+        }
+      ]
+    },
+    "invariants": [],
+    "max_horizon": 4,
+    "requires_unique": false,
+    "trap_policy": "allowed"
+  },
+  "seed": 8,
+  "title": "The Fork",
+  "variables": [
+    {
+      "key": "pos",
+      "kind": "Loc"
+    }
+  ]
+}

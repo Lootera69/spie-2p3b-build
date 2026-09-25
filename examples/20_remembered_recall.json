@@ -1,0 +1,207 @@
+{
+  "actions": [
+    {
+      "cost": 1,
+      "effects": [
+        {
+          "key": "phase",
+          "value": {
+            "c": 1
+          }
+        }
+      ],
+      "name": "read",
+      "params": [],
+      "precondition": {
+        "eq": [
+          {
+            "v": "phase"
+          },
+          {
+            "c": 0
+          }
+        ]
+      },
+      "senses": [
+        "code"
+      ]
+    },
+    {
+      "cost": 1,
+      "effects": [
+        {
+          "key": "phase",
+          "value": {
+            "c": 2
+          }
+        },
+        {
+          "key": "code",
+          "value": {
+            "c": 0
+          }
+        }
+      ],
+      "name": "wipe",
+      "params": [],
+      "precondition": {
+        "eq": [
+          {
+            "v": "phase"
+          },
+          {
+            "c": 1
+          }
+        ]
+      }
+    },
+    {
+      "cost": 1,
+      "effects": [
+        {
+          "key": "entered",
+          "value": {
+            "c": 1
+          }
+        }
+      ],
+      "name": "enter0",
+      "params": [],
+      "precondition": {
+        "and": [
+          {
+            "eq": [
+              {
+                "v": "phase"
+              },
+              {
+                "c": 2
+              }
+            ]
+          },
+          {
+            "eq": [
+              {
+                "v": "entered"
+              },
+              {
+                "c": 0
+              }
+            ]
+          },
+          {
+            "eq": [
+              {
+                "v": "code"
+              },
+              {
+                "c": 0
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "cost": 1,
+      "effects": [
+        {
+          "key": "entered",
+          "value": {
+            "c": 1
+          }
+        }
+      ],
+      "name": "enter1",
+      "params": [],
+      "precondition": {
+        "and": [
+          {
+            "eq": [
+              {
+                "v": "phase"
+              },
+              {
+                "c": 2
+              }
+            ]
+          },
+          {
+            "eq": [
+              {
+                "v": "entered"
+              },
+              {
+                "c": 0
+              }
+            ]
+          },
+          {
+            "eq": [
+              {
+                "v": "code"
+              },
+              {
+                "c": 1
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ],
+  "edges": [],
+  "id": "20_remembered_recall",
+  "initial": {
+    "code": 0,
+    "entered": 0,
+    "phase": 0
+  },
+  "initial_belief": {
+    "code": [
+      0,
+      1
+    ]
+  },
+  "nodes": [
+    "Room"
+  ],
+  "notes": "Read the transient code (latched), let it be wiped, then enter what you remembered.",
+  "objective": {
+    "goal": {
+      "eq": [
+        {
+          "v": "entered"
+        },
+        {
+          "c": 1
+        }
+      ]
+    },
+    "invariants": [],
+    "max_horizon": 5,
+    "requires_unique": true,
+    "trap_policy": "allowed"
+  },
+  "seed": 20,
+  "title": "The Vanishing Password",
+  "variables": [
+    {
+      "hi": 1,
+      "key": "code",
+      "kind": "Int",
+      "lo": 0,
+      "obs": "remembered"
+    },
+    {
+      "hi": 2,
+      "key": "phase",
+      "kind": "Int",
+      "lo": 0
+    },
+    {
+      "key": "entered",
+      "kind": "Bool"
+    }
+  ]
+}

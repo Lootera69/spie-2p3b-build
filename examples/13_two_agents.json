@@ -1,0 +1,205 @@
+{
+  "actions": [
+    {
+      "cost": 1,
+      "effects": [
+        {
+          "key": "guard",
+          "value": {
+            "p": "dst"
+          }
+        }
+      ],
+      "name": "move_guard",
+      "params": [
+        {
+          "is_node": true,
+          "name": "src",
+          "values": [
+            "Field",
+            "Mid",
+            "Plate",
+            "Bank",
+            "Keep"
+          ]
+        },
+        {
+          "is_node": true,
+          "name": "dst",
+          "values": [
+            "Field",
+            "Mid",
+            "Plate",
+            "Bank",
+            "Keep"
+          ]
+        }
+      ],
+      "precondition": {
+        "and": [
+          {
+            "eq": [
+              {
+                "v": "guard"
+              },
+              {
+                "p": "src"
+              }
+            ]
+          },
+          {
+            "edge": [
+              {
+                "p": "src"
+              },
+              {
+                "p": "dst"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "cost": 1,
+      "effects": [
+        {
+          "key": "runner",
+          "value": {
+            "p": "dst"
+          }
+        }
+      ],
+      "name": "move_runner",
+      "params": [
+        {
+          "is_node": true,
+          "name": "src",
+          "values": [
+            "Field",
+            "Mid",
+            "Plate",
+            "Bank",
+            "Keep"
+          ]
+        },
+        {
+          "is_node": true,
+          "name": "dst",
+          "values": [
+            "Field",
+            "Mid",
+            "Plate",
+            "Bank",
+            "Keep"
+          ]
+        }
+      ],
+      "precondition": {
+        "and": [
+          {
+            "eq": [
+              {
+                "v": "runner"
+              },
+              {
+                "p": "src"
+              }
+            ]
+          },
+          {
+            "edge": [
+              {
+                "p": "src"
+              },
+              {
+                "p": "dst"
+              }
+            ]
+          },
+          {
+            "or": [
+              {
+                "not": {
+                  "eq": [
+                    {
+                      "p": "dst"
+                    },
+                    {
+                      "node": "Keep"
+                    }
+                  ]
+                }
+              },
+              {
+                "eq": [
+                  {
+                    "v": "guard"
+                  },
+                  {
+                    "node": "Plate"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ],
+  "edges": [
+    [
+      "Field",
+      "Mid"
+    ],
+    [
+      "Mid",
+      "Plate"
+    ],
+    [
+      "Bank",
+      "Keep"
+    ]
+  ],
+  "id": "13_two_agents",
+  "initial": {
+    "guard": "Field",
+    "runner": "Bank"
+  },
+  "nodes": [
+    "Field",
+    "Mid",
+    "Plate",
+    "Bank",
+    "Keep"
+  ],
+  "notes": "Guard reaches the Plate to lower the bridge, then the runner crosses; length 3.",
+  "objective": {
+    "goal": {
+      "eq": [
+        {
+          "v": "runner"
+        },
+        {
+          "node": "Keep"
+        }
+      ]
+    },
+    "invariants": [],
+    "max_horizon": 8,
+    "requires_unique": true,
+    "trap_policy": "allowed"
+  },
+  "seed": 13,
+  "title": "The Drawbridge",
+  "variables": [
+    {
+      "key": "guard",
+      "kind": "Loc"
+    },
+    {
+      "key": "runner",
+      "kind": "Loc"
+    }
+  ]
+}

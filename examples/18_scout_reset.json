@@ -1,0 +1,212 @@
+{
+  "actions": [
+    {
+      "cost": 1,
+      "effects": [
+        {
+          "key": "scratch",
+          "value": {
+            "c": 1
+          }
+        }
+      ],
+      "name": "scan",
+      "params": [],
+      "precondition": {
+        "eq": [
+          {
+            "v": "logged"
+          },
+          {
+            "c": 0
+          }
+        ]
+      },
+      "senses": [
+        "target"
+      ]
+    },
+    {
+      "cost": 1,
+      "effects": [
+        {
+          "key": "logged",
+          "value": {
+            "c": 1
+          }
+        }
+      ],
+      "name": "log0",
+      "params": [],
+      "precondition": {
+        "and": [
+          {
+            "eq": [
+              {
+                "v": "target"
+              },
+              {
+                "c": 0
+              }
+            ]
+          },
+          {
+            "eq": [
+              {
+                "v": "scratch"
+              },
+              {
+                "c": 1
+              }
+            ]
+          },
+          {
+            "eq": [
+              {
+                "v": "logged"
+              },
+              {
+                "c": 0
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "cost": 1,
+      "effects": [
+        {
+          "key": "logged",
+          "value": {
+            "c": 1
+          }
+        }
+      ],
+      "name": "log1",
+      "params": [],
+      "precondition": {
+        "and": [
+          {
+            "eq": [
+              {
+                "v": "target"
+              },
+              {
+                "c": 1
+              }
+            ]
+          },
+          {
+            "eq": [
+              {
+                "v": "scratch"
+              },
+              {
+                "c": 1
+              }
+            ]
+          },
+          {
+            "eq": [
+              {
+                "v": "logged"
+              },
+              {
+                "c": 0
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "cost": 1,
+      "effects": [
+        {
+          "reset": true
+        }
+      ],
+      "name": "reset",
+      "params": [],
+      "precondition": {
+        "eq": [
+          {
+            "v": "logged"
+          },
+          {
+            "c": 1
+          }
+        ]
+      }
+    }
+  ],
+  "edges": [],
+  "id": "18_scout_reset",
+  "initial": {
+    "logged": 0,
+    "scratch": 0,
+    "target": 0
+  },
+  "initial_belief": {
+    "target": [
+      0,
+      1
+    ]
+  },
+  "nodes": [
+    "Room"
+  ],
+  "notes": "Scan the hidden target, log the matching result, then reset scratch; depth 3.",
+  "objective": {
+    "goal": {
+      "and": [
+        {
+          "eq": [
+            {
+              "v": "logged"
+            },
+            {
+              "c": 1
+            }
+          ]
+        },
+        {
+          "eq": [
+            {
+              "v": "scratch"
+            },
+            {
+              "c": 0
+            }
+          ]
+        }
+      ]
+    },
+    "invariants": [],
+    "max_horizon": 6,
+    "requires_unique": true,
+    "trap_policy": "allowed"
+  },
+  "seed": 18,
+  "title": "Scout and Reset",
+  "variables": [
+    {
+      "key": "target",
+      "kind": "Bool",
+      "obs": "hidden",
+      "persistent": true
+    },
+    {
+      "hi": 1,
+      "key": "scratch",
+      "kind": "Int",
+      "lo": 0
+    },
+    {
+      "key": "logged",
+      "kind": "Bool",
+      "persistent": true
+    }
+  ]
+}

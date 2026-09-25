@@ -1,0 +1,141 @@
+{
+  "actions": [
+    {
+      "cost": 1,
+      "effects": [
+        {
+          "key": "pos",
+          "value": {
+            "p": "dst"
+          }
+        },
+        {
+          "key": "fuel",
+          "value": {
+            "sub": [
+              {
+                "v": "fuel"
+              },
+              {
+                "c": 1
+              }
+            ]
+          }
+        }
+      ],
+      "name": "move",
+      "params": [
+        {
+          "is_node": true,
+          "name": "src",
+          "values": [
+            "A",
+            "B",
+            "C",
+            "D"
+          ]
+        },
+        {
+          "is_node": true,
+          "name": "dst",
+          "values": [
+            "A",
+            "B",
+            "C",
+            "D"
+          ]
+        }
+      ],
+      "precondition": {
+        "and": [
+          {
+            "eq": [
+              {
+                "v": "pos"
+              },
+              {
+                "p": "src"
+              }
+            ]
+          },
+          {
+            "edge": [
+              {
+                "p": "src"
+              },
+              {
+                "p": "dst"
+              }
+            ]
+          },
+          {
+            "le": [
+              {
+                "c": 1
+              },
+              {
+                "v": "fuel"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ],
+  "edges": [
+    [
+      "A",
+      "B"
+    ],
+    [
+      "B",
+      "C"
+    ],
+    [
+      "C",
+      "D"
+    ]
+  ],
+  "id": "03_resource",
+  "initial": {
+    "fuel": 3,
+    "pos": "A"
+  },
+  "nodes": [
+    "A",
+    "B",
+    "C",
+    "D"
+  ],
+  "notes": "Reach D on a fuel budget of exactly 3; unique, and infeasible with less.",
+  "objective": {
+    "goal": {
+      "eq": [
+        {
+          "v": "pos"
+        },
+        {
+          "node": "D"
+        }
+      ]
+    },
+    "invariants": [],
+    "max_horizon": 6,
+    "requires_unique": true,
+    "trap_policy": "allowed"
+  },
+  "seed": 3,
+  "title": "Fuel Budget",
+  "variables": [
+    {
+      "key": "pos",
+      "kind": "Loc"
+    },
+    {
+      "hi": 3,
+      "key": "fuel",
+      "kind": "Int",
+      "lo": 0
+    }
+  ]
+}
