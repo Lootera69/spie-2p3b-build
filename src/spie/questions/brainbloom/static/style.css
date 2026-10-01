@@ -124,14 +124,16 @@ textarea { resize:vertical; min-height:110px; max-height:260px; line-height:1.6;
 .pane-tabs button[aria-selected="true"] { background:var(--green); color:white; }
 @media(max-width:1000px) { .workspace { grid-template-columns:300px minmax(0,1fr); gap:16px; }main,header { padding-left:20px; padding-right:20px; }.card { padding:20px; } }
 @media(max-width:760px) {
-  main { padding:12px 12px 0; }header { padding:10px 16px; }.brand { font-size:18px; }
-  .intro { display:block; padding-bottom:12px; }.intro .eyebrow { display:none; }
-  h1 { font-size:28px; letter-spacing:-1px; }h1 br { display:none; }h1 br::after { content:" "; }
-  .intro>p:last-child { margin:7px 0 0; max-width:none; font-size:12px; }
+  main { padding:10px 12px 0; }header { padding:10px 16px; }.brand { font-size:18px; }
+  /* Reclaim the hero's vertical space for the panes; the header already carries the
+     brand and each pane states its own purpose, so the single active pane fills the
+     screen. Matches the existing max-height:620px behaviour. */
+  .intro { display:none; }
   .workspace { display:flex; flex-direction:column; gap:0; }
   .workspace>aside,.workspace>.preview { flex:1; min-height:0; width:100%; margin:0; }
-  .pane-heading { padding:13px 16px; }.setup-scroll { padding:12px 16px 20px; }
-  .form-actions { padding:10px 16px; }.preview-top { padding:13px 14px 10px; gap:8px; }
+  .pane-tabs { margin-bottom:8px; }
+  .pane-heading { padding:12px 16px; }.setup-scroll { padding:12px 16px 20px; }
+  .form-actions { padding:10px 16px; }.preview-top { padding:12px 14px 10px; gap:8px; }
   .preview-top h2 { font-size:15px; }.preview-top .small { font-size:11px; padding:8px; }
   #status { margin:0 14px 10px; }.preview-scroll { padding:0 14px 14px; }
   .card { padding:18px; }.card-head { align-items:flex-start; flex-wrap:wrap; }
