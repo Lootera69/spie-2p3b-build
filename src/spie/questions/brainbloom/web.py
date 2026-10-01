@@ -93,7 +93,7 @@ def handler_for(
             self.send_header("Cache-Control", "no-store")
             self.send_header("X-Content-Type-Options", "nosniff")
             self.send_header("Content-Security-Policy", (
-                "default-src 'none'; script-src 'self'; style-src 'self'; "
+                "default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self'; "
                 "connect-src 'self'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'"
             ))
             self.end_headers()
@@ -159,6 +159,7 @@ def handler_for(
                 "/": ("index.html", "text/html; charset=utf-8"),
                 "/app.js": ("app.js", "text/javascript; charset=utf-8"),
                 "/style.css": ("style.css", "text/css; charset=utf-8"),
+                "/favicon.svg": ("favicon.svg", "image/svg+xml"),
             }
             if self.path not in assets:
                 self.send_json(404, {"error": "Not found"})

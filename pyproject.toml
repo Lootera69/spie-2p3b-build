@@ -35,7 +35,7 @@ spie = "spie.cli:main"
 where = ["src"]
 
 [tool.setuptools.package-data]
-"spie.questions.brainbloom" = ["static/*.html", "static/*.css", "static/*.js", "data/*.json", "data/*.md"]
+"spie.questions.brainbloom" = ["static/*.html", "static/*.css", "static/*.js", "static/*.svg", "data/*.json", "data/*.md"]
 
 [tool.ruff]
 line-length = 100

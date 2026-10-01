@@ -8,8 +8,8 @@ function setTheme(theme) {
   themeToggle.setAttribute("aria-pressed", String(dark));
   themeToggle.textContent = dark ? "Light mode" : "Dark mode";
 }
-try { setTheme(localStorage.getItem(themeKey)); }
-catch { setTheme("light"); }
+try { setTheme(localStorage.getItem(themeKey) || "dark"); }
+catch { setTheme("dark"); }
 themeToggle.addEventListener("click", () => {
   const next = document.documentElement.dataset.theme === "dark" ? "light" : "dark";
   setTheme(next);
