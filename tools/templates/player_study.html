@@ -1,0 +1,35 @@
+<!doctype html><html lang="en"><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>BrainBloom player pilot</title>
+<style>body{font:17px/1.6 system-ui;margin:0;background:#f5f7f2;color:#19382b}
+main{max-width:780px;margin:auto;padding:30px 20px}article{background:white;border:1px solid #d6dfd6;border-radius:18px;padding:24px}
+button,select{font:inherit;padding:10px;margin:6px 4px 6px 0}button{cursor:pointer;border:1px solid #507960;border-radius:8px;background:#edf5ed}
+button:disabled{opacity:.5}button[aria-pressed="true"]{background:#19382b;color:white;outline:3px solid #96bca0}#question,#explanation{white-space:pre-wrap}label{display:block;margin:12px 0}textarea{width:100%;min-height:70px;font:inherit}
+.muted{font-size:14px;color:#4d6457}[hidden]{display:none!important}</style>
+<main><h1>Try a few BrainBloom puzzles</h1><p>Work at your own pace. Use a hint or skip whenever you need to. After each puzzle, rate its difficulty, enjoyment and explanation. This pilot takes about 15–25 minutes.</p>
+<p class="muted">No name or email is collected. Your responses stay in this page until you download them. Download before closing. You may stop at any time. Only responses saved after rating are included in your download.</p>
+<p id="progress" role="status"></p><article><h2 id="label"></h2><p id="question"></p><div id="choices"></div><button id="hint">Show a hint</button><p id="hintText"></p>
+<button id="submit">Check answer</button><button id="skip">Skip puzzle</button>
+<section id="review" hidden><p id="result"></p><p id="explanation"></p>
+<label>Difficulty <select id="difficulty"><option value="">Choose</option><option value="1">1 · Very easy</option><option value="2">2 · Easy</option><option value="3">3 · Moderate</option><option value="4">4 · Hard</option><option value="5">5 · Very hard</option></select></label>
+<label>Enjoyment <select id="enjoyment"><option value="">Choose</option><option value="1">1 · Not enjoyable</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5 · Very enjoyable</option></select></label>
+<label>Explanation clarity <select id="clarity"><option value="">Choose</option><option value="1">1 · Unclear</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5 · Clear</option></select></label>
+<label>Anything confusing or repetitive? <textarea id="notes" maxlength="1000"></textarea></label><button id="next">Save response and continue</button></section></article>
+<p id="saved" role="status">0 saved responses</p><button id="download">Download saved responses</button></main>
+<script id="study" type="application/json">__DATA__</script><script>
+'use strict';
+const study=JSON.parse(document.getElementById('study').textContent), get=id=>document.getElementById(id);
+const cases=[...study.cases];for(let i=cases.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[cases[i],cases[j]]=[cases[j],cases[i]];}
+const session=Date.now().toString(36)+'-'+Math.random().toString(36).slice(2), responses=[];
+let index=0,selected=null,hints=0,start=0,pending=null;
+function show(){if(index===cases.length){get('progress').textContent='Finished. Download your responses and return them to the study organizer.';document.querySelector('article').hidden=true;return;}
+const c=cases[index];get('progress').textContent=`Puzzle ${index+1} of ${cases.length}`;get('label').textContent=c.id;get('question').textContent=c.item.question;get('choices').replaceChildren();selected=null;hints=0;pending=null;
+get('review').hidden=true;get('hintText').textContent='';get('submit').disabled=true;get('skip').disabled=false;get('hint').disabled=!c.hints.length;
+for(const value of c.item.choices){const b=document.createElement('button');b.textContent=value;b.setAttribute('aria-pressed','false');b.onclick=()=>{selected=value;get('submit').disabled=false;for(const child of get('choices').children)child.setAttribute('aria-pressed',String(child===b));};get('choices').append(b);}
+for(const id of ['difficulty','enjoyment','clarity','notes'])get(id).value='';start=performance.now();}
+get('hint').onclick=()=>{const c=cases[index];get('hintText').textContent=c.hints[hints++];get('hint').disabled=hints>=c.hints.length;};
+function finish(skipped){if(!skipped&&selected===null)return;const c=cases[index];pending={id:c.id,answer:skipped?null:selected,skipped,seconds:Math.round((performance.now()-start)/100)/10,hints};get('result').textContent=skipped?'Skipped.':selected===c.item.correctAnswer?'Correct.':'That answer does not match.';get('explanation').textContent=`Answer: ${c.item.correctAnswer}\n${c.explanation}`;get('review').hidden=false;get('submit').disabled=true;get('skip').disabled=true;get('hint').disabled=true;for(const b of get('choices').children)b.disabled=true;}
+get('submit').onclick=()=>finish(false);get('skip').onclick=()=>finish(true);
+get('next').onclick=()=>{if(!pending)return;const ratings={};for(const key of ['difficulty','enjoyment','clarity']){if(!get(key).value){get(key).focus();return;}ratings[key]=Number(get(key).value);}responses.push({...pending,...ratings,notes:get('notes').value});get('saved').textContent=`${responses.length} saved responses`;index++;show();};
+get('download').onclick=()=>{const data={study:study.id,session,responses};const url=URL.createObjectURL(new Blob([JSON.stringify(data,null,2)],{type:'application/json'}));const a=document.createElement('a');a.href=url;a.download=`brainbloom-pilot-${session}.json`;a.click();URL.revokeObjectURL(url);};show();
+</script></html>

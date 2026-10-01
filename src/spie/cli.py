@@ -17,6 +17,8 @@ Commands wrap the library end to end so the whole proof loop is reachable from a
     evolve    [--seeds ...]  invent from seed words, run a bounded MAP-Elites search
     archive show PATH       summarize a saved archive as a niche table
     calibrate [--dir DIR]   fit difficulty weights to synthetic telemetry, report Gate G5
+    ask CATEGORY QTYPE      generate one proven-answer question (formal categories)
+    audit-bank [--path DIR] formally re-decide the recognizable subset of the authored bank (Path B)
 
 Commands that solve (``solve``/``unique``/``conform``/``crosscheck``) branch on
 ``puzzle.initial_belief``: a puzzle that declares hidden initial state is solved by the
@@ -35,21 +37,34 @@ import argparse
 import glob
 import json
 import os
+import random
 import sys
 
 from . import calibrate, epistemic, presentation
+from .audit import DEFAULT_BANK, audit_bank, render_json, render_text
 from .certificate import certify
 from .conformance import check_conformance, check_plan_conformance
+from .context_policy import ContextualPolicy
 from .crosscheck import cross_solve, epistemic_cross_solve
+from .decision import FrozenProposer
 from .fingerprint import corpus_fingerprints
 from .invent import evolve as invent_evolve
 from .invent import invent_traced
 from .mapelites import archive_to_json
 from .quality import descriptors, quality_to_json
+from .questions import render as render_question
+from .questions.generate import (
+    CATEGORIES,
+    generate_question,
+    realistic_categories,
+    supported_types,
+)
+from .questions.serialize import question_to_json
 from .report import build_report
 from .results import Plan
 from .serialize import certificate_to_json, dumps, load_puzzle, puzzle_to_json
 from .solver import check_uniqueness, solve
+from .steering import SteeringPolicy
 from .validate import validate
 from .verify import verify
 
@@ -314,14 +329,26 @@ def _cmd_invent(args: argparse.Namespace) -> int:
     return 0 if ok else 1
 
 
+# The steering policies the `evolve --policy` flag can drive the MAP-Elites search with. Each only
+# proposes which niche/operator to try; the validate -> verify -> certify gate stays the sole judge.
+# "trained" loads the offline-fitted frozen decision model (propose-only, no online learning).
+_POLICY_FACTORIES = {
+    "none": lambda: None,
+    "steering": SteeringPolicy,
+    "contextual": ContextualPolicy,
+    "trained": FrozenProposer,
+}
+
+
 def _cmd_evolve(args: argparse.Namespace) -> int:
     seeds = [w for w in (s.strip() for s in args.seeds.split(",")) if w]
     if not seeds:
         print("evolve: no seed words given")
         return 1
-    archive = invent_evolve(seeds, args.iters, args.seed)
+    policy = _POLICY_FACTORIES[args.policy]()
+    archive = invent_evolve(seeds, args.iters, args.seed, policy=policy)
     print(
-        f"evolve: seeds={seeds} iterations={args.iters} seed={args.seed} "
+        f"evolve: seeds={seeds} iterations={args.iters} seed={args.seed} policy={args.policy} "
         f"-> {len(archive.cells)} niche(s) occupied"
     )
     for reason in sorted(archive.tally):
@@ -390,6 +417,163 @@ def _cmd_calibrate(args: argparse.Namespace) -> int:
     return 0 if result.generalizes else 1
 
 
+def _prompt_line(out, input_fn, prompt: str, default: str) -> str:
+    """Ask for one free-form value, echoing the default; empty input keeps the default."""
+    suffix = f" [{default}]" if default != "" else ""
+    out.write(f"{prompt}{suffix}: ")
+    out.flush()
+    raw = input_fn().strip()
+    return raw if raw else default
+
+
+def _prompt_menu(out, input_fn, prompt: str, options: list[str]) -> str:
+    """Ask the user to pick one of ``options`` by number (or exact name); default is the first."""
+    out.write(prompt + ":\n")
+    for i, opt in enumerate(options, 1):
+        out.write(f"  {i}. {opt}\n")
+    while True:
+        out.write(f"Enter 1-{len(options)} [1]: ")
+        out.flush()
+        raw = input_fn().strip()
+        if not raw:
+            return options[0]
+        if raw.isdigit() and 1 <= int(raw) <= len(options):
+            return options[int(raw) - 1]
+        if raw in options:
+            return raw
+        out.write(f"  '{raw}' is not one of the choices; try again.\n")
+
+
+def _interactive_ask(args: argparse.Namespace, *, input_fn, out) -> None:
+    """Fill in every unset ``ask`` parameter by prompting for it one at a time."""
+    if args.category is None:
+        args.category = _prompt_menu(out, input_fn, "Pick a category", list(CATEGORIES))
+    if not args.all_types and args.qtype is None:
+        types = [qt.value for qt in supported_types(args.category)]
+        choice = _prompt_menu(out, input_fn, "Pick a question type", [*types, "all of the above"])
+        if choice == "all of the above":
+            args.all_types = True
+        else:
+            args.qtype = choice
+    if not args.random and args.seed is None:
+        ans = _prompt_line(out, input_fn, "Random question each run? (Y/n)", "Y").lower()
+        if ans in ("", "y", "yes"):
+            args.random = True
+        else:
+            raw = _prompt_line(out, input_fn, "Seed number", "0")
+            args.seed = int(raw) if raw.lstrip("-").isdigit() else 0
+    raw = _prompt_line(out, input_fn, "How many questions?", str(args.count))
+    args.count = int(raw) if raw.isdigit() and int(raw) > 0 else args.count
+    if not args.realistic and args.category in realistic_categories():
+        ans = _prompt_line(out, input_fn, "Real-world wording? (y/N)", "N").lower()
+        args.realistic = ans in ("y", "yes")
+    if not args.words and args.category == "sets":
+        from .questions.domains.sets import _CLASSES
+
+        out.write(f"  (known shapes: {', '.join(sorted(_CLASSES))})\n")
+        args.words = _prompt_line(out, input_fn, "Seed words, comma-separated (Enter to skip)", "")
+
+
+def _emit_questions(questions: list, args: argparse.Namespace) -> None:
+    """Render one or many proven-answer questions as text (or canonical JSON) to stdout / a file.
+
+    A single question keeps the bare format; a batch (``--count`` / ``--all-types``) or a
+    ``--random`` pick is headed with its seed so any question can be reproduced exactly with
+    ``--seed``. JSON stays valid: one object for a single question, a list for a batch."""
+    multiple = len(questions) > 1
+    if args.json:
+        if multiple:
+            text = dumps([question_to_json(q) for q in questions])
+        else:
+            text = dumps(question_to_json(questions[0]))
+    else:
+        blocks = []
+        for i, q in enumerate(questions, 1):
+            head = ""
+            if multiple or args.random:
+                head = f"# question {i}/{len(questions)} (reproduce with --seed {q.seed})\n"
+            blocks.append(head + "\n".join(render_question(q)))
+        text = "\n\n".join(blocks) + "\n"
+    if args.out:
+        with open(args.out, "w", encoding="utf-8") as fh:
+            fh.write(text)
+        print(f"wrote {len(questions)} question(s) to {args.out}")
+    else:
+        sys.stdout.write(text)
+
+
+def _cmd_ask(args: argparse.Namespace, *, input_fn=None, out=None) -> int:
+    """Generate proven-answer question(s) and render them (or emit canonical JSON).
+
+    Each answer is produced by the category's formal decision procedure (Z3 validity or exact
+    computation), never a learned model; :meth:`Question.check` has already re-asserted the shape
+    invariants inside :func:`generate_question`. ``--random`` only chooses *which* seed to pose (and
+    prints it), so the answer path stays fully deterministic and reproducible. With no ``category``
+    (or ``-i``) the missing parameters are prompted for one at a time. Exit 0 on success; 1 on an
+    unknown category or a type the category cannot pose with a proof (argparse errors exit 2)."""
+    input_fn = input if input_fn is None else input_fn
+    out = sys.stdout if out is None else out
+
+    if args.interactive or args.category is None:
+        _interactive_ask(args, input_fn=input_fn, out=out)
+    if args.category is None:
+        print("ask: no category given")
+        return 1
+
+    try:
+        if args.all_types:
+            qtypes = [qt.value for qt in supported_types(args.category)]
+        elif args.qtype is None:
+            print("ask: no question type given (use tf/mcq/blank, --all-types, or run -i)")
+            return 1
+        else:
+            qtypes = [args.qtype]
+    except ValueError as exc:
+        print(f"ask: {exc}")
+        return 1
+
+    count = max(1, args.count)
+    if args.random:
+        seeds = [random.randrange(10_000) for _ in range(count)]
+    else:
+        base = 0 if args.seed is None else args.seed
+        seeds = [base + i for i in range(count)]
+    words = tuple(w for w in (s.strip() for s in (args.words or "").split(",")) if w)
+    style = "realistic" if args.realistic else "plain"
+
+    questions = []
+    try:
+        for seed in seeds:
+            for qt in qtypes:
+                questions.append(
+                    generate_question(args.category, qt, seed=seed, words=words, style=style)
+                )
+    except ValueError as exc:
+        print(f"ask: {exc}")
+        return 1
+    _emit_questions(questions, args)
+    return 0
+
+
+def _cmd_audit_bank(args: argparse.Namespace) -> int:
+    """Re-decide the recognizable subset of the authored bank with the formal solvers and compare
+    each verdict to the authored answer (Path B). Recognition abstains unless certain, so
+    UNRECOGNIZED is honest coverage loss, never a pass. Exit 0 when no authored answer is formally
+    contradicted; 1 when at least one DISAGREE (a counter-model or validity proof against an
+    authored answer) is found -- each such finding must still be verified by hand before being
+    reported as an error."""
+    report = audit_bank(args.path)
+    if args.json:
+        sys.stdout.write(render_json(report))
+    else:
+        sys.stdout.write(render_text(report, show_disagreements=not args.summary))
+    if args.out:
+        with open(args.out, "w", encoding="utf-8") as fh:
+            fh.write(render_json(report))
+        print(f"wrote audit report to {args.out}")
+    return 0 if report.disagree == 0 else 1
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="spie", description="Symbolic Puzzle Invention Engine")
     sub = parser.add_subparsers(dest="command", required=True)
@@ -440,6 +624,10 @@ def build_parser() -> argparse.ArgumentParser:
     p_evolve.add_argument("--seeds", default="door,fuel,water", help="comma-separated seed words")
     p_evolve.add_argument("--iters", type=int, default=20, help="mutation iterations")
     p_evolve.add_argument("--seed", type=int, default=0)
+    p_evolve.add_argument(
+        "--policy", choices=tuple(_POLICY_FACTORIES), default="none",
+        help="operator/niche steering policy (default none = uniform; trained = frozen model)",
+    )
     p_evolve.add_argument("--out", default=None, help="write the archive JSON here")
     p_evolve.set_defaults(func=_cmd_evolve)
 
@@ -459,6 +647,60 @@ def build_parser() -> argparse.ArgumentParser:
     p_calibrate.add_argument("--seed", type=int, default=0, help="telemetry base seed")
     p_calibrate.add_argument("--out", default=None, help="write the calibration JSON here")
     p_calibrate.set_defaults(func=_cmd_calibrate)
+
+    p_ask = sub.add_parser(
+        "ask", help="generate proven-answer question(s) (formal categories; interactive if bare)"
+    )
+    p_ask.add_argument(
+        "category", nargs="?", choices=CATEGORIES, help="question category (omit for interactive)"
+    )
+    p_ask.add_argument(
+        "qtype", nargs="?", help="tf (true/false), mcq, or blank (omit to be prompted)"
+    )
+    p_ask.add_argument("--seed", type=int, default=None, help="deterministic question seed (0)")
+    p_ask.add_argument(
+        "--random",
+        action="store_true",
+        help="pick a random seed each run (printed, so still reproducible via --seed)",
+    )
+    p_ask.add_argument(
+        "--count", type=int, default=1, help="generate this many (consecutive, or random, seeds)"
+    )
+    p_ask.add_argument(
+        "--all-types",
+        dest="all_types",
+        action="store_true",
+        help="generate every question type this category supports",
+    )
+    p_ask.add_argument(
+        "-i", "--interactive", action="store_true", help="prompt for each parameter one by one"
+    )
+    p_ask.add_argument(
+        "--realistic",
+        action="store_true",
+        help="word the question as an everyday scenario (a skin over the same proven answer)",
+    )
+    p_ask.add_argument(
+        "--words", default="", help="comma-separated seed words (e.g. square,rectangle)"
+    )
+    p_ask.add_argument("--json", action="store_true", help="emit canonical JSON instead of text")
+    p_ask.add_argument("--out", default=None, help="write the question here instead of stdout")
+    p_ask.set_defaults(func=_cmd_ask)
+
+    p_audit = sub.add_parser(
+        "audit-bank",
+        help="formally re-decide the recognizable subset of the authored bank (Path B)",
+    )
+    p_audit.add_argument(
+        "--path", default=DEFAULT_BANK,
+        help="directory of batch-*.json (default: puzzle-batch/output)",
+    )
+    p_audit.add_argument("--json", action="store_true", help="emit canonical JSON instead of text")
+    p_audit.add_argument(
+        "--summary", action="store_true", help="omit the per-disagreement detail (counts only)"
+    )
+    p_audit.add_argument("--out", default=None, help="write the JSON report here as well")
+    p_audit.set_defaults(func=_cmd_audit_bank)
 
     return parser
 

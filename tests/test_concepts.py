@@ -41,8 +41,11 @@ def test_sense_normalizes_word() -> None:
 
 
 def test_sense_unknown_word_raises() -> None:
+    # A KB key is always a single lexical word, so an underscored token is a sentinel that no
+    # ConceptNet record can ever occupy (unlike a real word such as "banana", which the 2.3b layer
+    # now knows) - the unknown-word contract stays testable as the vocabulary grows.
     with pytest.raises(KeyError):
-        sense("banana")
+        sense("not_a_real_concept_zzz")
 
 
 def test_expand_depth_zero_is_root_only() -> None:
@@ -85,8 +88,9 @@ def test_expand_negative_depth_raises() -> None:
 
 
 def test_expand_unknown_root_raises() -> None:
+    # Same underscored sentinel as above: guaranteed absent from every KB layer, now and later.
     with pytest.raises(KeyError):
-        expand("banana")
+        expand("not_a_real_concept_zzz")
 
 
 def test_graph_affordances_map() -> None:

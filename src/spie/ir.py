@@ -17,6 +17,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from enum import Enum
+from fractions import Fraction
 
 from .expr import Assign, Expr, Reset
 from .results import Plan
@@ -161,6 +162,16 @@ class Puzzle:
     player cannot distinguish at the start. Empty (the default) ⇒ the initial belief is a
     singleton and the puzzle reduces exactly to the fully-observable Phase-1/2 model."""
 
+    initial_dist: dict[str, tuple[tuple[int, Fraction], ...]] = field(default_factory=dict)
+    """Per-``HIDDEN``-variable **independent** exact-``Fraction`` weights over the *same*
+    values as :attr:`initial_belief` — the *chance* layer (Item 4). Each entry maps a hidden
+    variable to a tuple of ``(value, weight)`` pairs whose weights sum to exactly
+    ``Fraction(1)``; the weight of a whole initial world is the product of its per-variable
+    weights (the variables are independent). Empty (the default) ⇒ there is no randomness and
+    the puzzle reduces exactly to the deterministic / epistemic model above, byte-for-byte. The
+    sole consumer of world mass is :func:`spie.chance.initial_world_weights`, so a future joint
+    distribution would change only that helper."""
+
     def node_index(self) -> dict[str, int]:
         """Map location name -> its integer index. The canonical name<->int bridge."""
         return {name: i for i, name in enumerate(self.nodes)}
@@ -245,7 +256,13 @@ class Certificate:
     hidden state produces a byte-identical certificate to Phase 1/2: ``plan`` is ``None``, and
     ``epistemic`` / ``world_replays`` are empty. For a puzzle *with* hidden state these carry,
     respectively, the certified contingent plan (a policy tree), the per-method epistemic
-    cross-check evidence (Method A vs Method B), and the per-``B0``-world interpreter replay."""
+    cross-check evidence (Method A vs Method B), and the per-``B0``-world interpreter replay.
+
+    The Item-4 *chance* fields default to ``None`` so every deterministic and every existing
+    epistemic certificate is byte-unchanged. For a puzzle with a non-empty
+    :attr:`~spie.ir.Puzzle.initial_dist` they carry the certified exact optimal expected success
+    probability ``P*`` and its independent reachability upper bound ``U`` (both exact
+    :class:`~fractions.Fraction`), with ``P* <= U`` cross-checked."""
 
     puzzle_id: str
     seed: int
@@ -262,3 +279,5 @@ class Certificate:
     plan: Plan | None = None
     epistemic: tuple[EpistemicEvidence, ...] = ()
     world_replays: tuple[WorldReplay, ...] = ()
+    success_probability: Fraction | None = None
+    success_probability_upper_bound: Fraction | None = None

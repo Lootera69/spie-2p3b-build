@@ -1,0 +1,10 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "brainbloom-preview",
+      "url": "http://localhost:8766",
+      "port": 8766
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+# Render blueprint for the BrainBloom workshop. See DEPLOY.md.
+#
+# Free plan: 0.1 CPU, 512 MB, 750 instance-hours a month, idle spin-down after
+# 15 minutes, ephemeral disk. The workshop peaks well under that and keeps no
+# state between requests, so a cold start is the only visible cost.
+
+services:
+  - type: web
+    name: brainbloom-workshop
+    runtime: docker
+    plan: free
+    region: oregon
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    healthCheckPath: /healthz
+    autoDeployTrigger: commit
+    envVars:
+      # PORT is not set automatically; the platform routes to 10000 by default.
+      - key: PORT
+        value: "10000"
+      - key: BRAINBLOOM_HOST
+        value: "0.0.0.0"
+      # BRAINBLOOM_PUBLIC_ORIGIN is intentionally unset: the container falls back
+      # to RENDER_EXTERNAL_URL, so the allowlist tracks the real hostname even
+      # after a rename. Set it explicitly only when serving a custom domain.

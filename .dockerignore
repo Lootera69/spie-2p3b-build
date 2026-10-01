@@ -1,0 +1,11 @@
+# The build stage copies pyproject.toml, README.md and src/ explicitly, so this
+# file exists to keep the context small (tools/ and artifacts/ alone are ~680 MB)
+# and to guarantee no local corpus, venv or credential is ever sent to the daemon.
+
+*
+!pyproject.toml
+!README.md
+!src/
+src/**/__pycache__/
+src/**/*.pyc
+src/*.egg-info/

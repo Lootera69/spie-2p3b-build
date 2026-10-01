@@ -1,0 +1,121 @@
+"""Curated vocabulary and coaching text. No generated factual claims."""
+
+LESSONS = {
+    "calculation": (
+        "Identify the quantities and what the question asks you to find.",
+        "Translate each operation into a small, ordered step.",
+        "Keep units consistent before comparing or combining quantities.",
+        "Check the result by reversing an operation or substituting it back.",
+        "Share this: explain why the order of the steps matters.",
+    ),
+    "ordering": (
+        "Turn each ordering clue into a before-and-after relation.",
+        "Join relations that share an object to build a longer chain.",
+        "Check that every clue agrees with the completed order.",
+        "Count positions from the end specified in the question.",
+        "Share this: explain how a local clue can determine a global order.",
+    ),
+    "number-riddles": (
+        "Treat each clue as a constraint on the hidden number.",
+        "Use the stated range to keep the search finite.",
+        "Eliminate values that violate even one clue.",
+        "Check the survivor against all clues, including parity and divisibility.",
+        "Share this: explain which clue eliminated the most candidates.",
+    ),
+    "word-riddles": (
+        "Separate a word's meaning from the operations applied to its letters.",
+        "Reversing a word changes the order without changing its letters.",
+        "Use the letter count to check that nothing was added or removed.",
+        "Read your result in both directions to verify the transformation.",
+        "Share this: find another pair of words related by reversal.",
+    ),
+    "crossword": (
+        "Use a clue's meaning and entry length together.",
+        "Fill the most certain entries first.",
+        "Crossing letters must agree in both directions.",
+        "Revisit uncertain words when a crossing supplies a new letter.",
+        "Share this: explain how a crossing reduced your possible answers.",
+    ),
+}
+
+# Definitions are authored content. Grid validation does not prove their meaning.
+LEXICONS = {
+    "logic": (
+        ("RULE", "A stated instruction or condition to follow"),
+        ("PROOF", "A demonstration that a conclusion follows"),
+        ("FACT", "A statement taken as given in a problem"),
+        ("FALSE", "The truth value opposite to true"),
+        ("TRUE", "The truth value opposite to false"),
+        ("REASON", "A justification for a conclusion"),
+        ("ORDER", "An arrangement by position"),
+        ("SET", "A collection of distinct elements"),
+        ("CLAIM", "A statement offered for consideration"),
+        ("AND", "A logical connective requiring both statements"),
+        ("NOT", "A logical connective that negates a statement"),
+        ("MODEL", "An interpretation that satisfies stated conditions"),
+    ),
+    "science": (
+        ("ATOM", "The smallest unit of a chemical element retaining its identity"),
+        ("MASS", "A measure of an object's inertia"),
+        ("FORCE", "A push or pull on an object"),
+        ("SPEED", "Distance travelled per unit time"),
+        ("DENSITY", "Mass per unit volume"),
+        ("VOLT", "SI unit of electric potential difference"),
+        ("OHM", "SI unit of electrical resistance"),
+        ("ENERGY", "The capacity to do work or transfer heat"),
+        ("LIGHT", "Electromagnetic radiation visible to human eyes"),
+        ("ORBIT", "The path of one body around another under gravity"),
+        ("SOLID", "A state of matter with a fixed shape and volume"),
+        ("GAS", "A state of matter that expands to fill its container"),
+        ("WAVE", "A disturbance that carries energy through space or matter"),
+        ("HEAT", "Energy transferred because of a temperature difference"),
+    ),
+    "puzzles": (
+        ("SUM", "The result of addition"),
+        ("DIGIT", "A single numeral in a number"),
+        ("EVEN", "Divisible by two with no remainder"),
+        ("ODD", "An integer that is not divisible by two"),
+        ("PRIME", "A whole number greater than one with exactly two positive divisors"),
+        ("RATIO", "A comparison of two quantities by division"),
+        ("TOTAL", "The complete amount after combining parts"),
+        ("GRID", "A pattern of intersecting rows and columns"),
+        ("CLUE", "Information that helps solve a puzzle"),
+        ("ANGLE", "A measure of the turn between two rays"),
+        ("AREA", "The amount of two-dimensional space inside a boundary"),
+        ("CUBE", "A solid with six equal square faces"),
+        ("TERM", "An individual member of a sequence"),
+    ),
+    "riddles": (
+        ("CLOCK", "A device that tells the time"),
+        ("MIRROR", "A surface used to see your reflection"),
+        ("SHADOW", "A dark region formed when light is blocked"),
+        ("ECHO", "A reflected sound heard again"),
+        ("KEY", "A small shaped object used to open a lock"),
+        ("MAP", "A representation of an area's features"),
+        ("BOOK", "A bound collection of pages"),
+        ("RIVER", "A natural stream of water flowing towards a lake or sea"),
+        ("CANDLE", "A wax object with a wick that burns"),
+        ("PENCIL", "A writing tool with a graphite core"),
+        ("LADDER", "A climbing aid made of rungs between two sides"),
+        ("WINDOW", "An opening fitted with glass to admit light"),
+    ),
+}
+
+# Exact letter transformations provide an answer independently of clue ambiguity.
+REVERSALS = {
+    "easy": (
+        ("PART", "TRAP"),
+        ("LOOP", "POOL"),
+        ("FLOW", "WOLF"),
+        ("STAR", "RATS"),
+        ("STOP", "POTS"),
+        ("LIVE", "EVIL"),
+    ),
+    "medium": (("LIVED", "DEVIL"), ("SMART", "TRAMS"), ("KNITS", "STINK"), ("STRAW", "WARTS")),
+    "hard": (
+        ("DRAWER", "REWARD"),
+        ("DIAPER", "REPAID"),
+        ("STRESSED", "DESSERTS"),
+        ("DELIVER", "REVILED"),
+    ),
+}

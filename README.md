@@ -1,5 +1,64 @@
 # SPIE — Symbolic Puzzle Invention Engine
 
+For **BrainBloom question generation without LLMs**, start with the
+[six-format workshop](docs/brainbloom-workshop.md). From this directory on
+Windows, run `./start-brainbloom.ps1`. It opens a local form for category, topic, format,
+difficulty and count, with playable previews and downloadable unpublished drafts.
+It supports Multiple Choice, True / False, Type Answer, Crossword, Riddle and Wonder
+across the five platform categories. Checks depend on the family: mathematical
+proofs, exact word transformations or crossword reconstruction. Saved drafts can be replayed.
+The launcher uses the existing sibling question bank and Studio verifier when available.
+
+**The workshop now uses plain-language activities.** Enter up to six topics,
+let the engine select suitable meanings, and select **Choose for me**, **Solve a set
+of clues**, **Weigh the evidence**, **Choose the best next question**, or a compatible
+word/mathematical activity. Meanings remain visible and optionally editable. The
+default is hard multi-clue deduction or adaptive planning. All supplied topics must
+be represented in every draft.
+ Challenge level, answer format and count are checked together before generation. The
+ **Create a custom logic grid** activity accepts creator-authored groups and finite rules,
+ reports contradictions or ambiguity, and can add explicitly labelled clues to prove a unique
+grid. The player preview includes an interactive fillable grid.
+Generated grids include deterministic exhaustive-elimination metrics and solving hints.
+These structural measures are not a player-validated model of human reasoning or difficulty.
+For beginners, **Design a clue puzzle for me** is the recommended activity: the engine selects
+topic labels, invents groups and clues, searches several candidates, and verifies that the
+answer needs multiple clues. Manual groups and rules remain available under Advanced mode.
+Variation numbers and exploration time live under **More options**. See the
+[complete connected flow](docs/brainbloom-workshop-flow.md).
+
+Choose **Describe it in my own words…** to type supported instructions, such as
+“Make 3 hard multiple-choice puzzles. Players should solve a set of clues.”
+The workshop shows its interpretation and asks you to apply changed settings;
+unrecognised rules require clarification. This is a local rule-based parser, with
+no LLM. Setup and drafts scroll independently, and generation reveals the new
+results automatically. Small screens use Setup/Drafts tabs.
+See [written instructions and workspace panels](docs/brainbloom-instructions.md).
+
+ The deeper reasoning engine invents multi-clue deduction problems, exact Bayesian
+evidence problems, and optimal adaptive-question planning problems. It compares
+12/32/80 candidates, ranks a documented structural objective, independently checks
+the winner and reports what was measured. See
+[the reasoning lab and non-LLM roadmap](docs/brainbloom-reasoning.md).
+
+**User-entered topics are supported together.** Enter words or short phrases. Meanings
+are selected automatically; word scrambling, missing letters, alphabetical ordering,
+crosswords and letter-counting Wonders remain explicit choices. Twenty distinct authored
+topics ship across 28 retained pack versions. The eight coverage-v2 topics contain 106
+entries: 96 adapted from OEWN and ten project-authored additions. Optional local WordNet adds roughly 151,000 indexed terms and
+117,000 senses; topic coverage depends on usable related words, not just dictionary size.
+Install it once with `./.venv/Scripts/python.exe -m spie.questions.brainbloom dictionary-install`.
+Generation and saved-draft replay then work offline. See the
+[dictionary workflow and limits](docs/brainbloom-dictionary.md).
+
+This development path permits mathematical generation, search and non-LLM machine
+learning. No LLM is involved in the workshop, and no training or API key is required.
+Difficulty controls structural complexity; it is not a trained prediction of player success.
+
+The earlier [corpus-conditioned LLM writer](docs/brainbloom-generator.md)
+(`python -m spie.forge`) remains a separate experimental path and is not invoked by
+the workshop. The action-puzzle research engine described below is also separate.
+
 **Creativity from search, correctness from formal solvers.** SPIE represents logic puzzles
 as formal, bounded state machines, then uses **three independent solvers** — an SMT backend (Z3),
 an explicit-state search, and an answer-set-programming backend (clingo/ASP) — to *prove* them
@@ -468,4 +527,3 @@ unchanged, and Method A ≡ Method B holds by construction. With that, all four 
 modes are implemented, and the clingo/ASP third solving method (gate G2) is now implemented in
 [`asp_solver.py`](src/spie/asp_solver.py) — three independent methods (SMT, explicit search, ASP)
 stand behind every fully-observable proof.
-

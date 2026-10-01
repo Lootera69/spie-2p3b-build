@@ -23,6 +23,7 @@ the operator tag:
 from __future__ import annotations
 
 import json
+from fractions import Fraction
 from typing import TYPE_CHECKING, Any
 
 from . import expr as E
@@ -124,6 +125,47 @@ def expr_from_json(obj: Any) -> E.Expr:
 # ---------------------------------------------------------------------------
 # Puzzle
 # ---------------------------------------------------------------------------
+
+
+def _fraction_to_json(fr: Fraction) -> list[int]:
+    """Encode an exact rational as ``[numerator, denominator]`` in fully-reduced form.
+
+    :class:`~fractions.Fraction` normalises the sign into the numerator and divides out the
+    gcd on construction, so ``fr.numerator`` / ``fr.denominator`` is a canonical, byte-stable
+    pair (``Fraction(2, 4)`` and ``Fraction(1, 2)`` both encode to ``[1, 2]``; ``0`` to
+    ``[0, 1]``). Never a float — this is the single place chance weights cross the JSON
+    boundary."""
+    return [fr.numerator, fr.denominator]
+
+
+def _fraction_from_json(pair: list[int]) -> Fraction:
+    """Inverse of :func:`_fraction_to_json`: rebuild the exact rational from ``[num, den]``.
+    ``Fraction(num, den)`` re-reduces, so a hand-written non-reduced pair still round-trips to
+    the same value it denotes."""
+    num, den = pair
+    return Fraction(num, den)
+
+
+def _initial_dist_to_json(
+    dist: dict[str, tuple[tuple[int, Fraction], ...]],
+) -> dict[str, list[list]]:
+    """Encode the chance distribution as ``{var: [[value, [num, den]], …]}`` with the pairs
+    sorted by value; canonical (sorted-key) JSON then sorts the variables. Only ever called on a
+    non-empty distribution (omit-when-default is the caller's job)."""
+    return {
+        key: [[value, _fraction_to_json(weight)] for value, weight in sorted(pairs)]
+        for key, pairs in dist.items()
+    }
+
+
+def _initial_dist_from_json(
+    obj: dict[str, list[list]],
+) -> dict[str, tuple[tuple[int, Fraction], ...]]:
+    """Inverse of :func:`_initial_dist_to_json`."""
+    return {
+        key: tuple((value, _fraction_from_json(pair)) for value, pair in pairs)
+        for key, pairs in obj.items()
+    }
 
 
 def _assign_to_json(a: Assign) -> dict:
@@ -248,6 +290,8 @@ def puzzle_to_json(p: Puzzle) -> dict:
     }
     if p.initial_belief:  # omit when empty so fully-observable puzzles serialize unchanged
         d["initial_belief"] = {k: list(v) for k, v in p.initial_belief.items()}
+    if p.initial_dist:  # omit when empty so non-chance puzzles serialize byte-identically
+        d["initial_dist"] = _initial_dist_to_json(p.initial_dist)
     return d
 
 
@@ -264,6 +308,7 @@ def puzzle_from_json(d: dict) -> Puzzle:
         seed=d.get("seed", 0),
         notes=d.get("notes", ""),
         initial_belief={k: tuple(v) for k, v in d.get("initial_belief", {}).items()},
+        initial_dist=_initial_dist_from_json(d.get("initial_dist", {})),
     )
 
 
@@ -372,6 +417,11 @@ def certificate_to_json(c: Certificate) -> dict:
         d["epistemic"] = [_epistemic_evidence_to_json(e) for e in c.epistemic]
     if c.world_replays:
         d["world_replays"] = [_world_replay_to_json(w) for w in c.world_replays]
+    # Item-4 chance fields — omit when default so deterministic/epistemic certs are unchanged.
+    if c.success_probability is not None:
+        d["success_probability"] = _fraction_to_json(c.success_probability)
+    if c.success_probability_upper_bound is not None:
+        d["success_probability_upper_bound"] = _fraction_to_json(c.success_probability_upper_bound)
     return d
 
 
@@ -392,6 +442,16 @@ def certificate_from_json(d: dict) -> Certificate:
         plan=plan_from_json(d["plan"]) if "plan" in d else None,
         epistemic=tuple(_epistemic_evidence_from_json(e) for e in d.get("epistemic", [])),
         world_replays=tuple(_world_replay_from_json(w) for w in d.get("world_replays", [])),
+        success_probability=(
+            _fraction_from_json(d["success_probability"])
+            if "success_probability" in d
+            else None
+        ),
+        success_probability_upper_bound=(
+            _fraction_from_json(d["success_probability_upper_bound"])
+            if "success_probability_upper_bound" in d
+            else None
+        ),
     )
 
 

@@ -1,0 +1,2970 @@
+[
+  {
+    "version": 6,
+    "generator": "brainbloom-logic-grid-v6",
+    "request": {
+      "topic": "logic-grid",
+      "qtype": "multiple-choice",
+      "difficulty": "medium",
+      "count": 1,
+      "seed": 0,
+      "category": "logic",
+      "subject": "",
+      "sense": "",
+      "variation": "auto",
+      "search_effort": "balanced",
+      "topic_mode": "single",
+      "meanings": {},
+      "instructions": "",
+      "grid": null,
+      "crossword_size": null
+    },
+    "items": [
+      {
+        "type": "multiple-choice",
+        "category": "logic",
+        "difficulty": "medium",
+        "title": "Your custom logic grid",
+        "question": "This is an invented logic grid. Each position contains exactly one value from each group, and each value is used once. Positions run from 1 to 3, left to right. Values in the same position are paired.\nAnimal: Tiger, Lion, Owl.\nColour: Red, Blue, Green.\nDrink: Tea, Coffee, Milk.\nClues:\n1. Tiger is before Lion.\n2. Owl cannot be next to Tiger.\n3. Tiger is paired with Red.\n4. Blue is paired with Coffee.\n5. Tea is in position 1.\n6. Lion is paired with Milk.\nWhich value from Drink is paired with Lion?",
+        "choices": [
+          "None of these",
+          "Tea",
+          "Milk",
+          "Coffee"
+        ],
+        "correctAnswer": "Milk",
+        "correctExplanation": "The unique complete arrangement gives Milk. Every stated rule holds.",
+        "incorrectExplanation": "Check the clue combinations. The unique complete arrangement gives Milk. Every stated rule holds.",
+        "lessonGroup": "Solve It",
+        "xpReward": 25,
+        "lessonContent": "Place each group value exactly once.\nTranslate each clue into positions or pairings.\nCombine clues across groups to eliminate impossible arrangements.\nCheck all clues against the completed table.\nShare this: explain which combination of clues fixed the answer."
+      }
+    ],
+    "proofs": [
+      {
+        "method": "custom-grid-z3-and-exhaustive-permutations",
+        "scope": "the stated fictional groups and rules; complete-grid uniqueness and human-solving quality",
+        "z3_version": "4.13.4",
+        "agree": true,
+        "model": {
+          "groups": [
+            {
+              "name": "Animal",
+              "values": [
+                "Tiger",
+                "Lion",
+                "Owl"
+              ],
+              "indices": [
+                0,
+                1,
+                2
+              ]
+            },
+            {
+              "name": "Colour",
+              "values": [
+                "Red",
+                "Blue",
+                "Green"
+              ],
+              "indices": [
+                3,
+                4,
+                5
+              ]
+            },
+            {
+              "name": "Drink",
+              "values": [
+                "Tea",
+                "Coffee",
+                "Milk"
+              ],
+              "indices": [
+                6,
+                7,
+                8
+              ]
+            }
+          ],
+          "names": [
+            "Tiger",
+            "Lion",
+            "Owl",
+            "Red",
+            "Blue",
+            "Green",
+            "Tea",
+            "Coffee",
+            "Milk"
+          ],
+          "owners": [
+            0,
+            0,
+            0,
+            1,
+            1,
+            1,
+            2,
+            2,
+            2
+          ],
+          "size": 3,
+          "rules": [
+            {
+              "kind": "before",
+              "a": 0,
+              "text": "Tiger is before Lion",
+              "b": 1
+            },
+            {
+              "kind": "not-next",
+              "a": 2,
+              "text": "Owl cannot be next to Tiger",
+              "b": 0
+            },
+            {
+              "kind": "paired",
+              "a": 0,
+              "text": "Tiger is paired with Red",
+              "b": 3
+            },
+            {
+              "kind": "paired",
+              "a": 4,
+              "text": "Blue is paired with Coffee",
+              "b": 7
+            },
+            {
+              "kind": "at",
+              "a": 6,
+              "text": "Tea is in position 1",
+              "n": 1
+            }
+          ],
+          "complete": true,
+          "target": 1,
+          "answer_group": 2
+        },
+        "authored_rules": [
+          {
+            "kind": "before",
+            "a": 0,
+            "text": "Tiger is before Lion",
+            "b": 1
+          },
+          {
+            "kind": "not-next",
+            "a": 2,
+            "text": "Owl cannot be next to Tiger",
+            "b": 0
+          },
+          {
+            "kind": "paired",
+            "a": 0,
+            "text": "Tiger is paired with Red",
+            "b": 3
+          },
+          {
+            "kind": "paired",
+            "a": 4,
+            "text": "Blue is paired with Coffee",
+            "b": 7
+          },
+          {
+            "kind": "at",
+            "a": 6,
+            "text": "Tea is in position 1",
+            "n": 1
+          }
+        ],
+        "added_rules": [
+          {
+            "kind": "paired",
+            "a": 1,
+            "b": 8,
+            "text": "Lion is paired with Milk"
+          }
+        ],
+        "initial_solutions": 2,
+        "solution_count": 1,
+        "solution_table": [
+          {
+            "Position": 1,
+            "Animal": "Tiger",
+            "Colour": "Red",
+            "Drink": "Tea"
+          },
+          {
+            "Position": 2,
+            "Animal": "Lion",
+            "Colour": "Green",
+            "Drink": "Milk"
+          },
+          {
+            "Position": 3,
+            "Animal": "Owl",
+            "Colour": "Blue",
+            "Drink": "Coffee"
+          }
+        ],
+        "solution_positions": [
+          1,
+          2,
+          3,
+          1,
+          3,
+          2,
+          1,
+          3,
+          2
+        ],
+        "quality": {
+          "score": 88.8,
+          "level": "strong",
+          "fair": false,
+          "candidate_count": 216,
+          "reasoning_steps": 5,
+          "useful_clues": 5,
+          "redundant_clues": 1,
+          "direct_clues": 1,
+          "relational_clues": 5,
+          "information_gain": 7.7549,
+          "first_clue_gain": 1.585,
+          "forced_facts": [
+            "Tiger must be in position 1",
+            "Lion must be in position 2",
+            "Owl must be in position 3",
+            "Red must be in position 1",
+            "Blue must be in position 3",
+            "Green must be in position 2",
+            "Tea must be in position 1",
+            "Coffee must be in position 3",
+            "Milk must be in position 2"
+          ],
+          "hints": [
+            "Start with this clue: Owl cannot be next to Tiger.",
+            "Try clue 6: it cuts the live possibilities from 72 to 24.",
+            "Try clue 3: it cuts the live possibilities from 24 to 8."
+          ],
+          "trace": [
+            {
+              "clue": 2,
+              "text": "Owl cannot be next to Tiger",
+              "before": 216,
+              "after": 72,
+              "eliminated": 144,
+              "newly_fixed": 1,
+              "information_gain": 1.585,
+              "useful": true
+            },
+            {
+              "clue": 6,
+              "text": "Lion is paired with Milk",
+              "before": 72,
+              "after": 24,
+              "eliminated": 48,
+              "newly_fixed": 1,
+              "information_gain": 1.585,
+              "useful": true
+            },
+            {
+              "clue": 3,
+              "text": "Tiger is paired with Red",
+              "before": 24,
+              "after": 8,
+              "eliminated": 16,
+              "newly_fixed": 0,
+              "information_gain": 1.585,
+              "useful": true
+            },
+            {
+              "clue": 4,
+              "text": "Blue is paired with Coffee",
+              "before": 8,
+              "after": 2,
+              "eliminated": 6,
+              "newly_fixed": 1,
+              "information_gain": 2.0,
+              "useful": true
+            },
+            {
+              "clue": 1,
+              "text": "Tiger is before Lion",
+              "before": 2,
+              "after": 1,
+              "eliminated": 1,
+              "newly_fixed": 6,
+              "information_gain": 1.0,
+              "useful": true
+            },
+            {
+              "clue": 5,
+              "text": "Tea is in position 1",
+              "before": 1,
+              "after": 1,
+              "eliminated": 0,
+              "newly_fixed": 0,
+              "information_gain": 0.0,
+              "useful": false
+            }
+          ],
+          "ordered_clues": [
+            "Owl cannot be next to Tiger",
+            "Lion is paired with Milk",
+            "Tiger is paired with Red",
+            "Blue is paired with Coffee",
+            "Tiger is before Lion",
+            "Tea is in position 1"
+          ],
+          "warnings": [
+            "1 clue(s) do not reduce the live possibilities in the best solve order"
+          ]
+        },
+        "quality_gate": "passed",
+        "query": {
+          "target": 1,
+          "answer_group": 2
+        },
+        "trace": [
+          {
+            "clue": 1,
+            "remaining": 108,
+            "deductions": []
+          },
+          {
+            "clue": 2,
+            "remaining": 36,
+            "deductions": [
+              "Tiger must be in position 1",
+              "Lion must be in position 2",
+              "Owl must be in position 3"
+            ]
+          },
+          {
+            "clue": 3,
+            "remaining": 12,
+            "deductions": [
+              "Red must be in position 1"
+            ]
+          },
+          {
+            "clue": 4,
+            "remaining": 4,
+            "deductions": []
+          },
+          {
+            "clue": 5,
+            "remaining": 2,
+            "deductions": [
+              "Tea must be in position 1"
+            ]
+          },
+          {
+            "clue": 6,
+            "remaining": 1,
+            "deductions": [
+              "Blue must be in position 3",
+              "Green must be in position 2",
+              "Coffee must be in position 3",
+              "Milk must be in position 2"
+            ]
+          }
+        ],
+        "steps": [
+          "After clue 1, 108 arrangements remain. ",
+          "After clue 2, 36 arrangements remain. Tiger must be in position 1; Lion must be in position 2; Owl must be in position 3",
+          "After clue 3, 12 arrangements remain. Red must be in position 1",
+          "After clue 4, 4 arrangements remain. ",
+          "After clue 5, 2 arrangements remain. Tea must be in position 1",
+          "After clue 6, 1 arrangements remain. Blue must be in position 3; Green must be in position 2; Coffee must be in position 3; Milk must be in position 2",
+          "Position 1: Tiger, Red, Tea.",
+          "Position 2: Lion, Green, Milk.",
+          "Position 3: Owl, Blue, Coffee."
+        ],
+        "structural_key": "f94ce9c791074c4653ded360dd06b07da8f40c961b77a3b8933c798cabfaba6e",
+        "seed": 0,
+        "item_sha256": "646dfe36d5c4ea65a0a204805a368ad4c320705031b4d67b6711f58436a2960b",
+        "family": "logic-grid",
+        "difficulty_measure": "Complexity comes from your groups and rules; additional clues ensure uniqueness",
+        "difficulty_scope": "structural heuristic; not calibrated on players"
+      }
+    ],
+    "rejected": [],
+    "intendedImport": {
+      "createdBy": "symbolic-generator",
+      "reviewStatus": "draft",
+      "published": false
+    },
+    "checks": {
+      "contract": "BrainBloom quiz and native crossword/Wonder fields",
+      "answer_correctness": "see each item's proof and scope",
+      "human_review": "required",
+      "platform_verifier": "not-run",
+      "duplicates": "lexical only; crossword layouts and Wonder parameters are compared exactly"
+    },
+    "provenance": {
+      "learned_model_used": false,
+      "bank_items_compared": 0,
+      "bank_items_sha256": null,
+      "bank_compare_scope": "lexical question comparison",
+      "duplicate_candidates_skipped": 0,
+      "bank": null
+    },
+    "summary": {
+      "requested": 1,
+      "accepted": 1,
+      "rejected": 0,
+      "complete": true,
+      "published": false
+    }
+  },
+  {
+    "dictionary": {
+      "subject": "space, ocean",
+      "sense": "combined:985f71d6798ca011b2763a7548d7ed13130e0e6df410112f15ccaae0987e4590",
+      "label": "space, ocean",
+      "definition": "A puzzle combining all the selected topic meanings.",
+      "topics": [
+        {
+          "term": "space",
+          "sense": "pack:space",
+          "definition": "Authored space vocabulary",
+          "words": [
+            "PLANET",
+            "STAR",
+            "MOON",
+            "COMET",
+            "ORBIT",
+            "GALAXY",
+            "NEBULA",
+            "METEOR",
+            "ASTEROID",
+            "ROCKET",
+            "TELESCOPE",
+            "ECLIPSE",
+            "CRATER",
+            "GRAVITY"
+          ],
+          "anchor": null,
+          "source_sha256": "9589fe09dea32b0138e8e40f0f4227b30d6d59056ad5922f0cd4e42ece4851b6"
+        },
+        {
+          "term": "ocean",
+          "sense": "pack:ocean",
+          "definition": "Authored ocean vocabulary",
+          "words": [
+            "TIDE",
+            "REEF",
+            "CORAL",
+            "WHALE",
+            "SHARK",
+            "OCTOPUS",
+            "SQUID",
+            "PLANKTON",
+            "KELP",
+            "CURRENT",
+            "SALT",
+            "COAST"
+          ],
+          "anchor": null,
+          "source_sha256": "3bc6e401d81dfb5ec55b4a46831284701e88f92bbddc2deaf78f2a2d0b9b0dd7"
+        }
+      ],
+      "entries": [
+        {
+          "word": "PLANET",
+          "definition": "A rounded body orbiting a star that has cleared its orbital neighbourhood",
+          "sense": "pack:space:planet",
+          "path": [
+            "pack:space"
+          ]
+        },
+        {
+          "word": "TIDE",
+          "definition": "A periodic rise and fall of sea level driven mainly by lunar and solar gravity",
+          "sense": "pack:ocean:tide",
+          "path": [
+            "pack:ocean"
+          ]
+        },
+        {
+          "word": "STAR",
+          "definition": "A luminous celestial body powered by nuclear fusion during its main sequence",
+          "sense": "pack:space:star",
+          "path": [
+            "pack:space"
+          ]
+        },
+        {
+          "word": "REEF",
+          "definition": "A ridge of rock or coral close to the sea surface",
+          "sense": "pack:ocean:reef",
+          "path": [
+            "pack:ocean"
+          ]
+        },
+        {
+          "word": "MOON",
+          "definition": "A natural satellite orbiting a planet or another nonstellar body",
+          "sense": "pack:space:moon",
+          "path": [
+            "pack:space"
+          ]
+        },
+        {
+          "word": "CORAL",
+          "definition": "A marine animal whose colonies may build a limestone skeleton",
+          "sense": "pack:ocean:coral",
+          "path": [
+            "pack:ocean"
+          ]
+        },
+        {
+          "word": "COMET",
+          "definition": "An icy small body that can develop a glowing coma near the Sun",
+          "sense": "pack:space:comet",
+          "path": [
+            "pack:space"
+          ]
+        },
+        {
+          "word": "WHALE",
+          "definition": "An aquatic mammal in the cetacean group that breathes air through a blowhole",
+          "sense": "pack:ocean:whale",
+          "path": [
+            "pack:ocean"
+          ]
+        },
+        {
+          "word": "ORBIT",
+          "definition": "The curved path of a body moving around another under gravity",
+          "sense": "pack:space:orbit",
+          "path": [
+            "pack:space"
+          ]
+        },
+        {
+          "word": "SHARK",
+          "definition": "A fish with a cartilaginous skeleton and exposed gill slits",
+          "sense": "pack:ocean:shark",
+          "path": [
+            "pack:ocean"
+          ]
+        },
+        {
+          "word": "GALAXY",
+          "definition": "A gravitationally bound system of stars, gas, dust and dark matter",
+          "sense": "pack:space:galaxy",
+          "path": [
+            "pack:space"
+          ]
+        },
+        {
+          "word": "OCTOPUS",
+          "definition": "A soft-bodied marine mollusc with eight arms",
+          "sense": "pack:ocean:octopus",
+          "path": [
+            "pack:ocean"
+          ]
+        },
+        {
+          "word": "NEBULA",
+          "definition": "An interstellar cloud of gas and dust",
+          "sense": "pack:space:nebula",
+          "path": [
+            "pack:space"
+          ]
+        },
+        {
+          "word": "SQUID",
+          "definition": "A marine mollusc with eight arms and two longer feeding tentacles",
+          "sense": "pack:ocean:squid",
+          "path": [
+            "pack:ocean"
+          ]
+        },
+        {
+          "word": "METEOR",
+          "definition": "The streak of light produced when a space rock enters an atmosphere",
+          "sense": "pack:space:meteor",
+          "path": [
+            "pack:space"
+          ]
+        },
+        {
+          "word": "PLANKTON",
+          "definition": "Organisms that drift in water and cannot swim against the currents",
+          "sense": "pack:ocean:plankton",
+          "path": [
+            "pack:ocean"
+          ]
+        },
+        {
+          "word": "ASTEROID",
+          "definition": "A small rocky body orbiting the Sun",
+          "sense": "pack:space:asteroid",
+          "path": [
+            "pack:space"
+          ]
+        },
+        {
+          "word": "KELP",
+          "definition": "A large brown seaweed that can form underwater forests",
+          "sense": "pack:ocean:kelp",
+          "path": [
+            "pack:ocean"
+          ]
+        },
+        {
+          "word": "ROCKET",
+          "definition": "A vehicle propelled by expelling material in the opposite direction",
+          "sense": "pack:space:rocket",
+          "path": [
+            "pack:space"
+          ]
+        },
+        {
+          "word": "CURRENT",
+          "definition": "A directed movement of seawater",
+          "sense": "pack:ocean:current",
+          "path": [
+            "pack:ocean"
+          ]
+        },
+        {
+          "word": "TELESCOPE",
+          "definition": "An instrument that collects radiation to observe distant objects",
+          "sense": "pack:space:telescope",
+          "path": [
+            "pack:space"
+          ]
+        },
+        {
+          "word": "SALT",
+          "definition": "The common name for sodium chloride dissolved abundantly in seawater",
+          "sense": "pack:ocean:salt",
+          "path": [
+            "pack:ocean"
+          ]
+        },
+        {
+          "word": "ECLIPSE",
+          "definition": "An event in which one celestial body obscures another or enters its shadow",
+          "sense": "pack:space:eclipse",
+          "path": [
+            "pack:space"
+          ]
+        },
+        {
+          "word": "COAST",
+          "definition": "The region where land meets the sea",
+          "sense": "pack:ocean:coast",
+          "path": [
+            "pack:ocean"
+          ]
+        },
+        {
+          "word": "CRATER",
+          "definition": "A bowl-shaped depression often formed by an impact",
+          "sense": "pack:space:crater",
+          "path": [
+            "pack:space"
+          ]
+        },
+        {
+          "word": "GRAVITY",
+          "definition": "The attraction associated with mass and energy",
+          "sense": "pack:space:gravity",
+          "path": [
+            "pack:space"
+          ]
+        }
+      ],
+      "sources": [
+        {
+          "name": "BrainBloom authored vocabulary v1",
+          "sha256": "9589fe09dea32b0138e8e40f0f4227b30d6d59056ad5922f0cd4e42ece4851b6",
+          "license": "Project-authored definitions"
+        },
+        {
+          "name": "BrainBloom authored vocabulary v1",
+          "sha256": "3bc6e401d81dfb5ec55b4a46831284701e88f92bbddc2deaf78f2a2d0b9b0dd7",
+          "license": "Project-authored definitions"
+        }
+      ],
+      "source": {
+        "name": "BrainBloom authored vocabulary v1",
+        "sha256": "d4e2babfab8ecd555cd9e0829bedbc6513d238ac06bb078aa4c317bd61a59966",
+        "license": "Project-authored definitions"
+      }
+    },
+    "version": 7,
+    "generator": "brainbloom-autopilot-v7",
+    "request": {
+      "topic": "autopilot",
+      "qtype": "multiple-choice",
+      "difficulty": "medium",
+      "count": 1,
+      "seed": 0,
+      "category": "logic",
+      "subject": "space, ocean",
+      "sense": "",
+      "variation": "auto",
+      "search_effort": "balanced",
+      "topic_mode": "combined",
+      "meanings": {
+        "space": "pack:space",
+        "ocean": "pack:ocean"
+      },
+      "instructions": "",
+      "grid": null,
+      "crossword_size": null
+    },
+    "items": [
+      {
+        "type": "multiple-choice",
+        "category": "logic",
+        "difficulty": "medium",
+        "title": "Space, Ocean · clue challenge",
+        "question": "Topics: space, ocean. These words label fictional cards and objects; their pairings do not describe real-world facts.\nThis is an invented logic grid. Each position contains exactly one value from each group, and each value is used once. Positions run from 1 to 3, left to right. Values in the same position are paired.\nCards: ECLIPSE, NEBULA, OCTOPUS.\nBadges: TELESCOPE, REEF, CRATER.\nClues:\n1. TELESCOPE is before ECLIPSE.\n2. ECLIPSE is before NEBULA.\n3. OCTOPUS is next to REEF.\nWhich value from Badges is paired with OCTOPUS?",
+        "choices": [
+          "None of these",
+          "CRATER",
+          "TELESCOPE",
+          "REEF"
+        ],
+        "correctAnswer": "TELESCOPE",
+        "correctExplanation": "The unique complete arrangement gives TELESCOPE. Every stated rule holds.",
+        "incorrectExplanation": "Check the clue combinations. The unique complete arrangement gives TELESCOPE. Every stated rule holds.",
+        "lessonGroup": "Solve It",
+        "xpReward": 25,
+        "lessonContent": "Place each group value exactly once.\nTranslate each clue into positions or pairings.\nCombine clues across groups to eliminate impossible arrangements.\nCheck all clues against the completed table.\nShare this: explain which combination of clues fixed the answer."
+      }
+    ],
+    "proofs": [
+      {
+        "method": "custom-grid-z3-and-exhaustive-permutations",
+        "scope": "the stated fictional groups and rules; complete-grid uniqueness and human-solving quality",
+        "z3_version": "4.13.4",
+        "agree": true,
+        "model": {
+          "groups": [
+            {
+              "name": "Cards",
+              "values": [
+                "ECLIPSE",
+                "NEBULA",
+                "OCTOPUS"
+              ],
+              "indices": [
+                0,
+                1,
+                2
+              ]
+            },
+            {
+              "name": "Badges",
+              "values": [
+                "TELESCOPE",
+                "REEF",
+                "CRATER"
+              ],
+              "indices": [
+                3,
+                4,
+                5
+              ]
+            }
+          ],
+          "names": [
+            "ECLIPSE",
+            "NEBULA",
+            "OCTOPUS",
+            "TELESCOPE",
+            "REEF",
+            "CRATER"
+          ],
+          "owners": [
+            0,
+            0,
+            0,
+            1,
+            1,
+            1
+          ],
+          "size": 3,
+          "rules": [],
+          "complete": true,
+          "target": 2,
+          "answer_group": 1
+        },
+        "authored_rules": [],
+        "added_rules": [
+          {
+            "kind": "before",
+            "a": 3,
+            "b": 0,
+            "text": "TELESCOPE is before ECLIPSE"
+          },
+          {
+            "kind": "before",
+            "a": 0,
+            "b": 1,
+            "text": "ECLIPSE is before NEBULA"
+          },
+          {
+            "kind": "next",
+            "a": 2,
+            "b": 4,
+            "text": "OCTOPUS is next to REEF"
+          }
+        ],
+        "initial_solutions": 36,
+        "solution_count": 1,
+        "solution_table": [
+          {
+            "Position": 1,
+            "Cards": "OCTOPUS",
+            "Badges": "TELESCOPE"
+          },
+          {
+            "Position": 2,
+            "Cards": "ECLIPSE",
+            "Badges": "REEF"
+          },
+          {
+            "Position": 3,
+            "Cards": "NEBULA",
+            "Badges": "CRATER"
+          }
+        ],
+        "solution_positions": [
+          2,
+          3,
+          1,
+          1,
+          2,
+          3
+        ],
+        "quality": {
+          "score": 100.0,
+          "level": "strong",
+          "fair": true,
+          "candidate_count": 36,
+          "reasoning_steps": 3,
+          "useful_clues": 3,
+          "redundant_clues": 0,
+          "direct_clues": 0,
+          "relational_clues": 3,
+          "information_gain": 5.1699,
+          "first_clue_gain": 1.585,
+          "forced_facts": [
+            "ECLIPSE must be in position 2",
+            "NEBULA must be in position 3",
+            "OCTOPUS must be in position 1",
+            "TELESCOPE must be in position 1",
+            "REEF must be in position 2",
+            "CRATER must be in position 3"
+          ],
+          "hints": [
+            "Start with this clue: TELESCOPE is before ECLIPSE.",
+            "Try clue 2: it cuts the live possibilities from 12 to 2.",
+            "Try clue 3: it cuts the live possibilities from 2 to 1."
+          ],
+          "trace": [
+            {
+              "clue": 1,
+              "text": "TELESCOPE is before ECLIPSE",
+              "before": 36,
+              "after": 12,
+              "eliminated": 24,
+              "newly_fixed": 0,
+              "information_gain": 1.585,
+              "useful": true
+            },
+            {
+              "clue": 2,
+              "text": "ECLIPSE is before NEBULA",
+              "before": 12,
+              "after": 2,
+              "eliminated": 10,
+              "newly_fixed": 4,
+              "information_gain": 2.585,
+              "useful": true
+            },
+            {
+              "clue": 3,
+              "text": "OCTOPUS is next to REEF",
+              "before": 2,
+              "after": 1,
+              "eliminated": 1,
+              "newly_fixed": 2,
+              "information_gain": 1.0,
+              "useful": true
+            }
+          ],
+          "ordered_clues": [
+            "TELESCOPE is before ECLIPSE",
+            "ECLIPSE is before NEBULA",
+            "OCTOPUS is next to REEF"
+          ],
+          "warnings": []
+        },
+        "quality_gate": "passed",
+        "query": {
+          "target": 2,
+          "answer_group": 1
+        },
+        "trace": [
+          {
+            "clue": 1,
+            "remaining": 12,
+            "deductions": []
+          },
+          {
+            "clue": 2,
+            "remaining": 2,
+            "deductions": [
+              "ECLIPSE must be in position 2",
+              "NEBULA must be in position 3",
+              "OCTOPUS must be in position 1",
+              "TELESCOPE must be in position 1"
+            ]
+          },
+          {
+            "clue": 3,
+            "remaining": 1,
+            "deductions": [
+              "REEF must be in position 2",
+              "CRATER must be in position 3"
+            ]
+          }
+        ],
+        "steps": [
+          "After clue 1, 12 arrangements remain. ",
+          "After clue 2, 2 arrangements remain. ECLIPSE must be in position 2; NEBULA must be in position 3; OCTOPUS must be in position 1; TELESCOPE must be in position 1",
+          "After clue 3, 1 arrangements remain. REEF must be in position 2; CRATER must be in position 3",
+          "Position 1: OCTOPUS, TELESCOPE.",
+          "Position 2: ECLIPSE, REEF.",
+          "Position 3: NEBULA, CRATER."
+        ],
+        "structural_key": "294f45918fc4b538158c2f30d30e089c9e1aac0e248dbe50bf952dbd652b91cc",
+        "autopilot": {
+          "version": "autopilot-design-v1",
+          "spec": {
+            "groups": "Cards: ECLIPSE, NEBULA, OCTOPUS\nBadges: TELESCOPE, REEF, CRATER",
+            "rules": "",
+            "complete": true,
+            "target": "OCTOPUS",
+            "answer_group": "Badges"
+          },
+          "decisions": [
+            "Selected 6 labels covering every chosen topic.",
+            "Created 2 groups across three positions.",
+            "Invented a hidden arrangement, then generated and pruned its clues.",
+            "Selected a question requiring at least 2 clues together.",
+            "Checked the unique complete solution using enumeration and Z3."
+          ],
+          "minimum_supporting_clues": 2,
+          "supporting_clues": [
+            1,
+            2
+          ]
+        },
+        "search": {
+          "budget": 6,
+          "qualified": 5,
+          "rejected": 1,
+          "selected_attempt": 0,
+          "selected_score": [
+            2,
+            2,
+            -3
+          ],
+          "first_qualified_score": [
+            2,
+            2,
+            -3
+          ],
+          "objective": "More supporting clues, then clue variety, then fewer total clues; structural heuristic, not player-calibrated difficulty"
+        },
+        "dictionary_sha256": "726a08d77c18698a8016f7201830bf0fd6c1d466819bdf9d0f23acb544ee5177",
+        "topic_coverage": [
+          {
+            "term": "space",
+            "sense": "pack:space",
+            "used_words": [
+              "CRATER",
+              "ECLIPSE",
+              "NEBULA",
+              "TELESCOPE"
+            ]
+          },
+          {
+            "term": "ocean",
+            "sense": "pack:ocean",
+            "used_words": [
+              "OCTOPUS",
+              "REEF"
+            ]
+          }
+        ],
+        "seed": 0,
+        "item_sha256": "47ee6e6e6c0675fb337d8e7ff5b87f1e83823a8f99ade1395091a501bfe7cb0b",
+        "family": "autopilot",
+        "difficulty_measure": "3 positions; 1/2/3 groups, with questions requiring multiple clues",
+        "difficulty_scope": "structural heuristic; not calibrated on players"
+      }
+    ],
+    "rejected": [],
+    "intendedImport": {
+      "createdBy": "symbolic-generator",
+      "reviewStatus": "draft",
+      "published": false
+    },
+    "checks": {
+      "contract": "BrainBloom quiz and native crossword/Wonder fields",
+      "answer_correctness": "see each item's proof and scope",
+      "human_review": "required",
+      "platform_verifier": "not-run",
+      "duplicates": "lexical only; crossword layouts and Wonder parameters are compared exactly"
+    },
+    "provenance": {
+      "learned_model_used": false,
+      "bank_items_compared": 0,
+      "bank_items_sha256": null,
+      "bank_compare_scope": "lexical question comparison",
+      "duplicate_candidates_skipped": 0,
+      "bank": null
+    },
+    "summary": {
+      "requested": 1,
+      "accepted": 1,
+      "rejected": 0,
+      "complete": true,
+      "published": false
+    }
+  },
+  {
+    "dictionary": {
+      "subject": "space, ocean",
+      "sense": "combined:985f71d6798ca011b2763a7548d7ed13130e0e6df410112f15ccaae0987e4590",
+      "label": "space, ocean",
+      "definition": "A puzzle combining all the selected topic meanings.",
+      "topics": [
+        {
+          "term": "space",
+          "sense": "pack:space",
+          "definition": "Authored space vocabulary",
+          "words": [
+            "PLANET",
+            "STAR",
+            "MOON",
+            "COMET",
+            "ORBIT",
+            "GALAXY",
+            "NEBULA",
+            "METEOR",
+            "ASTEROID",
+            "ROCKET",
+            "TELESCOPE",
+            "ECLIPSE",
+            "CRATER",
+            "GRAVITY"
+          ],
+          "anchor": null,
+          "source_sha256": "9589fe09dea32b0138e8e40f0f4227b30d6d59056ad5922f0cd4e42ece4851b6"
+        },
+        {
+          "term": "ocean",
+          "sense": "pack:ocean",
+          "definition": "Authored ocean vocabulary",
+          "words": [
+            "TIDE",
+            "REEF",
+            "CORAL",
+            "WHALE",
+            "SHARK",
+            "OCTOPUS",
+            "SQUID",
+            "PLANKTON",
+            "KELP",
+            "CURRENT",
+            "SALT",
+            "COAST"
+          ],
+          "anchor": null,
+          "source_sha256": "3bc6e401d81dfb5ec55b4a46831284701e88f92bbddc2deaf78f2a2d0b9b0dd7"
+        }
+      ],
+      "entries": [
+        {
+          "word": "PLANET",
+          "definition": "A rounded body orbiting a star that has cleared its orbital neighbourhood",
+          "sense": "pack:space:planet",
+          "path": [
+            "pack:space"
+          ]
+        },
+        {
+          "word": "TIDE",
+          "definition": "A periodic rise and fall of sea level driven mainly by lunar and solar gravity",
+          "sense": "pack:ocean:tide",
+          "path": [
+            "pack:ocean"
+          ]
+        },
+        {
+          "word": "STAR",
+          "definition": "A luminous celestial body powered by nuclear fusion during its main sequence",
+          "sense": "pack:space:star",
+          "path": [
+            "pack:space"
+          ]
+        },
+        {
+          "word": "REEF",
+          "definition": "A ridge of rock or coral close to the sea surface",
+          "sense": "pack:ocean:reef",
+          "path": [
+            "pack:ocean"
+          ]
+        },
+        {
+          "word": "MOON",
+          "definition": "A natural satellite orbiting a planet or another nonstellar body",
+          "sense": "pack:space:moon",
+          "path": [
+            "pack:space"
+          ]
+        },
+        {
+          "word": "CORAL",
+          "definition": "A marine animal whose colonies may build a limestone skeleton",
+          "sense": "pack:ocean:coral",
+          "path": [
+            "pack:ocean"
+          ]
+        },
+        {
+          "word": "COMET",
+          "definition": "An icy small body that can develop a glowing coma near the Sun",
+          "sense": "pack:space:comet",
+          "path": [
+            "pack:space"
+          ]
+        },
+        {
+          "word": "WHALE",
+          "definition": "An aquatic mammal in the cetacean group that breathes air through a blowhole",
+          "sense": "pack:ocean:whale",
+          "path": [
+            "pack:ocean"
+          ]
+        },
+        {
+          "word": "ORBIT",
+          "definition": "The curved path of a body moving around another under gravity",
+          "sense": "pack:space:orbit",
+          "path": [
+            "pack:space"
+          ]
+        },
+        {
+          "word": "SHARK",
+          "definition": "A fish with a cartilaginous skeleton and exposed gill slits",
+          "sense": "pack:ocean:shark",
+          "path": [
+            "pack:ocean"
+          ]
+        },
+        {
+          "word": "GALAXY",
+          "definition": "A gravitationally bound system of stars, gas, dust and dark matter",
+          "sense": "pack:space:galaxy",
+          "path": [
+            "pack:space"
+          ]
+        },
+        {
+          "word": "OCTOPUS",
+          "definition": "A soft-bodied marine mollusc with eight arms",
+          "sense": "pack:ocean:octopus",
+          "path": [
+            "pack:ocean"
+          ]
+        },
+        {
+          "word": "NEBULA",
+          "definition": "An interstellar cloud of gas and dust",
+          "sense": "pack:space:nebula",
+          "path": [
+            "pack:space"
+          ]
+        },
+        {
+          "word": "SQUID",
+          "definition": "A marine mollusc with eight arms and two longer feeding tentacles",
+          "sense": "pack:ocean:squid",
+          "path": [
+            "pack:ocean"
+          ]
+        },
+        {
+          "word": "METEOR",
+          "definition": "The streak of light produced when a space rock enters an atmosphere",
+          "sense": "pack:space:meteor",
+          "path": [
+            "pack:space"
+          ]
+        },
+        {
+          "word": "PLANKTON",
+          "definition": "Organisms that drift in water and cannot swim against the currents",
+          "sense": "pack:ocean:plankton",
+          "path": [
+            "pack:ocean"
+          ]
+        },
+        {
+          "word": "ASTEROID",
+          "definition": "A small rocky body orbiting the Sun",
+          "sense": "pack:space:asteroid",
+          "path": [
+            "pack:space"
+          ]
+        },
+        {
+          "word": "KELP",
+          "definition": "A large brown seaweed that can form underwater forests",
+          "sense": "pack:ocean:kelp",
+          "path": [
+            "pack:ocean"
+          ]
+        },
+        {
+          "word": "ROCKET",
+          "definition": "A vehicle propelled by expelling material in the opposite direction",
+          "sense": "pack:space:rocket",
+          "path": [
+            "pack:space"
+          ]
+        },
+        {
+          "word": "CURRENT",
+          "definition": "A directed movement of seawater",
+          "sense": "pack:ocean:current",
+          "path": [
+            "pack:ocean"
+          ]
+        },
+        {
+          "word": "TELESCOPE",
+          "definition": "An instrument that collects radiation to observe distant objects",
+          "sense": "pack:space:telescope",
+          "path": [
+            "pack:space"
+          ]
+        },
+        {
+          "word": "SALT",
+          "definition": "The common name for sodium chloride dissolved abundantly in seawater",
+          "sense": "pack:ocean:salt",
+          "path": [
+            "pack:ocean"
+          ]
+        },
+        {
+          "word": "ECLIPSE",
+          "definition": "An event in which one celestial body obscures another or enters its shadow",
+          "sense": "pack:space:eclipse",
+          "path": [
+            "pack:space"
+          ]
+        },
+        {
+          "word": "COAST",
+          "definition": "The region where land meets the sea",
+          "sense": "pack:ocean:coast",
+          "path": [
+            "pack:ocean"
+          ]
+        },
+        {
+          "word": "CRATER",
+          "definition": "A bowl-shaped depression often formed by an impact",
+          "sense": "pack:space:crater",
+          "path": [
+            "pack:space"
+          ]
+        },
+        {
+          "word": "GRAVITY",
+          "definition": "The attraction associated with mass and energy",
+          "sense": "pack:space:gravity",
+          "path": [
+            "pack:space"
+          ]
+        }
+      ],
+      "sources": [
+        {
+          "name": "BrainBloom authored vocabulary v1",
+          "sha256": "9589fe09dea32b0138e8e40f0f4227b30d6d59056ad5922f0cd4e42ece4851b6",
+          "license": "Project-authored definitions"
+        },
+        {
+          "name": "BrainBloom authored vocabulary v1",
+          "sha256": "3bc6e401d81dfb5ec55b4a46831284701e88f92bbddc2deaf78f2a2d0b9b0dd7",
+          "license": "Project-authored definitions"
+        }
+      ],
+      "source": {
+        "name": "BrainBloom authored vocabulary v1",
+        "sha256": "d4e2babfab8ecd555cd9e0829bedbc6513d238ac06bb078aa4c317bd61a59966",
+        "license": "Project-authored definitions"
+      }
+    },
+    "version": 8,
+    "generator": "brainbloom-activities-v8",
+    "request": {
+      "topic": "activities",
+      "qtype": "type-answer",
+      "difficulty": "medium",
+      "count": 1,
+      "seed": 0,
+      "category": "logic",
+      "subject": "space, ocean",
+      "sense": "",
+      "variation": "pattern",
+      "search_effort": "balanced",
+      "topic_mode": "combined",
+      "meanings": {
+        "space": "pack:space",
+        "ocean": "pack:ocean"
+      },
+      "instructions": "",
+      "grid": null,
+      "crossword_size": null
+    },
+    "items": [
+      {
+        "type": "type-answer",
+        "category": "logic",
+        "difficulty": "medium",
+        "title": "Discover a number rule",
+        "question": "Topic labels used for this invented example: REEF, SALT, METEOR, CRATER, WHALE.\nA display follows this rule: multiply by 6 each time. It shows 17, 102, 612, 3672, 22032, 132192. What value comes next?",
+        "choices": [],
+        "correctAnswer": "793152",
+        "correctExplanation": "The next operation is to multiply by 6. Apply it to 132192 to get 793152.",
+        "incorrectExplanation": "The answer is 793152. The next operation is to multiply by 6. Apply it to 132192 to get 793152.",
+        "lessonGroup": "Solve It",
+        "xpReward": 25,
+        "lessonContent": "Look for the rule shared by every example.\nTest the rule on the next case, rather than guessing from one example.\nReject a rule that fails any stated example.\nCheck the answer with exact arithmetic or finite enumeration.\nShare this: explain which example gave the decisive clue.",
+        "acceptedAnswers": [
+          "793152",
+          "the answer is 793152",
+          "answer: 793152"
+        ]
+      }
+    ],
+    "proofs": [
+      {
+        "method": "z3-and-exact-arithmetic",
+        "z3_version": "4.13.4",
+        "independent_checker": "python-integer-and-fraction-arithmetic",
+        "agree": true,
+        "scope": "the stated mathematical rules, quantities and assumptions",
+        "expression": "17*6*6*6*6*6*6",
+        "exact_result": "793152",
+        "steps": [
+          "The next operation is to multiply by 6.",
+          "Apply it to 132192 to get 793152."
+        ],
+        "word_bank": [
+          "REEF",
+          "SALT",
+          "METEOR",
+          "CRATER",
+          "WHALE"
+        ],
+        "structural_key": "a57634575d64733eb10f3d5b5c0c2faff2b5bd5c595b7f4a68f40c6811dd0692",
+        "topic_coverage": [
+          {
+            "term": "space",
+            "sense": "pack:space",
+            "used_words": [
+              "CRATER",
+              "METEOR"
+            ]
+          },
+          {
+            "term": "ocean",
+            "sense": "pack:ocean",
+            "used_words": [
+              "REEF",
+              "SALT",
+              "WHALE"
+            ]
+          }
+        ],
+        "seed": 0,
+        "item_sha256": "531eb9a313c87bfb3abaa821e67670a4b7cafa77123438b51714e166f2587e82",
+        "family": "activities",
+        "difficulty_measure": "Larger rule families, longer clue chains, more readouts or larger route maps",
+        "difficulty_scope": "structural heuristic; not calibrated on players"
+      }
+    ],
+    "rejected": [],
+    "intendedImport": {
+      "createdBy": "symbolic-generator",
+      "reviewStatus": "draft",
+      "published": false
+    },
+    "checks": {
+      "contract": "BrainBloom quiz and native crossword/Wonder fields",
+      "answer_correctness": "see each item's proof and scope",
+      "human_review": "required",
+      "platform_verifier": "not-run",
+      "duplicates": "lexical only; crossword layouts and Wonder parameters are compared exactly"
+    },
+    "provenance": {
+      "learned_model_used": false,
+      "bank_items_compared": 0,
+      "bank_items_sha256": null,
+      "bank_compare_scope": "lexical question comparison",
+      "duplicate_candidates_skipped": 0,
+      "bank": null
+    },
+    "summary": {
+      "requested": 1,
+      "accepted": 1,
+      "rejected": 0,
+      "complete": true,
+      "published": false
+    }
+  },
+  {
+    "dictionary": {
+      "subject": "space, ocean",
+      "sense": "combined:985f71d6798ca011b2763a7548d7ed13130e0e6df410112f15ccaae0987e4590",
+      "label": "space, ocean",
+      "definition": "A puzzle combining all the selected topic meanings.",
+      "topics": [
+        {
+          "term": "space",
+          "sense": "pack:space",
+          "definition": "Authored space vocabulary",
+          "words": [
+            "PLANET",
+            "STAR",
+            "MOON",
+            "COMET",
+            "ORBIT",
+            "GALAXY",
+            "NEBULA",
+            "METEOR",
+            "ASTEROID",
+            "ROCKET",
+            "TELESCOPE",
+            "ECLIPSE",
+            "CRATER",
+            "GRAVITY"
+          ],
+          "anchor": null,
+          "source_sha256": "9589fe09dea32b0138e8e40f0f4227b30d6d59056ad5922f0cd4e42ece4851b6"
+        },
+        {
+          "term": "ocean",
+          "sense": "pack:ocean",
+          "definition": "Authored ocean vocabulary",
+          "words": [
+            "TIDE",
+            "REEF",
+            "CORAL",
+            "WHALE",
+            "SHARK",
+            "OCTOPUS",
+            "SQUID",
+            "PLANKTON",
+            "KELP",
+            "CURRENT",
+            "SALT",
+            "COAST"
+          ],
+          "anchor": null,
+          "source_sha256": "3bc6e401d81dfb5ec55b4a46831284701e88f92bbddc2deaf78f2a2d0b9b0dd7"
+        }
+      ],
+      "entries": [
+        {
+          "word": "PLANET",
+          "definition": "A rounded body orbiting a star that has cleared its orbital neighbourhood",
+          "sense": "pack:space:planet",
+          "path": [
+            "pack:space"
+          ]
+        },
+        {
+          "word": "TIDE",
+          "definition": "A periodic rise and fall of sea level driven mainly by lunar and solar gravity",
+          "sense": "pack:ocean:tide",
+          "path": [
+            "pack:ocean"
+          ]
+        },
+        {
+          "word": "STAR",
+          "definition": "A luminous celestial body powered by nuclear fusion during its main sequence",
+          "sense": "pack:space:star",
+          "path": [
+            "pack:space"
+          ]
+        },
+        {
+          "word": "REEF",
+          "definition": "A ridge of rock or coral close to the sea surface",
+          "sense": "pack:ocean:reef",
+          "path": [
+            "pack:ocean"
+          ]
+        },
+        {
+          "word": "MOON",
+          "definition": "A natural satellite orbiting a planet or another nonstellar body",
+          "sense": "pack:space:moon",
+          "path": [
+            "pack:space"
+          ]
+        },
+        {
+          "word": "CORAL",
+          "definition": "A marine animal whose colonies may build a limestone skeleton",
+          "sense": "pack:ocean:coral",
+          "path": [
+            "pack:ocean"
+          ]
+        },
+        {
+          "word": "COMET",
+          "definition": "An icy small body that can develop a glowing coma near the Sun",
+          "sense": "pack:space:comet",
+          "path": [
+            "pack:space"
+          ]
+        },
+        {
+          "word": "WHALE",
+          "definition": "An aquatic mammal in the cetacean group that breathes air through a blowhole",
+          "sense": "pack:ocean:whale",
+          "path": [
+            "pack:ocean"
+          ]
+        },
+        {
+          "word": "ORBIT",
+          "definition": "The curved path of a body moving around another under gravity",
+          "sense": "pack:space:orbit",
+          "path": [
+            "pack:space"
+          ]
+        },
+        {
+          "word": "SHARK",
+          "definition": "A fish with a cartilaginous skeleton and exposed gill slits",
+          "sense": "pack:ocean:shark",
+          "path": [
+            "pack:ocean"
+          ]
+        },
+        {
+          "word": "GALAXY",
+          "definition": "A gravitationally bound system of stars, gas, dust and dark matter",
+          "sense": "pack:space:galaxy",
+          "path": [
+            "pack:space"
+          ]
+        },
+        {
+          "word": "OCTOPUS",
+          "definition": "A soft-bodied marine mollusc with eight arms",
+          "sense": "pack:ocean:octopus",
+          "path": [
+            "pack:ocean"
+          ]
+        },
+        {
+          "word": "NEBULA",
+          "definition": "An interstellar cloud of gas and dust",
+          "sense": "pack:space:nebula",
+          "path": [
+            "pack:space"
+          ]
+        },
+        {
+          "word": "SQUID",
+          "definition": "A marine mollusc with eight arms and two longer feeding tentacles",
+          "sense": "pack:ocean:squid",
+          "path": [
+            "pack:ocean"
+          ]
+        },
+        {
+          "word": "METEOR",
+          "definition": "The streak of light produced when a space rock enters an atmosphere",
+          "sense": "pack:space:meteor",
+          "path": [
+            "pack:space"
+          ]
+        },
+        {
+          "word": "PLANKTON",
+          "definition": "Organisms that drift in water and cannot swim against the currents",
+          "sense": "pack:ocean:plankton",
+          "path": [
+            "pack:ocean"
+          ]
+        },
+        {
+          "word": "ASTEROID",
+          "definition": "A small rocky body orbiting the Sun",
+          "sense": "pack:space:asteroid",
+          "path": [
+            "pack:space"
+          ]
+        },
+        {
+          "word": "KELP",
+          "definition": "A large brown seaweed that can form underwater forests",
+          "sense": "pack:ocean:kelp",
+          "path": [
+            "pack:ocean"
+          ]
+        },
+        {
+          "word": "ROCKET",
+          "definition": "A vehicle propelled by expelling material in the opposite direction",
+          "sense": "pack:space:rocket",
+          "path": [
+            "pack:space"
+          ]
+        },
+        {
+          "word": "CURRENT",
+          "definition": "A directed movement of seawater",
+          "sense": "pack:ocean:current",
+          "path": [
+            "pack:ocean"
+          ]
+        },
+        {
+          "word": "TELESCOPE",
+          "definition": "An instrument that collects radiation to observe distant objects",
+          "sense": "pack:space:telescope",
+          "path": [
+            "pack:space"
+          ]
+        },
+        {
+          "word": "SALT",
+          "definition": "The common name for sodium chloride dissolved abundantly in seawater",
+          "sense": "pack:ocean:salt",
+          "path": [
+            "pack:ocean"
+          ]
+        },
+        {
+          "word": "ECLIPSE",
+          "definition": "An event in which one celestial body obscures another or enters its shadow",
+          "sense": "pack:space:eclipse",
+          "path": [
+            "pack:space"
+          ]
+        },
+        {
+          "word": "COAST",
+          "definition": "The region where land meets the sea",
+          "sense": "pack:ocean:coast",
+          "path": [
+            "pack:ocean"
+          ]
+        },
+        {
+          "word": "CRATER",
+          "definition": "A bowl-shaped depression often formed by an impact",
+          "sense": "pack:space:crater",
+          "path": [
+            "pack:space"
+          ]
+        },
+        {
+          "word": "GRAVITY",
+          "definition": "The attraction associated with mass and energy",
+          "sense": "pack:space:gravity",
+          "path": [
+            "pack:space"
+          ]
+        }
+      ],
+      "sources": [
+        {
+          "name": "BrainBloom authored vocabulary v1",
+          "sha256": "9589fe09dea32b0138e8e40f0f4227b30d6d59056ad5922f0cd4e42ece4851b6",
+          "license": "Project-authored definitions"
+        },
+        {
+          "name": "BrainBloom authored vocabulary v1",
+          "sha256": "3bc6e401d81dfb5ec55b4a46831284701e88f92bbddc2deaf78f2a2d0b9b0dd7",
+          "license": "Project-authored definitions"
+        }
+      ],
+      "source": {
+        "name": "BrainBloom authored vocabulary v1",
+        "sha256": "d4e2babfab8ecd555cd9e0829bedbc6513d238ac06bb078aa4c317bd61a59966",
+        "license": "Project-authored definitions"
+      }
+    },
+    "version": 8,
+    "generator": "brainbloom-activities-v8",
+    "request": {
+      "topic": "activities",
+      "qtype": "type-answer",
+      "difficulty": "medium",
+      "count": 1,
+      "seed": 0,
+      "category": "logic",
+      "subject": "space, ocean",
+      "sense": "",
+      "variation": "contradiction",
+      "search_effort": "balanced",
+      "topic_mode": "combined",
+      "meanings": {
+        "space": "pack:space",
+        "ocean": "pack:ocean"
+      },
+      "instructions": "",
+      "grid": null,
+      "crossword_size": null
+    },
+    "items": [
+      {
+        "type": "type-answer",
+        "category": "logic",
+        "difficulty": "medium",
+        "title": "Space, Ocean · Find the impossible clue",
+        "question": "Topic labels: space, ocean.\nArrange these cards once each from left to right: REEF, SALT, METEOR, CRATER, WHALE.\nBase clues:\nREEF is somewhere to the left of METEOR.\nCRATER is somewhere to the left of REEF.\nMETEOR is somewhere to the left of WHALE.\nSALT is somewhere to the left of CRATER.\nTest these statements:\nStatement A: SALT is somewhere to the left of CRATER.\nStatement B: METEOR is somewhere to the left of WHALE.\nStatement C: WHALE is somewhere to the left of CRATER.\nStatement D: REEF is somewhere to the left of METEOR.\nWhich statement is impossible together with the base clues? Answer A, B, C or D.",
+        "choices": [],
+        "correctAnswer": "Statement C",
+        "correctExplanation": "Statement C contradicts the order forced by the base clues. The other three statements are compatible.",
+        "incorrectExplanation": "Statement C contradicts the order forced by the base clues. The other three statements are compatible.",
+        "lessonGroup": "Solve It",
+        "xpReward": 25,
+        "lessonContent": "Connect the stated before-relations into a chain.\nCheck each candidate statement against the forced order.\nOne statement must fail while the others remain possible.\nUse the contradiction, not a real-world fact about a label.\nShare this: identify the chain that made the impossible clue fail.",
+        "acceptedAnswers": [
+          "Statement C",
+          "statement c",
+          "statement C"
+        ]
+      }
+    ],
+    "proofs": [
+      {
+        "method": "z3-and-exhaustive-option-consistency",
+        "agree": true,
+        "z3_version": "4.13.4",
+        "option_model_counts": [
+          1,
+          1,
+          0,
+          1
+        ],
+        "solution": [
+          2,
+          0,
+          3,
+          1,
+          4
+        ],
+        "scope": "only the stated fictional ordering clues",
+        "steps": [
+          "The base clues force the order SALT, CRATER, REEF, METEOR, WHALE.",
+          "The impossible statement reverses a chain of 3 before-relations.",
+          "Every other statement agrees with that order."
+        ],
+        "structural_key": "ad63679dda47fad95677402cd3bb63a75f427c43e631e57c95ed293178eeb71b",
+        "model": {
+          "names": [
+            "REEF",
+            "SALT",
+            "METEOR",
+            "CRATER",
+            "WHALE"
+          ],
+          "clues": [
+            {
+              "kind": "before",
+              "a": 0,
+              "b": 2,
+              "k": 0
+            },
+            {
+              "kind": "before",
+              "a": 3,
+              "b": 0,
+              "k": 0
+            },
+            {
+              "kind": "before",
+              "a": 2,
+              "b": 4,
+              "k": 0
+            },
+            {
+              "kind": "before",
+              "a": 1,
+              "b": 3,
+              "k": 0
+            }
+          ],
+          "solution": [
+            2,
+            0,
+            3,
+            1,
+            4
+          ],
+          "options": [
+            {
+              "kind": "before",
+              "a": 1,
+              "b": 3,
+              "k": 0
+            },
+            {
+              "kind": "before",
+              "a": 2,
+              "b": 4,
+              "k": 0
+            },
+            {
+              "kind": "before",
+              "a": 4,
+              "b": 3,
+              "k": 0
+            },
+            {
+              "kind": "before",
+              "a": 0,
+              "b": 2,
+              "k": 0
+            }
+          ],
+          "answer_index": 2,
+          "required_chain_length": 3
+        },
+        "word_bank": [
+          "REEF",
+          "SALT",
+          "METEOR",
+          "CRATER",
+          "WHALE"
+        ],
+        "quality": {
+          "minimum_supporting_clues": 2,
+          "option_count": 4,
+          "exactly_one_impossible": true
+        },
+        "topic_coverage": [
+          {
+            "term": "space",
+            "sense": "pack:space",
+            "used_words": [
+              "CRATER",
+              "METEOR"
+            ]
+          },
+          {
+            "term": "ocean",
+            "sense": "pack:ocean",
+            "used_words": [
+              "REEF",
+              "SALT",
+              "WHALE"
+            ]
+          }
+        ],
+        "seed": 0,
+        "item_sha256": "931f630b9b0b93f5c86f09d1b1d822a099feacd8ab88d70dfdd3597a24664e2f",
+        "family": "activities",
+        "difficulty_measure": "Larger rule families, longer clue chains, more readouts or larger route maps",
+        "difficulty_scope": "structural heuristic; not calibrated on players"
+      }
+    ],
+    "rejected": [],
+    "intendedImport": {
+      "createdBy": "symbolic-generator",
+      "reviewStatus": "draft",
+      "published": false
+    },
+    "checks": {
+      "contract": "BrainBloom quiz and native crossword/Wonder fields",
+      "answer_correctness": "see each item's proof and scope",
+      "human_review": "required",
+      "platform_verifier": "not-run",
+      "duplicates": "lexical only; crossword layouts and Wonder parameters are compared exactly"
+    },
+    "provenance": {
+      "learned_model_used": false,
+      "bank_items_compared": 0,
+      "bank_items_sha256": null,
+      "bank_compare_scope": "lexical question comparison",
+      "duplicate_candidates_skipped": 0,
+      "bank": null
+    },
+    "summary": {
+      "requested": 1,
+      "accepted": 1,
+      "rejected": 0,
+      "complete": true,
+      "published": false
+    }
+  },
+  {
+    "dictionary": {
+      "subject": "space, ocean",
+      "sense": "combined:985f71d6798ca011b2763a7548d7ed13130e0e6df410112f15ccaae0987e4590",
+      "label": "space, ocean",
+      "definition": "A puzzle combining all the selected topic meanings.",
+      "topics": [
+        {
+          "term": "space",
+          "sense": "pack:space",
+          "definition": "Authored space vocabulary",
+          "words": [
+            "PLANET",
+            "STAR",
+            "MOON",
+            "COMET",
+            "ORBIT",
+            "GALAXY",
+            "NEBULA",
+            "METEOR",
+            "ASTEROID",
+            "ROCKET",
+            "TELESCOPE",
+            "ECLIPSE",
+            "CRATER",
+            "GRAVITY"
+          ],
+          "anchor": null,
+          "source_sha256": "9589fe09dea32b0138e8e40f0f4227b30d6d59056ad5922f0cd4e42ece4851b6"
+        },
+        {
+          "term": "ocean",
+          "sense": "pack:ocean",
+          "definition": "Authored ocean vocabulary",
+          "words": [
+            "TIDE",
+            "REEF",
+            "CORAL",
+            "WHALE",
+            "SHARK",
+            "OCTOPUS",
+            "SQUID",
+            "PLANKTON",
+            "KELP",
+            "CURRENT",
+            "SALT",
+            "COAST"
+          ],
+          "anchor": null,
+          "source_sha256": "3bc6e401d81dfb5ec55b4a46831284701e88f92bbddc2deaf78f2a2d0b9b0dd7"
+        }
+      ],
+      "entries": [
+        {
+          "word": "PLANET",
+          "definition": "A rounded body orbiting a star that has cleared its orbital neighbourhood",
+          "sense": "pack:space:planet",
+          "path": [
+            "pack:space"
+          ]
+        },
+        {
+          "word": "TIDE",
+          "definition": "A periodic rise and fall of sea level driven mainly by lunar and solar gravity",
+          "sense": "pack:ocean:tide",
+          "path": [
+            "pack:ocean"
+          ]
+        },
+        {
+          "word": "STAR",
+          "definition": "A luminous celestial body powered by nuclear fusion during its main sequence",
+          "sense": "pack:space:star",
+          "path": [
+            "pack:space"
+          ]
+        },
+        {
+          "word": "REEF",
+          "definition": "A ridge of rock or coral close to the sea surface",
+          "sense": "pack:ocean:reef",
+          "path": [
+            "pack:ocean"
+          ]
+        },
+        {
+          "word": "MOON",
+          "definition": "A natural satellite orbiting a planet or another nonstellar body",
+          "sense": "pack:space:moon",
+          "path": [
+            "pack:space"
+          ]
+        },
+        {
+          "word": "CORAL",
+          "definition": "A marine animal whose colonies may build a limestone skeleton",
+          "sense": "pack:ocean:coral",
+          "path": [
+            "pack:ocean"
+          ]
+        },
+        {
+          "word": "COMET",
+          "definition": "An icy small body that can develop a glowing coma near the Sun",
+          "sense": "pack:space:comet",
+          "path": [
+            "pack:space"
+          ]
+        },
+        {
+          "word": "WHALE",
+          "definition": "An aquatic mammal in the cetacean group that breathes air through a blowhole",
+          "sense": "pack:ocean:whale",
+          "path": [
+            "pack:ocean"
+          ]
+        },
+        {
+          "word": "ORBIT",
+          "definition": "The curved path of a body moving around another under gravity",
+          "sense": "pack:space:orbit",
+          "path": [
+            "pack:space"
+          ]
+        },
+        {
+          "word": "SHARK",
+          "definition": "A fish with a cartilaginous skeleton and exposed gill slits",
+          "sense": "pack:ocean:shark",
+          "path": [
+            "pack:ocean"
+          ]
+        },
+        {
+          "word": "GALAXY",
+          "definition": "A gravitationally bound system of stars, gas, dust and dark matter",
+          "sense": "pack:space:galaxy",
+          "path": [
+            "pack:space"
+          ]
+        },
+        {
+          "word": "OCTOPUS",
+          "definition": "A soft-bodied marine mollusc with eight arms",
+          "sense": "pack:ocean:octopus",
+          "path": [
+            "pack:ocean"
+          ]
+        },
+        {
+          "word": "NEBULA",
+          "definition": "An interstellar cloud of gas and dust",
+          "sense": "pack:space:nebula",
+          "path": [
+            "pack:space"
+          ]
+        },
+        {
+          "word": "SQUID",
+          "definition": "A marine mollusc with eight arms and two longer feeding tentacles",
+          "sense": "pack:ocean:squid",
+          "path": [
+            "pack:ocean"
+          ]
+        },
+        {
+          "word": "METEOR",
+          "definition": "The streak of light produced when a space rock enters an atmosphere",
+          "sense": "pack:space:meteor",
+          "path": [
+            "pack:space"
+          ]
+        },
+        {
+          "word": "PLANKTON",
+          "definition": "Organisms that drift in water and cannot swim against the currents",
+          "sense": "pack:ocean:plankton",
+          "path": [
+            "pack:ocean"
+          ]
+        },
+        {
+          "word": "ASTEROID",
+          "definition": "A small rocky body orbiting the Sun",
+          "sense": "pack:space:asteroid",
+          "path": [
+            "pack:space"
+          ]
+        },
+        {
+          "word": "KELP",
+          "definition": "A large brown seaweed that can form underwater forests",
+          "sense": "pack:ocean:kelp",
+          "path": [
+            "pack:ocean"
+          ]
+        },
+        {
+          "word": "ROCKET",
+          "definition": "A vehicle propelled by expelling material in the opposite direction",
+          "sense": "pack:space:rocket",
+          "path": [
+            "pack:space"
+          ]
+        },
+        {
+          "word": "CURRENT",
+          "definition": "A directed movement of seawater",
+          "sense": "pack:ocean:current",
+          "path": [
+            "pack:ocean"
+          ]
+        },
+        {
+          "word": "TELESCOPE",
+          "definition": "An instrument that collects radiation to observe distant objects",
+          "sense": "pack:space:telescope",
+          "path": [
+            "pack:space"
+          ]
+        },
+        {
+          "word": "SALT",
+          "definition": "The common name for sodium chloride dissolved abundantly in seawater",
+          "sense": "pack:ocean:salt",
+          "path": [
+            "pack:ocean"
+          ]
+        },
+        {
+          "word": "ECLIPSE",
+          "definition": "An event in which one celestial body obscures another or enters its shadow",
+          "sense": "pack:space:eclipse",
+          "path": [
+            "pack:space"
+          ]
+        },
+        {
+          "word": "COAST",
+          "definition": "The region where land meets the sea",
+          "sense": "pack:ocean:coast",
+          "path": [
+            "pack:ocean"
+          ]
+        },
+        {
+          "word": "CRATER",
+          "definition": "A bowl-shaped depression often formed by an impact",
+          "sense": "pack:space:crater",
+          "path": [
+            "pack:space"
+          ]
+        },
+        {
+          "word": "GRAVITY",
+          "definition": "The attraction associated with mass and energy",
+          "sense": "pack:space:gravity",
+          "path": [
+            "pack:space"
+          ]
+        }
+      ],
+      "sources": [
+        {
+          "name": "BrainBloom authored vocabulary v1",
+          "sha256": "9589fe09dea32b0138e8e40f0f4227b30d6d59056ad5922f0cd4e42ece4851b6",
+          "license": "Project-authored definitions"
+        },
+        {
+          "name": "BrainBloom authored vocabulary v1",
+          "sha256": "3bc6e401d81dfb5ec55b4a46831284701e88f92bbddc2deaf78f2a2d0b9b0dd7",
+          "license": "Project-authored definitions"
+        }
+      ],
+      "source": {
+        "name": "BrainBloom authored vocabulary v1",
+        "sha256": "d4e2babfab8ecd555cd9e0829bedbc6513d238ac06bb078aa4c317bd61a59966",
+        "license": "Project-authored definitions"
+      }
+    },
+    "version": 8,
+    "generator": "brainbloom-activities-v8",
+    "request": {
+      "topic": "activities",
+      "qtype": "type-answer",
+      "difficulty": "medium",
+      "count": 1,
+      "seed": 0,
+      "category": "logic",
+      "subject": "space, ocean",
+      "sense": "",
+      "variation": "best-move",
+      "search_effort": "balanced",
+      "topic_mode": "combined",
+      "meanings": {
+        "space": "pack:space",
+        "ocean": "pack:ocean"
+      },
+      "instructions": "",
+      "grid": null,
+      "crossword_size": null
+    },
+    "items": [
+      {
+        "type": "type-answer",
+        "category": "logic",
+        "difficulty": "medium",
+        "title": "Space, Ocean · Plan the best next question",
+        "question": "Topic: space, ocean. This is an invented card puzzle; the labels do not imply real-world properties.\nA hidden card must be identified exactly. The prior probabilities are:\nMOON: 4/20, TELESCOPE: 2/20, CORAL: 4/20, CRATER: 4/20, SALT: 6/20.\nYou can ask only the four yes/no questions below. Every answer is truthful; each question costs one unit. You can adapt later questions to earlier answers, and stop only when one card remains possible.\nQuestion A: Is the hidden card in {MOON}?\nQuestion B: Is the hidden card in {TELESCOPE}?\nQuestion C: Is the hidden card in {CRATER}?\nQuestion D: Is the hidden card in {TELESCOPE, CORAL, CRATER}?\nWhich FIRST question minimizes the expected TOTAL number of questions, including itself, if all subsequent choices are optimal?",
+        "choices": [],
+        "correctAnswer": "Question D",
+        "correctExplanation": "Question D is uniquely optimal: its expected total is 23/10 questions. The planner checks both branches recursively until exact identification.",
+        "incorrectExplanation": "Recheck the stated assumptions. Question D is uniquely optimal: its expected total is 23/10 questions. The planner checks both branches recursively until exact identification.",
+        "lessonGroup": "Solve It",
+        "xpReward": 25,
+        "lessonContent": "Represent the possible states and the rules explicitly before choosing an answer.\nFor deduction, eliminate arrangements that violate even one clue.\nFor probability, combine prior weights with the stated evidence model.\nFor planning, consider both possible answers and the questions needed afterwards.\nShare this: explain why the closest alternative fails or costs more.",
+        "acceptedAnswers": [
+          "Question D",
+          "the answer is Question D",
+          "answer: Question D"
+        ]
+      }
+    ],
+    "proofs": [
+      {
+        "method": "bellman-planning-and-exhaustive-policy-check",
+        "expected_questions": [
+          "13/5",
+          "14/5",
+          "13/5",
+          "23/10"
+        ],
+        "rollout_depths": [
+          2,
+          3,
+          3,
+          2,
+          2
+        ],
+        "agree": true,
+        "steps": [
+          "Start with Question A: optimal expected total 13/5 questions.",
+          "Start with Question B: optimal expected total 14/5 questions.",
+          "Start with Question C: optimal expected total 13/5 questions.",
+          "Start with Question D: optimal expected total 23/10 questions.",
+          "If the card is MOON: D=no → A=yes.",
+          "If the card is TELESCOPE: D=yes → C=no → B=yes.",
+          "If the card is CORAL: D=yes → C=no → B=no.",
+          "If the card is CRATER: D=yes → C=yes.",
+          "If the card is SALT: D=no → A=no."
+        ],
+        "structural_key": "3dc408ae4bd7422b94c7bb2b11300d295bcb2987e5ae528a520537f6bccdc123",
+        "scope": "optimal among the four stated, noiseless, unit-cost questions and given priors",
+        "reasoning_style": "planning",
+        "model": {
+          "names": [
+            "MOON",
+            "TELESCOPE",
+            "CORAL",
+            "CRATER",
+            "SALT"
+          ],
+          "weights": [
+            4,
+            2,
+            4,
+            4,
+            6
+          ],
+          "tests": [
+            [
+              0
+            ],
+            [
+              1
+            ],
+            [
+              3
+            ],
+            [
+              1,
+              2,
+              3
+            ]
+          ],
+          "expected_questions": [
+            "13/5",
+            "14/5",
+            "13/5",
+            "23/10"
+          ],
+          "tree": {
+            "question": 3,
+            "yes": {
+              "question": 2,
+              "yes": {
+                "answer": 3
+              },
+              "no": {
+                "question": 1,
+                "yes": {
+                  "answer": 1
+                },
+                "no": {
+                  "answer": 2
+                }
+              }
+            },
+            "no": {
+              "question": 0,
+              "yes": {
+                "answer": 0
+              },
+              "no": {
+                "answer": 4
+              }
+            }
+          },
+          "answer_index": 3,
+          "score": 46,
+          "quality": {
+            "hypotheses": 5,
+            "lookahead": "until exact identification",
+            "expected_questions": "23/10",
+            "optimality_margin": "3/10"
+          },
+          "attempt": 5
+        },
+        "quality": {
+          "hypotheses": 5,
+          "lookahead": "until exact identification",
+          "expected_questions": "23/10",
+          "optimality_margin": "3/10"
+        },
+        "dictionary_sha256": "726a08d77c18698a8016f7201830bf0fd6c1d466819bdf9d0f23acb544ee5177",
+        "selected_sense": "combined:985f71d6798ca011b2763a7548d7ed13130e0e6df410112f15ccaae0987e4590",
+        "source": "BrainBloom authored vocabulary v1",
+        "search": {
+          "budget": 32,
+          "qualified": 14,
+          "rejected": 18,
+          "selected_attempt": 5,
+          "selected_score": 46,
+          "first_qualified_score": 46,
+          "qualified_scores": [
+            46,
+            41,
+            42,
+            44,
+            41,
+            41,
+            45,
+            42,
+            41,
+            42,
+            41,
+            42,
+            41,
+            42
+          ],
+          "objective": "structural heuristic within one skill; not a human quality rating",
+          "independent_check": "selected candidate checked before release"
+        },
+        "word_bank": [
+          "REEF",
+          "SALT",
+          "METEOR",
+          "CRATER",
+          "WHALE"
+        ],
+        "topic_coverage": [
+          {
+            "term": "space",
+            "sense": "pack:space",
+            "used_words": [
+              "CRATER",
+              "METEOR"
+            ]
+          },
+          {
+            "term": "ocean",
+            "sense": "pack:ocean",
+            "used_words": [
+              "REEF",
+              "SALT",
+              "WHALE"
+            ]
+          }
+        ],
+        "seed": 0,
+        "item_sha256": "d0e76b839814fe9217e8f7871ed00f29f37afa4fa2c9f35f1b0f161ff2dad1d8",
+        "family": "activities",
+        "difficulty_measure": "Larger rule families, longer clue chains, more readouts or larger route maps",
+        "difficulty_scope": "structural heuristic; not calibrated on players"
+      }
+    ],
+    "rejected": [],
+    "intendedImport": {
+      "createdBy": "symbolic-generator",
+      "reviewStatus": "draft",
+      "published": false
+    },
+    "checks": {
+      "contract": "BrainBloom quiz and native crossword/Wonder fields",
+      "answer_correctness": "see each item's proof and scope",
+      "human_review": "required",
+      "platform_verifier": "not-run",
+      "duplicates": "lexical only; crossword layouts and Wonder parameters are compared exactly"
+    },
+    "provenance": {
+      "learned_model_used": false,
+      "bank_items_compared": 0,
+      "bank_items_sha256": null,
+      "bank_compare_scope": "lexical question comparison",
+      "duplicate_candidates_skipped": 0,
+      "bank": null
+    },
+    "summary": {
+      "requested": 1,
+      "accepted": 1,
+      "rejected": 0,
+      "complete": true,
+      "published": false
+    }
+  },
+  {
+    "dictionary": {
+      "subject": "space, ocean",
+      "sense": "combined:985f71d6798ca011b2763a7548d7ed13130e0e6df410112f15ccaae0987e4590",
+      "label": "space, ocean",
+      "definition": "A puzzle combining all the selected topic meanings.",
+      "topics": [
+        {
+          "term": "space",
+          "sense": "pack:space",
+          "definition": "Authored space vocabulary",
+          "words": [
+            "PLANET",
+            "STAR",
+            "MOON",
+            "COMET",
+            "ORBIT",
+            "GALAXY",
+            "NEBULA",
+            "METEOR",
+            "ASTEROID",
+            "ROCKET",
+            "TELESCOPE",
+            "ECLIPSE",
+            "CRATER",
+            "GRAVITY"
+          ],
+          "anchor": null,
+          "source_sha256": "9589fe09dea32b0138e8e40f0f4227b30d6d59056ad5922f0cd4e42ece4851b6"
+        },
+        {
+          "term": "ocean",
+          "sense": "pack:ocean",
+          "definition": "Authored ocean vocabulary",
+          "words": [
+            "TIDE",
+            "REEF",
+            "CORAL",
+            "WHALE",
+            "SHARK",
+            "OCTOPUS",
+            "SQUID",
+            "PLANKTON",
+            "KELP",
+            "CURRENT",
+            "SALT",
+            "COAST"
+          ],
+          "anchor": null,
+          "source_sha256": "3bc6e401d81dfb5ec55b4a46831284701e88f92bbddc2deaf78f2a2d0b9b0dd7"
+        }
+      ],
+      "entries": [
+        {
+          "word": "PLANET",
+          "definition": "A rounded body orbiting a star that has cleared its orbital neighbourhood",
+          "sense": "pack:space:planet",
+          "path": [
+            "pack:space"
+          ]
+        },
+        {
+          "word": "TIDE",
+          "definition": "A periodic rise and fall of sea level driven mainly by lunar and solar gravity",
+          "sense": "pack:ocean:tide",
+          "path": [
+            "pack:ocean"
+          ]
+        },
+        {
+          "word": "STAR",
+          "definition": "A luminous celestial body powered by nuclear fusion during its main sequence",
+          "sense": "pack:space:star",
+          "path": [
+            "pack:space"
+          ]
+        },
+        {
+          "word": "REEF",
+          "definition": "A ridge of rock or coral close to the sea surface",
+          "sense": "pack:ocean:reef",
+          "path": [
+            "pack:ocean"
+          ]
+        },
+        {
+          "word": "MOON",
+          "definition": "A natural satellite orbiting a planet or another nonstellar body",
+          "sense": "pack:space:moon",
+          "path": [
+            "pack:space"
+          ]
+        },
+        {
+          "word": "CORAL",
+          "definition": "A marine animal whose colonies may build a limestone skeleton",
+          "sense": "pack:ocean:coral",
+          "path": [
+            "pack:ocean"
+          ]
+        },
+        {
+          "word": "COMET",
+          "definition": "An icy small body that can develop a glowing coma near the Sun",
+          "sense": "pack:space:comet",
+          "path": [
+            "pack:space"
+          ]
+        },
+        {
+          "word": "WHALE",
+          "definition": "An aquatic mammal in the cetacean group that breathes air through a blowhole",
+          "sense": "pack:ocean:whale",
+          "path": [
+            "pack:ocean"
+          ]
+        },
+        {
+          "word": "ORBIT",
+          "definition": "The curved path of a body moving around another under gravity",
+          "sense": "pack:space:orbit",
+          "path": [
+            "pack:space"
+          ]
+        },
+        {
+          "word": "SHARK",
+          "definition": "A fish with a cartilaginous skeleton and exposed gill slits",
+          "sense": "pack:ocean:shark",
+          "path": [
+            "pack:ocean"
+          ]
+        },
+        {
+          "word": "GALAXY",
+          "definition": "A gravitationally bound system of stars, gas, dust and dark matter",
+          "sense": "pack:space:galaxy",
+          "path": [
+            "pack:space"
+          ]
+        },
+        {
+          "word": "OCTOPUS",
+          "definition": "A soft-bodied marine mollusc with eight arms",
+          "sense": "pack:ocean:octopus",
+          "path": [
+            "pack:ocean"
+          ]
+        },
+        {
+          "word": "NEBULA",
+          "definition": "An interstellar cloud of gas and dust",
+          "sense": "pack:space:nebula",
+          "path": [
+            "pack:space"
+          ]
+        },
+        {
+          "word": "SQUID",
+          "definition": "A marine mollusc with eight arms and two longer feeding tentacles",
+          "sense": "pack:ocean:squid",
+          "path": [
+            "pack:ocean"
+          ]
+        },
+        {
+          "word": "METEOR",
+          "definition": "The streak of light produced when a space rock enters an atmosphere",
+          "sense": "pack:space:meteor",
+          "path": [
+            "pack:space"
+          ]
+        },
+        {
+          "word": "PLANKTON",
+          "definition": "Organisms that drift in water and cannot swim against the currents",
+          "sense": "pack:ocean:plankton",
+          "path": [
+            "pack:ocean"
+          ]
+        },
+        {
+          "word": "ASTEROID",
+          "definition": "A small rocky body orbiting the Sun",
+          "sense": "pack:space:asteroid",
+          "path": [
+            "pack:space"
+          ]
+        },
+        {
+          "word": "KELP",
+          "definition": "A large brown seaweed that can form underwater forests",
+          "sense": "pack:ocean:kelp",
+          "path": [
+            "pack:ocean"
+          ]
+        },
+        {
+          "word": "ROCKET",
+          "definition": "A vehicle propelled by expelling material in the opposite direction",
+          "sense": "pack:space:rocket",
+          "path": [
+            "pack:space"
+          ]
+        },
+        {
+          "word": "CURRENT",
+          "definition": "A directed movement of seawater",
+          "sense": "pack:ocean:current",
+          "path": [
+            "pack:ocean"
+          ]
+        },
+        {
+          "word": "TELESCOPE",
+          "definition": "An instrument that collects radiation to observe distant objects",
+          "sense": "pack:space:telescope",
+          "path": [
+            "pack:space"
+          ]
+        },
+        {
+          "word": "SALT",
+          "definition": "The common name for sodium chloride dissolved abundantly in seawater",
+          "sense": "pack:ocean:salt",
+          "path": [
+            "pack:ocean"
+          ]
+        },
+        {
+          "word": "ECLIPSE",
+          "definition": "An event in which one celestial body obscures another or enters its shadow",
+          "sense": "pack:space:eclipse",
+          "path": [
+            "pack:space"
+          ]
+        },
+        {
+          "word": "COAST",
+          "definition": "The region where land meets the sea",
+          "sense": "pack:ocean:coast",
+          "path": [
+            "pack:ocean"
+          ]
+        },
+        {
+          "word": "CRATER",
+          "definition": "A bowl-shaped depression often formed by an impact",
+          "sense": "pack:space:crater",
+          "path": [
+            "pack:space"
+          ]
+        },
+        {
+          "word": "GRAVITY",
+          "definition": "The attraction associated with mass and energy",
+          "sense": "pack:space:gravity",
+          "path": [
+            "pack:space"
+          ]
+        }
+      ],
+      "sources": [
+        {
+          "name": "BrainBloom authored vocabulary v1",
+          "sha256": "9589fe09dea32b0138e8e40f0f4227b30d6d59056ad5922f0cd4e42ece4851b6",
+          "license": "Project-authored definitions"
+        },
+        {
+          "name": "BrainBloom authored vocabulary v1",
+          "sha256": "3bc6e401d81dfb5ec55b4a46831284701e88f92bbddc2deaf78f2a2d0b9b0dd7",
+          "license": "Project-authored definitions"
+        }
+      ],
+      "source": {
+        "name": "BrainBloom authored vocabulary v1",
+        "sha256": "d4e2babfab8ecd555cd9e0829bedbc6513d238ac06bb078aa4c317bd61a59966",
+        "license": "Project-authored definitions"
+      }
+    },
+    "version": 8,
+    "generator": "brainbloom-activities-v8",
+    "request": {
+      "topic": "activities",
+      "qtype": "type-answer",
+      "difficulty": "medium",
+      "count": 1,
+      "seed": 0,
+      "category": "logic",
+      "subject": "space, ocean",
+      "sense": "",
+      "variation": "most-likely",
+      "search_effort": "balanced",
+      "topic_mode": "combined",
+      "meanings": {
+        "space": "pack:space",
+        "ocean": "pack:ocean"
+      },
+      "instructions": "",
+      "grid": null,
+      "crossword_size": null
+    },
+    "items": [
+      {
+        "type": "type-answer",
+        "category": "logic",
+        "difficulty": "medium",
+        "title": "Space, Ocean · Bayesian evidence",
+        "question": "Topic: space, ocean. This is an invented card puzzle; the labels do not imply real-world properties.\nA fictional scanner hides one labelled card. Its prior selection probabilities are proportional to the weights below. Each readout is positive or negative. Readouts are independent CONDITIONAL ON the hidden card; a negative readout has probability 1 minus the listed positive probability.\nKELP: prior weight 1; P(readout 1 positive | KELP) = 6/10; P(readout 2 positive | KELP) = 9/10\nWHALE: prior weight 6; P(readout 1 positive | WHALE) = 5/10; P(readout 2 positive | WHALE) = 8/10\nECLIPSE: prior weight 2; P(readout 1 positive | ECLIPSE) = 4/10; P(readout 2 positive | ECLIPSE) = 6/10\nPLANET: prior weight 7; P(readout 1 positive | PLANET) = 7/10; P(readout 2 positive | PLANET) = 4/10\nObserved: readout 1 positive, readout 2 positive. Which hidden card is now MOST LIKELY?",
+        "choices": [],
+        "correctAnswer": "WHALE",
+        "correctExplanation": "WHALE has the largest posterior probability, 120/269. Multiply each prior weight by its observed-readout likelihoods, then divide by the sum of all four products. Most likely is not certain.",
+        "incorrectExplanation": "Recheck the stated assumptions. WHALE has the largest posterior probability, 120/269. Multiply each prior weight by its observed-readout likelihoods, then divide by the sum of all four products. Most likely is not certain.",
+        "lessonGroup": "Solve It",
+        "xpReward": 25,
+        "lessonContent": "Represent the possible states and the rules explicitly before choosing an answer.\nFor deduction, eliminate arrangements that violate even one clue.\nFor probability, combine prior weights with the stated evidence model.\nFor planning, consider both possible answers and the questions needed afterwards.\nShare this: explain why the closest alternative fails or costs more.",
+        "acceptedAnswers": [
+          "WHALE",
+          "the answer is WHALE",
+          "answer: WHALE"
+        ]
+      }
+    ],
+    "proofs": [
+      {
+        "method": "exact-bayes-and-independent-finite-experiment",
+        "frequency_counts": [
+          54,
+          240,
+          48,
+          196
+        ],
+        "posterior": [
+          "27/269",
+          "120/269",
+          "24/269",
+          "98/269"
+        ],
+        "agree": true,
+        "steps": [
+          "KELP: prior weight 1 × 3/5 × 9/10; normalized posterior 27/269.",
+          "WHALE: prior weight 6 × 1/2 × 4/5; normalized posterior 120/269.",
+          "ECLIPSE: prior weight 2 × 2/5 × 3/5; normalized posterior 24/269.",
+          "PLANET: prior weight 7 × 7/10 × 2/5; normalized posterior 98/269.",
+          "WHALE has the largest posterior. This means most likely under the model, not certain."
+        ],
+        "structural_key": "f0edc7ee5f06516a68c893677dc20ccb48ef5ae0ee421ec6d0ff1f8b7de16788",
+        "scope": "the explicitly stated priors, fictional readouts and conditional independence",
+        "reasoning_style": "bayesian",
+        "model": {
+          "names": [
+            "KELP",
+            "WHALE",
+            "ECLIPSE",
+            "PLANET"
+          ],
+          "priors": [
+            1,
+            6,
+            2,
+            7
+          ],
+          "positive_rates_out_of_ten": [
+            [
+              6,
+              9
+            ],
+            [
+              5,
+              8
+            ],
+            [
+              4,
+              6
+            ],
+            [
+              7,
+              4
+            ]
+          ],
+          "observed_positive": [
+            true,
+            true
+          ],
+          "posterior": [
+            "27/269",
+            "120/269",
+            "24/269",
+            "98/269"
+          ],
+          "answer_index": 1,
+          "score": 60,
+          "quality": {
+            "evidence_steps": 2,
+            "hypotheses": 4,
+            "posterior_margin": "22/269",
+            "prior_leader_overturned": true,
+            "base_rates_change_likelihood_only_winner": true
+          },
+          "attempt": 2
+        },
+        "quality": {
+          "evidence_steps": 2,
+          "hypotheses": 4,
+          "posterior_margin": "22/269",
+          "prior_leader_overturned": true,
+          "base_rates_change_likelihood_only_winner": true
+        },
+        "dictionary_sha256": "726a08d77c18698a8016f7201830bf0fd6c1d466819bdf9d0f23acb544ee5177",
+        "selected_sense": "combined:985f71d6798ca011b2763a7548d7ed13130e0e6df410112f15ccaae0987e4590",
+        "source": "BrainBloom authored vocabulary v1",
+        "search": {
+          "budget": 32,
+          "qualified": 28,
+          "rejected": 4,
+          "selected_attempt": 2,
+          "selected_score": 60,
+          "first_qualified_score": 50,
+          "qualified_scores": [
+            50,
+            60,
+            50,
+            50,
+            40,
+            40,
+            50,
+            50,
+            40,
+            40,
+            40,
+            50,
+            40,
+            40,
+            50,
+            50,
+            50,
+            50,
+            50,
+            60,
+            50,
+            40,
+            50,
+            60,
+            50,
+            50,
+            40,
+            50
+          ],
+          "objective": "structural heuristic within one skill; not a human quality rating",
+          "independent_check": "selected candidate checked before release"
+        },
+        "word_bank": [
+          "CRATER",
+          "METEOR",
+          "REEF",
+          "WHALE"
+        ],
+        "topic_coverage": [
+          {
+            "term": "space",
+            "sense": "pack:space",
+            "used_words": [
+              "CRATER",
+              "METEOR"
+            ]
+          },
+          {
+            "term": "ocean",
+            "sense": "pack:ocean",
+            "used_words": [
+              "REEF",
+              "WHALE"
+            ]
+          }
+        ],
+        "seed": 0,
+        "item_sha256": "76a34e642d10caaf4b004107f9c0288fa7398f3122bb61ce2359c27a2833fc63",
+        "family": "activities",
+        "difficulty_measure": "Larger rule families, longer clue chains, more readouts or larger route maps",
+        "difficulty_scope": "structural heuristic; not calibrated on players"
+      }
+    ],
+    "rejected": [],
+    "intendedImport": {
+      "createdBy": "symbolic-generator",
+      "reviewStatus": "draft",
+      "published": false
+    },
+    "checks": {
+      "contract": "BrainBloom quiz and native crossword/Wonder fields",
+      "answer_correctness": "see each item's proof and scope",
+      "human_review": "required",
+      "platform_verifier": "not-run",
+      "duplicates": "lexical only; crossword layouts and Wonder parameters are compared exactly"
+    },
+    "provenance": {
+      "learned_model_used": false,
+      "bank_items_compared": 0,
+      "bank_items_sha256": null,
+      "bank_compare_scope": "lexical question comparison",
+      "duplicate_candidates_skipped": 0,
+      "bank": null
+    },
+    "summary": {
+      "requested": 1,
+      "accepted": 1,
+      "rejected": 0,
+      "complete": true,
+      "published": false
+    }
+  }
+]

@@ -1,0 +1,9 @@
+# Separate training environment; never install into the lightweight engine by default.
+# CUDA wheels are installed explicitly by the workflow before these packages.
+torch==2.6.0
+transformers==4.51.3
+peft==0.15.2
+accelerate==1.6.0
+bitsandbytes==0.45.5
+huggingface-hub==0.30.2
+safetensors==0.5.3

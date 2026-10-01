@@ -295,9 +295,9 @@ def _parser() -> argparse.ArgumentParser:
     p.add_argument("--min-out-edges", type=int, default=1, help="min surviving out-edges per word")
     p.add_argument("--isa-hops", type=int, default=3, help="IsA inheritance depth for affordances")
     p.add_argument("--seeds", type=int, default=9, help="certify-gate seeds 0..seeds-1")
-    p.add_argument("--target", type=int, default=3000, help="truncate survivors to this (0=off)")
+    p.add_argument("--target", type=int, default=0, help="truncate survivors to this (0=off)")
     p.add_argument("--size-min", type=int, default=1000, help="fail if fewer words survive")
-    p.add_argument("--size-max", type=int, default=3000, help="recorded band ceiling")
+    p.add_argument("--size-max", type=int, default=3500, help="recorded band ceiling")
     p.add_argument("--jobs", type=int, default=os.cpu_count() or 1, help="gate worker processes")
     p.add_argument(
         "--z3-rlimit",

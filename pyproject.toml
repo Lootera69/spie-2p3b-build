@@ -7,11 +7,19 @@ name = "spie"
 version = "0.1.0"
 description = "Symbolic Puzzle Invention Engine — formal puzzle representation, proof, and certification."
 readme = "README.md"
+license = { text = "Apache-2.0" }
 requires-python = ">=3.12"
+classifiers = [
+    "License :: OSI Approved :: Apache Software License",
+    "Programming Language :: Python :: 3.12",
+]
 dependencies = [
     "z3-solver==4.13.4",
     "clingo==5.8.2",
 ]
+
+[project.urls]
+Homepage = "https://github.com/Lootera69/spie-2p3b-build"
 
 [project.optional-dependencies]
 dev = [
@@ -25,6 +33,9 @@ spie = "spie.cli:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]
+
+[tool.setuptools.package-data]
+"spie.questions.brainbloom" = ["static/*.html", "static/*.css", "static/*.js", "data/*.json", "data/*.md"]
 
 [tool.ruff]
 line-length = 100

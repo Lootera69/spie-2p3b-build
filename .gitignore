@@ -18,3 +18,45 @@ verdicts*.tsv
 
 # The raw ConceptNet dump: far too large for git and unneeded on the runners.
 *.csv.gz
+
+# Local copies of the authored bank and supervised training exports.
+# Keep source code, documentation and small demonstration drafts reviewable.
+artifacts/forge/bank-*/
+
+# Training data/weights must never be added to an unchecked/public remote.
+training/brainbloom/
+training-run/
+.test-tmp/
+artifacts/forge/colab-*/
+
+# Optional, hash-pinned dictionary download; recreated with dictionary-install.
+.brainbloom/wordnet.zip
+.brainbloom/*.sqlite3*
+
+# --- Public-push hardening -------------------------------------------------
+# Everything below is local, regenerable, or far too large for a public remote.
+# The engine does not read any of it: the ConceptNet artifact is a frozen literal
+# in src/spie/conceptnet_data.py, and corpora are fetched by the installers. See
+# DEPLOY.md. Kept broad on purpose so `git add -A` cannot leak ~240 MB of it.
+
+# Local corpora and session state: WordNet/OEWN downloads, the sqlite draft
+# history, the corpora/ cache. All recreated by dictionary-install / oewn-install.
+.brainbloom/
+
+# Benchmark bundles, coverage runs, bundled platform wheels (~204 MB). Generated.
+artifacts/
+
+# setuptools build output and locally generated draft dumps.
+build/
+drafts/
+
+# Scratch generation experiments and their one-off JSON outputs at the repo root.
+_gen_*.py
+generated_*.json
+
+# A workshop export that happens to live under examples/. It is an ARRAY of handoff
+# bundles, not a single-puzzle object, so test_presentation.py's examples/*.json glob
+# load_puzzle()s it and errors. It is scratch, unreferenced by any tracked code, and must
+# not ship. The 20 numbered corpus puzzles (examples/[0-9][0-9]_*.json) are unaffected.
+examples/workshop-handoff-bundles.json
+

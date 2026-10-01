@@ -1,0 +1,36 @@
+# Reproducibility gate for the frozen SPIE decision model (Item 3, Phase C3).
+#
+# The heavy work -- harvesting a corpus from SPIE's own MAP-Elites search and fitting the
+# per-operator LinUCB weights -- is offline and deterministic. The shipped engine only *loads* the
+# frozen result, `src/spie/decision_model.py`, whose `ARTIFACT_HASH` is pinned and whose content is
+# re-derived by `tests/test_decision_model.py`. This workflow proves the stronger claim that anyone
+# can *regenerate* those exact weights from scratch: `policy_train check` re-runs the pinned grid in
+# memory and asserts the emitted module is byte-identical to the checked-in artifact.
+#
+# DETERMINISM is what makes this reproduce across machines: evolve draws from one seeded
+# random.Random per run, the bandit accumulation is folded in a canonical sorted order (float
+# addition is not associative), weights are rounded to 6 dp, and the solvers are pinned by
+# requirements-build.txt (z3's rlimit makes each verdict machine-independent for a given z3 version).
+# A drift in weights OR formatting fails the job.
+
+name: train-policy
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60          # the pinned grid is ~600 evolve iterations; solver-bound
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install pinned toolchain
+        run: pip install -r requirements-build.txt
+      - name: Regenerate and diff the frozen decision model
+        run: python -m tools.policy_train check

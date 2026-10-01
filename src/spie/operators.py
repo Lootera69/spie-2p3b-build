@@ -28,6 +28,7 @@ from __future__ import annotations
 import random
 from collections.abc import Callable
 from dataclasses import replace
+from fractions import Fraction
 
 from .expr import Assign, Const, Eq, Le, Not, Reset, Sub, Var, all_of
 from .interpreter import domain_of
@@ -247,6 +248,29 @@ def add_decoy_action(puzzle: Puzzle, rng: random.Random) -> Puzzle | None:
     return _clean(replace(puzzle, actions=puzzle.actions + (action,)))
 
 
+def weight_belief(puzzle: Puzzle, rng: random.Random) -> Puzzle | None:
+    """Deal the hidden initial state at *random* (Item 4): attach an exact-``Fraction`` weight
+    distribution over each hidden variable's existing ``initial_belief`` support. Each weight is a
+    simple rational ``w_i / Σ w_j`` with a small integer numerator drawn from ``rng`` — strictly
+    positive, spanning exactly the support, and summing to exactly ``Fraction(1)`` (so the chance
+    layer can certify an exact optimal success probability ``P`` over the resulting deal). ``None``
+    if the puzzle has no belief support or already carries a distribution — it never clobbers an
+    authored ``initial_dist``, and every deterministic / epistemic puzzle is left untouched."""
+    if not puzzle.initial_belief or puzzle.initial_dist:
+        return None
+    dist: dict[str, tuple[tuple[int, Fraction], ...]] = {}
+    for key in sorted(puzzle.initial_belief):
+        support = sorted(puzzle.initial_belief[key])
+        if not support:
+            return None
+        raw = [rng.randint(1, 4) for _ in support]
+        total = sum(raw)
+        dist[key] = tuple(
+            (value, Fraction(w, total)) for value, w in zip(support, raw, strict=True)
+        )
+    return _clean(replace(puzzle, initial_dist=dist))
+
+
 # --- Goal / constraint ----------------------------------------------------------------------
 
 
@@ -343,6 +367,7 @@ __all__ = [
     "reveal_variable",
     "make_observation_costly",
     "add_decoy_action",
+    "weight_belief",
     "invert_goal",
     "add_resource_budget",
     "require_invariant",

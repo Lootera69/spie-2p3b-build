@@ -11,6 +11,7 @@ Validation never executes the puzzle; it only inspects the declared structure.
 from __future__ import annotations
 
 from dataclasses import dataclass
+from fractions import Fraction
 
 from . import expr as E
 from .ground import ground_all
@@ -214,6 +215,56 @@ def _validate_information(puzzle: Puzzle, var_keys: set[str], findings: list[Fin
                         f"action {action.name!r} senses undeclared variable {key!r}",
                     )
                 )
+
+    _validate_distribution(puzzle, belief, findings)
+
+
+def _validate_distribution(
+    puzzle: Puzzle, belief: dict[str, tuple[int, ...]], findings: list[Finding]
+) -> None:
+    """Item-4 chance layer: check ``initial_dist`` only when it is non-empty, so every
+    deterministic and every existing epistemic puzzle stays byte-identical and clean.
+
+    A distribution is a per-hidden-variable set of exact-``Fraction`` weights over *exactly*
+    that variable's ``initial_belief`` support: every support value carries one weight, weights
+    are non-negative, and they sum to exactly ``Fraction(1)``."""
+    if not puzzle.initial_dist:
+        return
+    for key in sorted(puzzle.initial_dist):
+        pairs = puzzle.initial_dist[key]
+        support = belief.get(key)
+        if not support:
+            findings.append(
+                Finding(
+                    "dist-without-belief",
+                    f"initial_dist for {key!r} has no matching initial_belief support",
+                )
+            )
+            continue
+        dist_values = [value for value, _ in pairs]
+        if len(dist_values) != len(set(dist_values)) or set(dist_values) != set(support):
+            findings.append(
+                Finding(
+                    "dist-support-mismatch",
+                    f"initial_dist for {key!r} does not weight its belief support exactly",
+                )
+            )
+        for value, weight in pairs:
+            if weight < 0:
+                findings.append(
+                    Finding(
+                        "dist-negative-weight",
+                        f"initial_dist {key}={value} has negative weight {weight}",
+                    )
+                )
+        total = sum((weight for _, weight in pairs), Fraction(0))
+        if total != Fraction(1):
+            findings.append(
+                Finding(
+                    "dist-not-normalized",
+                    f"initial_dist for {key!r} weights sum to {total}, not 1",
+                )
+            )
 
 
 __all__ = ["Finding", "validate"]

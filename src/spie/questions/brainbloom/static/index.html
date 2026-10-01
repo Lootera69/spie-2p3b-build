@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>BrainBloom · Question Workshop</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <header><a href="/" class="brand"><span class="mark">b.</span> BrainBloom</a>
+    <div class="header-actions"><span class="local">PUZZLE STUDIO · LOCAL</span>
+      <button id="theme-toggle" class="theme-toggle" type="button" aria-pressed="false">Dark mode</button></div></header>
+  <main>
+    <section class="intro"><p class="eyebrow">FROM RULES TO REAL QUESTIONS</p>
+      <h1 id="studio-headline">Thoughtfully made.<br> Ready to challenge.</h1>
+      <p>Choose your topics and level. BrainBloom designs the puzzle, writes the clues and checks the answer for you.</p>
+    </section>
+    <div id="pane-tabs" class="pane-tabs" role="tablist" aria-label="Workshop panels" hidden>
+      <button id="setup-tab" type="button" role="tab" aria-controls="setup-pane" aria-selected="true">Setup</button>
+      <button id="drafts-tab" type="button" role="tab" aria-controls="drafts-pane" aria-selected="false" tabindex="-1">Drafts</button>
+    </div>
+    <div class="workspace" id="workspace">
+      <aside id="setup-pane" role="region" aria-labelledby="setup-title">
+        <form id="generator">
+          <div class="pane-heading"><div class="section-label"><span>01</span><h2 id="setup-title">Set the brief</h2></div></div>
+          <div class="setup-scroll" id="setup-scroll" tabindex="0" role="region" aria-label="Puzzle settings">
+          <p class="family">Built without language models</p>
+          <details id="designer-guide" open class="designer-guide">
+            <summary>Start with a reasoning challenge</summary>
+            <ol><li>Enter topics. BrainBloom selects suitable meanings automatically.</li>
+              <li>Choose a level and how players will answer.</li>
+              <li>Generate. Try your puzzle, ask for hints, then reveal the explanation.</li></ol>
+            <p>You do not need to write rules. The default challenge asks players to combine
+              several clues or plan ahead. BrainBloom checks the answer independently.</p>
+            <details><summary>What is a clue puzzle?</summary>
+              <p>Imagine three cards: Tiger, Lion and Owl. Tiger comes before Lion.
+                Owl is not next to Tiger. Which card is last?</p>
+              <details><summary>Show the example reasoning</summary>
+                <p>Tiger and Owl must occupy the two ends. Tiger cannot be last because
+                  it comes before Lion. So Tiger is first, Lion is second and Owl is last.</p></details>
+              <p>A working grid is just a table for recording where each label belongs.
+                At higher levels you match two or three groups in the same positions.</p>
+            </details>
+            <button type="button" id="try-autopilot" class="secondary">Try an easy animal puzzle</button>
+          </details>
+          <details id="creator-mode"><summary>Advanced: provide my own rules</summary>
+            <p>Optional authoring tools for a specific puzzle. Your topic choices are kept
+              for when you return to automatic design.</p>
+            <label for="design-mode">Who writes the puzzle rules?</label>
+            <select id="design-mode"><option value="automatic">BrainBloom — automatic design</option>
+              <option value="manual">Me — custom groups and rules</option></select>
+          </details>
+          <label for="category">Platform category</label>
+          <select id="category" name="category" disabled></select>
+          <p class="hint">Where this puzzle will appear on your platform.</p>
+          <label for="qtype">How will players answer?</label>
+          <select id="qtype" name="qtype" disabled></select>
+          <div id="dictionary-controls">
+            <label for="subject">Topics or keywords (optional)</label>
+            <input id="subject" name="subject" type="text" maxlength="200" value="space, ocean"
+              placeholder="e.g. space, ocean, animals" aria-describedby="topic-help" list="topic-examples">
+            <datalist id="topic-examples"></datalist>
+            <p class="hint" id="topic-help">List up to six English topics, separated by commas. Every topic will be used. Meanings are selected automatically; you can change them below.</p>
+            <button type="button" class="secondary" id="lookup">Check my topics</button>
+            <div id="topic-meanings" aria-label="Meanings for your topics"></div>
+            <p class="hint" id="topic-status" role="status" aria-live="polite"></p>
+            <details id="word-preview"><summary>See related words for each topic</summary><div id="topic-words"></div></details>
+          </div>
+          <label for="topic">What should players do?</label>
+          <select id="topic" name="activity" disabled><option value="auto">Choose for me</option></select>
+          <p class="hint" id="activity-help">We will suggest an activity that fits all your choices.</p>
+          <p class="hint" id="autopilot-help">Easy: order three labels. Medium: match two groups.
+            Hard: connect three groups. These levels describe puzzle structure, not measured player skill.</p>
+          <details id="activity-guide">
+            <summary>What do these activities mean?</summary>
+            <dl><dt>Discover a number rule</dt><dd>See examples, infer the operation and predict the next value.</dd>
+              <dt>Find the impossible clue</dt><dd>Use a chain of clues to find the one statement that cannot fit.</dd>
+              <dt>Choose the most likely explanation</dt><dd>Compare evidence with several fictional explanations.</dd>
+              <dt>Plan the best next move</dt><dd>Compare complete routes on a weighted map and choose the cheapest first move.</dd>
+              <dt>Design a clue puzzle for me</dt><dd>BrainBloom chooses the labels, invents the clues and checks the answer.</dd></dl>
+            <p class="hint">All activities use bounded symbolic rules. Topic words are labels in the puzzle;
+              the engine does not invent real-world facts about them.</p>
+          </details>
+          <div id="grid-controls" hidden>
+            <p class="hint">These group labels replace dictionary topics for this activity. Each group has three or four values, and every value is used once.</p>
+            <label for="grid-groups">Groups and values</label>
+            <textarea id="grid-groups" rows="3" maxlength="600" aria-describedby="grid-help"></textarea>
+            <label for="grid-rules">Your rules (one per line)</label>
+            <textarea id="grid-rules" rows="5" maxlength="1600"></textarea>
+            <details id="grid-help"><summary>Supported rule patterns</summary>
+              <p>Use the exact labels you defined. Examples:</p>
+              <ul><li>Tiger is before Lion.</li><li>Owl cannot be next to Tiger.</li>
+                <li>Tiger is paired with Red.</li><li>Blue is not paired with Tea.</li>
+                <li>Tea is in position 1.</li><li>Lion is immediately before Owl.</li>
+                <li>Owl is between Tiger and Lion.</li><li>Red is 2 positions away from Blue.</li></ul>
+              <p>“After”, “is next to” and “is not in position” also work. One to three groups; up to 20 rules.</p>
+            </details>
+            <label for="grid-complete">How should the puzzle be completed?</label>
+            <select id="grid-complete"><option value="yes">Keep my rules and add clues if needed</option>
+              <option value="no">Use only my rules</option></select>
+            <label for="grid-target">Ask about</label>
+            <select id="grid-target"><option value="">Choose a value for me</option></select>
+            <label for="grid-answer-group">What should the answer identify?</label>
+            <select id="grid-answer-group"><option value="">Choose for me</option><option value="Position">Position</option></select>
+            <p class="hint" id="grid-status" role="status" aria-live="polite"></p>
+            <div id="grid-diagnostics"></div>
+            <button id="grid-example" type="button" class="secondary">Load the example groups and rules</button>
+          </div>
+          <div id="instruction-controls" hidden>
+            <label for="instructions">Your instructions</label>
+            <textarea id="instructions" name="instructions" rows="4" maxlength="1000"
+              placeholder="Make 3 hard multiple-choice puzzles. Players should solve a set of clues."
+              aria-describedby="instruction-help instruction-feedback"></textarea>
+            <p class="hint" id="instruction-help">Describe an activity, topics, answer format, count or level. Separate instructions with full stops. This uses supported English phrases; extra rules will need clarification.</p>
+            <details><summary>Try an example</summary><div id="instruction-examples"></div></details>
+            <div id="instruction-feedback" class="instruction-feedback" role="status" aria-live="polite"></div>
+            <button id="apply-instructions" type="button" class="small" hidden>Apply these settings</button>
+          </div>
+          <div id="difficulty-controls">
+            <label for="difficulty">Challenge level</label>
+            <select id="difficulty" name="difficulty"><option value="easy">Easy</option>
+              <option value="medium">Medium</option>
+              <option value="hard" selected>Hard</option></select>
+            <p class="hint" id="difficulty-hint">Choose the amount of challenge.</p>
+          </div>
+          <div id="crossword-controls" hidden>
+            <label for="crossword-size">Crossword board size</label>
+            <select id="crossword-size" aria-describedby="crossword-recommendation"><option value="">Use recommended size</option></select>
+            <div id="crossword-size-tiles" class="size-tiles" role="group" aria-label="Choose crossword board size"></div>
+            <p class="hint" id="crossword-recommendation" role="status" aria-live="polite"></p>
+            <p class="hint">Choose any size from 5×5 to 15×15. A larger board keeps the
+              same number of clues with more blank space. Difficulty controls entry count.</p>
+          </div>
+          <label for="count">How many puzzles?</label>
+          <input id="count" name="count" type="number" min="1" max="20" value="1" required>
+          <p class="hint" id="count-hint">Create up to 20 different drafts.</p>
+          <details id="advanced"><summary>More options</summary>
+            <div id="search-controls" hidden>
+              <label for="search-effort">Time spent exploring ideas</label>
+              <select id="search-effort" name="search_effort">
+                <option value="quick">Quick</option>
+                <option value="balanced" selected>Standard</option>
+                <option value="thorough">More exploration</option>
+              </select>
+              <p class="hint">Try more alternatives before choosing a draft. This does not change the challenge level.</p>
+            </div>
+            <label for="seed">Variation number</label>
+            <input id="seed" name="seed" type="number" min="0" max="4294967295" value="7" required>
+            <p class="hint">Keep this number to reproduce the same puzzle with the same settings.</p>
+          </details>
+        <div class="boundary"><strong>What this version covers</strong>
+          <p>Word puzzles use meanings and related vocabulary. Logic activities use those words in invented card puzzles with explicit rules. Every supplied topic must be represented.</p>
+          <p>Answers are checked before a draft is shown. Everything runs without LLMs; unusual topics may need a different meaning or a larger puzzle.</p>
+          <p id="setup">Checking local setup…</p></div>
+          </div>
+          <div class="form-actions">
+            <button class="primary" id="generate" type="submit" disabled>Generate questions <span>↗</span></button>
+            <button class="secondary" id="variation" type="button" disabled>Make another version</button>
+          </div>
+        </form>
+      </aside>
+      <section class="preview" id="drafts-pane" role="region" aria-labelledby="drafts-title">
+        <div class="preview-top"><div class="section-label"><span>02</span><h2 id="drafts-title">Your drafts</h2></div>
+          <button id="download" class="small" disabled>Download draft JSON ↓</button></div>
+        <p id="status" role="status" aria-live="polite" tabindex="-1">Ready when you are.</p>
+        <div id="results" class="preview-scroll" tabindex="0" role="region" aria-label="Puzzle drafts"><div class="empty"><span class="empty-mark">?</span>
+          <h3>Make something worth thinking about.</h3>
+          <p>Your questions will appear here. Try answering before revealing the explanation.</p>
+          <div class="pills"><span>No GPU</span><span>No training</span><span>No API key</span></div>
+        </div></div>
+      </section>
+    </div>
+    <footer>Unpublished drafts only · No changes to your app or question bank · Review before importing</footer>
+  </main>
+</body>
+</html>

@@ -76,14 +76,19 @@ def invent(word: str, seed: int = 0, depth: int = 2, length: int = 3) -> Puzzle:
     return invent_traced(word, seed=seed, depth=depth, length=length)[0]
 
 
-def evolve(seeds: list[str], iterations: int, seed: int = 0) -> Archive:
+def evolve(
+    seeds: list[str], iterations: int, seed: int = 0, policy: mapelites.Policy | None = None
+) -> Archive:
     """Invent one puzzle per seed word, then run the deterministic MAP-Elites search over them.
 
     Each seed puzzle is renamed ``inv_<word>`` so distinct words never collide on a generated id;
     the archive is byte-reproducible for a given ``(seeds, iterations, seed)`` exactly as
-    :func:`spie.mapelites.evolve` guarantees (the seeds here are just its starting population)."""
+    :func:`spie.mapelites.evolve` guarantees (the seeds here are just its starting population).
+    ``policy`` is threaded straight through: ``None`` (the default) keeps the uniform historical
+    search byte-identical, while a steering / contextual / frozen proposer only biases *which*
+    operator and niche to try — the formal gate stays the sole authority on acceptance."""
     puzzles = [replace(invent(w, seed=seed), id=f"inv_{normalize(w)}") for w in seeds]
-    return mapelites.evolve(puzzles, iterations, seed)
+    return mapelites.evolve(puzzles, iterations, seed, policy=policy)
 
 
 __all__ = ["invent", "invent_traced", "evolve"]

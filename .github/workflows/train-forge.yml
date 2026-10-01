@@ -1,0 +1,98 @@
+name: Train BrainBloom question writer
+
+# Manual only. This is independent of train-policy.yml (mutation selection).
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: 'smoke = 8 updates on <=64 rows; full = one epoch of the training split'
+        required: true
+        type: choice
+        options: [smoke, full]
+        default: smoke
+      max_minutes:
+        description: 'GPU job time limit (10-180 minutes); runner billing is separate'
+        required: true
+        type: number
+        default: 120
+
+permissions:
+  contents: read
+
+defaults:
+  run:
+    shell: bash
+
+concurrency:
+  group: brainbloom-writer-training
+  cancel-in-progress: false
+
+env:
+  PYTHONPATH: src
+  HF_HUB_DISABLE_TELEMETRY: '1'
+  TOKENIZERS_PARALLELISM: 'false'
+
+jobs:
+  preflight:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    outputs:
+      runner: ${{ steps.check.outputs.runner }}
+      minutes: ${{ steps.check.outputs.minutes }}
+      revision: ${{ steps.check.outputs.revision }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install test dependency
+        run: python -m pip install pytest==8.3.4
+      - name: Test corpus, masking, and draft boundaries
+        run: python -m pytest -o addopts= -q tests/test_forge.py tests/test_forge_train.py
+      - name: Require private repository, configured GPU runner, and intact corpus
+        id: check
+        env:
+          REPOSITORY_PRIVATE: ${{ github.event.repository.private }}
+          FORGE_GPU_RUNNER: ${{ vars.FORGE_GPU_RUNNER }}
+          TRAIN_MINUTES: ${{ inputs.max_minutes }}
+        run: >-
+          python -m tools.forge_train preflight
+          --corpus training/brainbloom/corpus.json --resolve-model
+
+  train:
+    needs: preflight
+    runs-on: ${{ fromJSON(needs.preflight.outputs.runner) }}
+    timeout-minutes: ${{ fromJSON(needs.preflight.outputs.minutes) }}
+    env:
+      TRAIN_MODE: ${{ inputs.mode }}
+      MODEL_REVISION: ${{ needs.preflight.outputs.revision }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Show assigned GPU
+        run: |
+          python -c "import sys; assert sys.platform == 'linux', 'Linux CUDA runner required'"
+          nvidia-smi
+      - name: Install isolated CUDA training toolchain
+        run: |
+          python -m pip install torch==2.6.0 --index-url https://download.pytorch.org/whl/cu124
+          python -m pip install -r tools/forge_train/requirements-gpu.txt
+      - name: Fine-tune the question writer and generate comparison drafts
+        run: >-
+          python -m tools.forge_train train
+          --corpus training/brainbloom/corpus.json
+          --out training-run --mode "$TRAIN_MODE" --revision "$MODEL_REVISION"
+      - name: Retain weights, diagnostics, previews, or recoverable checkpoints
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: brainbloom-writer-${{ inputs.mode }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: training-run/
+          if-no-files-found: warn
+          retention-days: 7

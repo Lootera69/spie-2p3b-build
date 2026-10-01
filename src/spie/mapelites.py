@@ -30,6 +30,8 @@ from dataclasses import dataclass, field, replace
 
 from . import fingerprint
 from .certificate import certify
+from .context_policy import ContextualPolicy
+from .decision import FrozenProposer
 from .examples_src import BUILDERS
 from .ir import Puzzle
 from .operators import FAMILIES, OPERATORS
@@ -41,6 +43,7 @@ from .serialize import (
     puzzle_to_json,
     quality_from_json,
 )
+from .steering import SteeringPolicy
 from .validate import validate
 from .verify import GateStatus, verify
 
@@ -176,6 +179,26 @@ def _puzzle_digest(puzzle: Puzzle) -> str:
     return hashlib.sha256(dumps(puzzle_to_json(puzzle)).encode("utf-8")).hexdigest()
 
 
+# Fields that carry a puzzle's *identity / presentation*, not its playable mechanics: the generated
+# id, the human title, the provenance notes, and the seed stamp. Two puzzles differing only in these
+# are the *same puzzle to play*, so the structural digest strips them before hashing.
+_METADATA_FIELDS = ("id", "title", "notes", "seed")
+
+
+def _structural_digest(puzzle: Puzzle) -> str:
+    """A stable SHA-256 over the puzzle's *mechanics only* — its canonical JSON with the
+    identity/presentation fields (:data:`_METADATA_FIELDS`) dropped. Distinct from
+    :func:`_puzzle_digest` (which addresses the exact serialized puzzle, generated id and all):
+    two puzzles that are mechanically identical but differ in id/title/notes/seed share one
+    structural digest. This is the cross-run *uniqueness* key — "have we already produced this
+    puzzle to play?" — and is never consulted for correctness (the gate alone decides that).
+    ``puzzle_to_json`` returns a fresh dict, so popping mutates only this local copy."""
+    data = puzzle_to_json(puzzle)
+    for field_name in _METADATA_FIELDS:
+        data.pop(field_name, None)
+    return hashlib.sha256(dumps(data).encode("utf-8")).hexdigest()
+
+
 def evaluate(
     puzzle: Puzzle, corpus: list | None = None, lineage: Lineage | None = None
 ) -> Admission:
@@ -248,29 +271,99 @@ def _corpus_fingerprints() -> list:
     return fingerprint.corpus_fingerprints([b() for b in BUILDERS])
 
 
-def evolve(seeds: list[Puzzle], iterations: int, seed: int = 0) -> Archive:
+# The context vector the contextual steering policy (spie.context_policy) reads: seven quality
+# features of the parent elite, each normalized to [0, 1] so the ridge model and its confidence
+# radius stay well-scaled. Index 0 is the bias term (a learnable per-operator base survival rate).
+# This is the sole definition of the "decision model"'s input; the policy itself is
+# dimension-generic and thesis-safe -- these features only steer WHICH operator to try, never
+# acceptance.
+_CONTEXT_DIM = 7
+
+
+def _context_features(quality: QualityVector) -> tuple[float, ...]:
+    """The parent elite's quality features as a fixed-length, ``[0, 1]``-scaled context vector for
+    the contextual operator policy. A pure function of the quality vector (no RNG, no side effects),
+    so it never perturbs byte-reproducibility and the ``policy=None`` path stays untouched."""
+    d = quality.difficulty
+    return (
+        1.0,  # bias
+        (d.band - 1) / 4.0,  # difficulty band 1..5 -> 0..1
+        quality.novelty.score,  # novelty distance to the corpus, already [0, 1]
+        quality.elegance.score,  # elegance, already [0, 1]
+        quality.elegance.minimality_ratio,  # fraction of load-bearing rules, [0, 1]
+        min(d.belief_count, 7) / 7.0,  # epistemic belief-set size, capped + normalized
+        min(d.plan_branching, 7) / 7.0,  # plan branching factor, capped + normalized
+    )
+
+
+Policy = SteeringPolicy | ContextualPolicy | FrozenProposer
+
+
+def evolve(
+    seeds: list[Puzzle],
+    iterations: int,
+    seed: int = 0,
+    policy: Policy | None = None,
+    history: set[str] | None = None,
+) -> Archive:
     """Run a bounded, fully-seeded MAP-Elites search and return the archive.
 
     Seed the grid by gating each puzzle in ``seeds``, then iterate ``iterations`` times: pick an
-    occupied niche (uniformly over the *sorted* niches), pick an operator (uniformly over the
-    fixed :data:`~spie.operators.OPERATORS` tuple), apply it to that niche's elite, and gate the
-    result. Every draw comes from one ``random.Random(seed)``, so the archive is byte-identical
-    across runs with the same ``(seeds, iterations, seed)``. Mutants are renamed with a
-    deterministic per-iteration id so distinct cells never collide on an authored id."""
+    occupied niche, pick an operator, apply it to that niche's elite, and gate the result. With the
+    default ``policy=None`` both picks are uniform over the *sorted* candidates (the standing
+    byte-reproducibility baseline); pass a :class:`~spie.steering.SteeringPolicy` and the two picks
+    are instead driven by its discounted-UCB bandits, credited after each placement with the
+    child's *survival* (``placed``/``replaced`` -> 1.0, else 0.0). A
+    :class:`~spie.context_policy.ContextualPolicy` instead conditions the operator pick on the
+    parent elite's quality features (a LinUCB "decision model") and additionally logs a *calibrated*
+    survival confidence for later measurement. A :class:`~spie.decision.FrozenProposer` loads an
+    offline-trained, frozen version of that model and only *proposes* ``argmax`` operator (it never
+    learns online — its ``reward`` credits only its niche bandit). Either way the policy only steers
+    *what to try* -- the ``validate -> verify -> certify`` gate in :func:`place` stays the sole
+    authority, so a
+    policy can never admit an unproven puzzle. Every draw comes from one ``random.Random(seed)``
+    (the bandits are RNG-free and the context is a pure function of the parent), so the archive is
+    byte-identical across runs with the same ``(seeds, iterations, seed)`` and policy history.
+    Mutants are renamed with a deterministic per-iteration id so distinct cells never collide on an
+    authored id.
+
+    ``history`` opts into cross-run de-duplication (roadmap p0 "unique each time"). ``None`` (the
+    default) leaves it *off* -- the rng stream, placements, tally and archive are byte-identical to
+    the historical search. Any set turns it *on*: a copy seeds the ``seen`` set of
+    :func:`_structural_digest` values, every admitted elite (seed or mutant) adds its structural
+    digest to ``seen``, and any *mutant* whose structural digest is already in ``seen`` is rejected
+    with reason ``"duplicate"`` (tallied + recorded) before the gate ever runs -- so a chained run
+    fed the prior archive's :func:`archive_digests` cannot re-emit a mechanically identical puzzle.
+    The de-dup check runs *after* the operator (the rng stream is untouched) and only ever
+    *rejects*, never admits, so correctness stays wholly with the gate; a duplicate credits the
+    policy 0.0, exactly like any other non-survival."""
     rng = random.Random(seed)
     corpus = _corpus_fingerprints()
     archive = Archive(seed=seed, iterations=iterations)
+    seen = set(history) if history is not None else None  # None => cross-run de-dup off (default)
     for p in seeds:
-        place(archive, p, corpus)
+        adm = place(archive, p, corpus)
+        if seen is not None and adm.ok and adm.cell is not None:
+            seen.add(_structural_digest(adm.cell.puzzle))
+    op_by_name = {op.__name__: op for op in OPERATORS}
     for i in range(iterations):
         if not archive.cells:
             break
-        parent_niche = rng.choice(sorted(archive.cells))
-        parent_cell = archive.cells[parent_niche]
-        operator = rng.choice(OPERATORS)
+        context: tuple[float, ...] | None = None
+        if policy is None:
+            parent_niche = rng.choice(sorted(archive.cells))
+            operator = rng.choice(OPERATORS)
+            parent_cell = archive.cells[parent_niche]
+        else:
+            parent_niche = policy.choose_niche(archive.cells.keys())
+            parent_cell = archive.cells[parent_niche]
+            context = _context_features(parent_cell.quality)
+            operator = op_by_name[policy.choose_operator(op_by_name.keys(), context)]
         child = operator(parent_cell.puzzle, rng)
         if child is None:
             archive._count("no-op")
+            if policy is not None:
+                policy.reward(parent_niche, operator.__name__, 0.0, context)
             continue
         child = replace(child, id=f"evo_{i:04d}")
         parent_gen = 0 if parent_cell.lineage is None else parent_cell.lineage.generation
@@ -281,8 +374,30 @@ def evolve(seeds: list[Puzzle], iterations: int, seed: int = 0) -> Archive:
             family=_FAMILY_OF[operator],
             generation=parent_gen + 1,
         )
-        place(archive, child, corpus, lineage)
+        if seen is not None and _structural_digest(child) in seen:
+            archive._count("duplicate")
+            archive.rejections.append(
+                Rejection(
+                    _puzzle_digest(child), "duplicate", "structural match in history", lineage
+                )
+            )
+            if policy is not None:
+                policy.reward(parent_niche, operator.__name__, 0.0, context)
+            continue
+        adm = place(archive, child, corpus, lineage)
+        if seen is not None and adm.ok and adm.cell is not None:
+            seen.add(_structural_digest(adm.cell.puzzle))
+        if policy is not None:
+            policy.reward(parent_niche, operator.__name__, 1.0 if adm.ok else 0.0, context)
     return archive
+
+
+def archive_digests(archive: Archive) -> set[str]:
+    """The :func:`_structural_digest` of every elite currently in ``archive`` -- the set to feed
+    forward as :func:`evolve`'s ``history`` so a later run does not re-emit a mechanically identical
+    puzzle. Keyed on the *structural* digest (id/title/notes/seed stripped), so a puzzle counts as
+    already-produced regardless of the generated id it happens to wear."""
+    return {_structural_digest(cell.puzzle) for cell in archive.cells.values()}
 
 
 def _lineage_to_json(lineage: Lineage | None) -> dict | None:
@@ -390,6 +505,7 @@ __all__ = [
     "evaluate",
     "place",
     "evolve",
+    "archive_digests",
     "archive_to_json",
     "archive_from_json",
 ]

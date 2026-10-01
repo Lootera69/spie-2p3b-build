@@ -1,0 +1,773 @@
+{
+  "schema": 1,
+  "version": "coverage-packs-v1",
+  "source_sha256": "e1f633b0a93758cae34ea27c44c4dad310a8af2467b155f99dd6673af697e875",
+  "review": {
+    "date": "2026-09-30",
+    "reviewer": "Codex agent editorial review",
+    "human_review": false,
+    "scope": "Sense selection, topic relevance, clue wording, answer leakage, length",
+    "limits": "Not an independent subject expert review or player study"
+  },
+  "transformations": "Selected lemmas and synsets; adapted, shortened definitions; editorial topic memberships; spaces and hyphens removed in answers",
+  "packs": [
+    {
+      "id": "coverage-v1:machine-learning",
+      "topic": "machine learning",
+      "aliases": [
+        "ml",
+        "statistical learning"
+      ],
+      "definition": "Statistical and computing vocabulary",
+      "entries": [
+        {
+          "word": "ALGORITHM",
+          "lemma": "algorithm",
+          "definition": "A precise sequence of rules for solving a problem",
+          "source_sense": "oewn2024:oewn-05855965-n",
+          "source_definition": "a precise rule (or set of rules) specifying how to solve some problem"
+        },
+        {
+          "word": "DATA",
+          "lemma": "data",
+          "definition": "A collection of recorded facts or observations",
+          "source_sense": "oewn2024:oewn-08479331-n",
+          "source_definition": "a collection of facts from which conclusions may be drawn"
+        },
+        {
+          "word": "CLASSIFICATION",
+          "lemma": "classification",
+          "definition": "The act of assigning things to categories",
+          "source_sense": "oewn2024:oewn-01014654-n",
+          "source_definition": "the act of distributing things into classes or categories of the same type"
+        },
+        {
+          "word": "REGRESSION",
+          "lemma": "regression",
+          "definition": "Statistical modelling of a response in relation to explanatory variables",
+          "source_sense": "oewn2024:oewn-06036794-n",
+          "source_definition": "the relation between selected values of x and observed values of y (from which the most probable value of y can be predicted for any value of x)"
+        },
+        {
+          "word": "MODEL",
+          "lemma": "model",
+          "definition": "A simplified representation of a system or process",
+          "source_sense": "oewn2024:oewn-05898856-n",
+          "source_definition": "a hypothetical description of a complex entity or process"
+        },
+        {
+          "word": "FEATURE",
+          "lemma": "feature",
+          "definition": "An attribute used to describe an observation",
+          "source_sense": "oewn2024:oewn-05858316-n",
+          "source_definition": "a prominent attribute or aspect of something"
+        },
+        {
+          "word": "CLUSTERING",
+          "lemma": "clustering",
+          "definition": "The grouping of similar observations",
+          "source_sense": "oewn2024:oewn-07976557-n",
+          "source_definition": "a grouping of a number of similar things"
+        },
+        {
+          "word": "NEURALNETWORK",
+          "lemma": "neural network",
+          "definition": "A computing model with connected units inspired by neurons",
+          "source_sense": "oewn2024:oewn-06738216-n",
+          "source_definition": "computer architecture in which processors are connected in a manner suggestive of connections between neurons; can learn by trial and error"
+        },
+        {
+          "word": "PREDICTION",
+          "lemma": "prediction",
+          "definition": "An estimate of an unknown or future outcome",
+          "source_sense": "oewn2024:oewn-05783078-n",
+          "source_definition": "the act of predicting (as by reasoning about the future)"
+        },
+        {
+          "word": "SAMPLE",
+          "lemma": "sample",
+          "definition": "A selection of observations from a population",
+          "source_sense": "oewn2024:oewn-06036061-n",
+          "source_definition": "items selected at random from a population and used to test hypotheses about the population"
+        },
+        {
+          "word": "PARAMETER",
+          "lemma": "parameter",
+          "definition": "A numerical quantity characterising a statistical population",
+          "source_sense": "oewn2024:oewn-05867861-n",
+          "source_definition": "a quantity (such as the mean or variance) that characterizes a statistical population and that can be estimated by calculations from sample data"
+        },
+        {
+          "word": "ACCURACY",
+          "lemma": "accuracy",
+          "definition": "Closeness of a result to the correct or true value",
+          "source_sense": "oewn2024:oewn-04810156-n",
+          "source_definition": "the quality of being near to the true value"
+        }
+      ]
+    },
+    {
+      "id": "coverage-v1:cybersecurity",
+      "topic": "cybersecurity",
+      "aliases": [
+        "cyber security",
+        "computer security"
+      ],
+      "definition": "Computer protection vocabulary",
+      "entries": [
+        {
+          "word": "FIREWALL",
+          "lemma": "firewall",
+          "definition": "A security system that filters traffic between computers or networks",
+          "source_sense": "oewn2024:oewn-03352988-n",
+          "source_definition": "(computing) a security system consisting of a combination of hardware and software that limits the exposure of a computer or computer network to attack from crackers; commonly used on local area networks that are connected to the internet"
+        },
+        {
+          "word": "ENCRYPTION",
+          "lemma": "encryption",
+          "definition": "The conversion of readable information into coded form",
+          "source_sense": "oewn2024:oewn-00617127-n",
+          "source_definition": "the activity of converting data or information into code"
+        },
+        {
+          "word": "MALWARE",
+          "lemma": "malware",
+          "definition": "Software designed to harm, disrupt or compromise a computer system",
+          "source_sense": "oewn2024:oewn-06600315-n",
+          "source_definition": "malicious software, designed to break into a system"
+        },
+        {
+          "word": "PASSWORD",
+          "lemma": "password",
+          "definition": "A secret word or phrase used to help control access",
+          "source_sense": "oewn2024:oewn-06686933-n",
+          "source_definition": "a secret word or phrase known only to a restricted group"
+        },
+        {
+          "word": "AUTHENTICATION",
+          "lemma": "authentication",
+          "definition": "The process of checking a claimed identity or origin",
+          "source_sense": "oewn2024:oewn-00155053-n",
+          "source_definition": "validating the authenticity of something or someone"
+        },
+        {
+          "word": "RANSOMWARE",
+          "lemma": "ransomware",
+          "definition": "Malicious software that blocks access and demands payment",
+          "source_sense": "oewn2024:oewn-90009981-n",
+          "source_definition": "malicious software that makes a computer unusable unless a payment is made to the attacker"
+        },
+        {
+          "word": "CIPHER",
+          "lemma": "cipher",
+          "definition": "A method for transforming a message into a secret form",
+          "source_sense": "oewn2024:oewn-06366714-n",
+          "source_definition": "a secret method of writing"
+        },
+        {
+          "word": "BACKUP",
+          "lemma": "backup",
+          "definition": "A separate copy of stored data kept for recovery",
+          "source_sense": "oewn2024:oewn-02774845-n",
+          "source_definition": "(computer science) a copy of a file or directory on a separate storage device"
+        },
+        {
+          "word": "CRYPTOGRAPHY",
+          "lemma": "cryptography",
+          "definition": "The practice of protecting information through codes and ciphers",
+          "source_sense": "oewn2024:oewn-00615776-n",
+          "source_definition": "act of writing in code or cipher"
+        },
+        {
+          "word": "NETWORK",
+          "lemma": "network",
+          "definition": "An interconnected system of devices or other components",
+          "source_sense": "oewn2024:oewn-08451269-n",
+          "source_definition": "an interconnected system of things or people"
+        },
+        {
+          "word": "DECRYPTION",
+          "lemma": "decryption",
+          "definition": "The conversion of coded information back into readable form",
+          "source_sense": "oewn2024:oewn-00618299-n",
+          "source_definition": "the activity of making clear or converting from code into plain text"
+        },
+        {
+          "word": "VULNERABILITY",
+          "lemma": "vulnerability",
+          "definition": "A weakness that leaves a system susceptible to attack",
+          "source_sense": "oewn2024:oewn-05050025-n",
+          "source_definition": "susceptibility to injury or attack"
+        }
+      ]
+    },
+    {
+      "id": "coverage-v1:renewable-energy",
+      "topic": "renewable energy",
+      "aliases": [
+        "renewables",
+        "clean energy vocabulary"
+      ],
+      "definition": "Renewable generation and storage vocabulary",
+      "entries": [
+        {
+          "word": "SOLARENERGY",
+          "lemma": "solar energy",
+          "definition": "Energy from sunlight that can be converted into heat or electricity",
+          "source_sense": "oewn2024:oewn-11530115-n",
+          "source_definition": "energy from the sun that is converted into thermal or electrical energy"
+        },
+        {
+          "word": "WINDPOWER",
+          "lemma": "wind power",
+          "definition": "Power obtained from moving air",
+          "source_sense": "oewn2024:oewn-11547345-n",
+          "source_definition": "power derived from the wind (as by windmills)"
+        },
+        {
+          "word": "TURBINE",
+          "lemma": "turbine",
+          "definition": "A machine whose bladed rotor is turned by a moving fluid",
+          "source_sense": "oewn2024:oewn-04505818-n",
+          "source_definition": "rotary engine in which the kinetic energy of a moving fluid is converted into mechanical energy by causing a bladed rotor to rotate"
+        },
+        {
+          "word": "GENERATOR",
+          "lemma": "generator",
+          "definition": "A machine that converts mechanical energy into electrical energy",
+          "source_sense": "oewn2024:oewn-03438787-n",
+          "source_definition": "engine that converts mechanical energy into electrical energy by electromagnetic induction"
+        },
+        {
+          "word": "BATTERY",
+          "lemma": "battery",
+          "definition": "A device of one or more cells that supplies electrical energy",
+          "source_sense": "oewn2024:oewn-02813606-n",
+          "source_definition": "a device that produces electricity; may have several primary or secondary cells arranged in parallel or series"
+        },
+        {
+          "word": "BIOMASS",
+          "lemma": "biomass",
+          "definition": "Plant material or animal waste used as fuel",
+          "source_sense": "oewn2024:oewn-14709079-n",
+          "source_definition": "plant materials and animal waste used as fuel"
+        },
+        {
+          "word": "INVERTER",
+          "lemma": "inverter",
+          "definition": "A device that converts direct current into alternating current",
+          "source_sense": "oewn2024:oewn-03588128-n",
+          "source_definition": "an electrical converter that converts direct current into alternating current"
+        },
+        {
+          "word": "ELECTRICITY",
+          "lemma": "electricity",
+          "definition": "Energy supplied by the movement of electric charge",
+          "source_sense": "oewn2024:oewn-11470903-n",
+          "source_definition": "energy made available by the flow of electric charge through a conductor"
+        },
+        {
+          "word": "SOLARCELL",
+          "lemma": "solar cell",
+          "definition": "A device that converts sunlight directly into electrical energy",
+          "source_sense": "oewn2024:oewn-04265096-n",
+          "source_definition": "a cell that converts solar energy into electrical energy"
+        },
+        {
+          "word": "WINDMILL",
+          "lemma": "windmill",
+          "definition": "A mill driven by the wind",
+          "source_sense": "oewn2024:oewn-04594862-n",
+          "source_definition": "a mill that is powered by the wind"
+        },
+        {
+          "word": "ENERGY",
+          "lemma": "energy",
+          "definition": "A physical quantity measured in joules and associated with the ability to do work",
+          "source_sense": "oewn2024:oewn-11472635-n",
+          "source_definition": "(physics) a thermodynamic quantity equivalent to the capacity of a physical system to do work; the units of energy are joules or ergs"
+        },
+        {
+          "word": "ROTOR",
+          "lemma": "rotor",
+          "definition": "The rotating part of a motor or generator",
+          "source_sense": "oewn2024:oewn-04119056-n",
+          "source_definition": "the rotating armature of a motor or generator"
+        }
+      ]
+    },
+    {
+      "id": "coverage-v1:robotics",
+      "topic": "robotics",
+      "aliases": [
+        "robot engineering"
+      ],
+      "definition": "Robot components and control vocabulary",
+      "entries": [
+        {
+          "word": "ROBOT",
+          "lemma": "robot",
+          "definition": "A programmable machine that carries out actions automatically",
+          "source_sense": "oewn2024:oewn-02764397-n",
+          "source_definition": "a mechanism that can move automatically"
+        },
+        {
+          "word": "SENSOR",
+          "lemma": "sensor",
+          "definition": "A device that detects and responds to a physical signal",
+          "source_sense": "oewn2024:oewn-03185635-n",
+          "source_definition": "any device that receives a signal or stimulus (as heat or pressure or light or motion etc.) and responds to it in a distinctive manner"
+        },
+        {
+          "word": "ACTUATOR",
+          "lemma": "actuator",
+          "definition": "A mechanism that produces movement or other action in a machine",
+          "source_sense": "oewn2024:oewn-02681238-n",
+          "source_definition": "a mechanism that puts something into automatic action"
+        },
+        {
+          "word": "SERVO",
+          "lemma": "servo",
+          "definition": "A powered control mechanism that uses feedback to follow a command",
+          "source_sense": "oewn2024:oewn-04183356-n",
+          "source_definition": "control system that converts a small mechanical motion into one requiring much greater power; may include a negative feedback system"
+        },
+        {
+          "word": "FEEDBACK",
+          "lemma": "feedback",
+          "definition": "The return of part of a system's output to regulate its input",
+          "source_sense": "oewn2024:oewn-13500583-n",
+          "source_definition": "the process in which part of the output of a system is returned to its input in order to regulate its further output"
+        },
+        {
+          "word": "AUTOMATION",
+          "lemma": "automation",
+          "definition": "The use of technology to control equipment with reduced human intervention",
+          "source_sense": "oewn2024:oewn-00103277-n",
+          "source_definition": "the act of implementing the control of equipment with advanced technology; usually involving electronic hardware"
+        },
+        {
+          "word": "CONTROLLER",
+          "lemma": "controller",
+          "definition": "A mechanism that regulates the operation of a machine",
+          "source_sense": "oewn2024:oewn-03101611-n",
+          "source_definition": "a mechanism that controls the operation of a machine"
+        },
+        {
+          "word": "MOTOR",
+          "lemma": "motor",
+          "definition": "A machine that converts energy into mechanical motion",
+          "source_sense": "oewn2024:oewn-03795479-n",
+          "source_definition": "machine that converts other forms of energy into mechanical energy and so imparts motion"
+        },
+        {
+          "word": "KINEMATICS",
+          "lemma": "kinematics",
+          "definition": "The study of motion without considering its forces or masses",
+          "source_sense": "oewn2024:oewn-06123384-n",
+          "source_definition": "the branch of mechanics concerned with motion without reference to force or mass"
+        },
+        {
+          "word": "JOINT",
+          "lemma": "joint",
+          "definition": "A connection where separate mechanical parts are joined",
+          "source_sense": "oewn2024:oewn-03606190-n",
+          "source_definition": "junction by which parts or objects are joined together"
+        },
+        {
+          "word": "ARM",
+          "lemma": "arm",
+          "definition": "A projecting machine part resembling a human upper limb",
+          "source_sense": "oewn2024:oewn-02740838-n",
+          "source_definition": "any projection that is thought to resemble a human arm"
+        },
+        {
+          "word": "ROBOTICS",
+          "lemma": "robotics",
+          "definition": "The study and practical use of programmable machines",
+          "source_sense": "oewn2024:oewn-06143105-n",
+          "source_definition": "the area of AI concerned with the practical use of robots"
+        }
+      ]
+    },
+    {
+      "id": "coverage-v1:plate-tectonics",
+      "topic": "plate tectonics",
+      "aliases": [
+        "tectonic plates"
+      ],
+      "definition": "Earth structure and plate movement vocabulary",
+      "entries": [
+        {
+          "word": "CRUST",
+          "lemma": "crust",
+          "definition": "The outermost solid layer of Earth",
+          "source_sense": "oewn2024:oewn-09282916-n",
+          "source_definition": "the outer layer of the Earth"
+        },
+        {
+          "word": "MANTLE",
+          "lemma": "mantle",
+          "definition": "The layer of Earth between its crust and core",
+          "source_sense": "oewn2024:oewn-09369347-n",
+          "source_definition": "the layer of the earth between the crust and the core"
+        },
+        {
+          "word": "PLATE",
+          "lemma": "plate",
+          "definition": "A rigid piece of Earth's lithosphere that moves relative to other pieces",
+          "source_sense": "oewn2024:oewn-09418350-n",
+          "source_definition": "a rigid layer of the Earth's crust that is believed to drift slowly"
+        },
+        {
+          "word": "SUBDUCTION",
+          "lemma": "subduction",
+          "definition": "The movement of one tectonic plate down beneath another",
+          "source_sense": "oewn2024:oewn-13583883-n",
+          "source_definition": "a geological process in which one edge of a crustal plate is forced sideways and downward into the mantle below another plate"
+        },
+        {
+          "word": "FAULT",
+          "lemma": "fault",
+          "definition": "A fracture in rock along which displacement has occurred",
+          "source_sense": "oewn2024:oewn-09301443-n",
+          "source_definition": "(geology) a crack in the earth's crust resulting from the displacement of one side with respect to the other"
+        },
+        {
+          "word": "EARTHQUAKE",
+          "lemma": "earthquake",
+          "definition": "Shaking of Earth's surface caused by a sudden release of energy",
+          "source_sense": "oewn2024:oewn-07443554-n",
+          "source_definition": "shaking and vibration at the surface of the earth resulting from underground movement along a fault plane or from volcanic activity"
+        },
+        {
+          "word": "VOLCANO",
+          "lemma": "volcano",
+          "definition": "A vent through which molten rock and gases reach a planetary surface",
+          "source_sense": "oewn2024:oewn-09493680-n",
+          "source_definition": "a fissure in the earth's crust (or in the surface of some other planet) through which molten lava and gases erupt"
+        },
+        {
+          "word": "RIFT",
+          "lemma": "rift",
+          "definition": "A narrow fissure or opening in rock",
+          "source_sense": "oewn2024:oewn-09432904-n",
+          "source_definition": "a narrow fissure in rock"
+        },
+        {
+          "word": "MAGMA",
+          "lemma": "magma",
+          "definition": "Molten rock beneath Earth's surface",
+          "source_sense": "oewn2024:oewn-14955933-n",
+          "source_definition": "molten rock in the earth's crust"
+        },
+        {
+          "word": "LAVA",
+          "lemma": "lava",
+          "definition": "Molten rock that has reached a planetary surface",
+          "source_sense": "oewn2024:oewn-14955127-n",
+          "source_definition": "rock that in its molten form (as magma) issues from volcanoes; lava is what magma is called when it reaches the surface"
+        },
+        {
+          "word": "TECTONICS",
+          "lemma": "tectonics",
+          "definition": "The study of deformation and large structures of Earth's crust",
+          "source_sense": "oewn2024:oewn-06127977-n",
+          "source_definition": "the branch of geology studying the folding and faulting of the earth's crust"
+        },
+        {
+          "word": "CONTINENT",
+          "lemma": "continent",
+          "definition": "One of Earth's large landmasses",
+          "source_sense": "oewn2024:oewn-09277520-n",
+          "source_definition": "one of the large landmasses of the earth"
+        }
+      ]
+    },
+    {
+      "id": "coverage-v1:genetics",
+      "topic": "genetics",
+      "aliases": [
+        "heredity vocabulary",
+        "genomics"
+      ],
+      "definition": "Heredity and cell division vocabulary",
+      "entries": [
+        {
+          "word": "GENE",
+          "lemma": "gene",
+          "definition": "A hereditary sequence that contributes to a functional RNA or protein product",
+          "source_sense": "oewn2024:oewn-05444328-n",
+          "source_definition": "(genetics) a segment of DNA that is involved in producing a polypeptide chain; it can include regions preceding and following the coding DNA as well as introns between the exons; it is considered a unit of heredity"
+        },
+        {
+          "word": "CHROMOSOME",
+          "lemma": "chromosome",
+          "definition": "A structure of DNA and associated proteins that carries genes",
+          "source_sense": "oewn2024:oewn-05449707-n",
+          "source_definition": "a threadlike strand of DNA in the cell nucleus that carries the genes in a linear order"
+        },
+        {
+          "word": "GENOME",
+          "lemma": "genome",
+          "definition": "An organism's complete set of genetic material",
+          "source_sense": "oewn2024:oewn-08474554-n",
+          "source_definition": "the ordering of genes in a haploid set of chromosomes of a particular organism; the full DNA sequence of an organism"
+        },
+        {
+          "word": "ALLELE",
+          "lemma": "allele",
+          "definition": "An alternative form of a gene at a particular locus",
+          "source_sense": "oewn2024:oewn-05445361-n",
+          "source_definition": "(genetics) either of a pair (or series) of alternative forms of a gene that can occupy the same locus on a particular chromosome and that control the same character"
+        },
+        {
+          "word": "MUTATION",
+          "lemma": "mutation",
+          "definition": "A change in a genetic sequence",
+          "source_sense": "oewn2024:oewn-07439611-n",
+          "source_definition": "(genetics) any event that changes genetic structure; any alteration in the inherited nucleic acid sequence of the genotype of an organism"
+        },
+        {
+          "word": "HEREDITY",
+          "lemma": "heredity",
+          "definition": "The transmission of biological characteristics between generations",
+          "source_sense": "oewn2024:oewn-13514602-n",
+          "source_definition": "the biological process whereby genetic factors are transmitted from one generation to the next"
+        },
+        {
+          "word": "GENOTYPE",
+          "lemma": "genotype",
+          "definition": "The combination of alleles at specified genetic loci",
+          "source_sense": "oewn2024:oewn-04941220-n",
+          "source_definition": "the particular alleles at specified loci present in an organism"
+        },
+        {
+          "word": "PHENOTYPE",
+          "lemma": "phenotype",
+          "definition": "Observable characteristics arising from genes and the environment",
+          "source_sense": "oewn2024:oewn-04941029-n",
+          "source_definition": "what an organism looks like as a consequence of the interaction of its genotype and the environment"
+        },
+        {
+          "word": "MEIOSIS",
+          "lemma": "meiosis",
+          "definition": "Cell division that reduces the chromosome number by half",
+          "source_sense": "oewn2024:oewn-13533928-n",
+          "source_definition": "(genetics) cell division that produces reproductive cells in sexually reproducing organisms; the nucleus divides into four nuclei each containing half the chromosome number (leading to gametes in animals and spores in plants)"
+        },
+        {
+          "word": "MITOSIS",
+          "lemma": "mitosis",
+          "definition": "Nuclear division that normally preserves the chromosome number",
+          "source_sense": "oewn2024:oewn-13537800-n",
+          "source_definition": "cell division in which the nucleus divides into nuclei containing the same number of chromosomes"
+        },
+        {
+          "word": "NUCLEOTIDE",
+          "lemma": "nucleotide",
+          "definition": "A basic molecular building block of DNA or RNA",
+          "source_sense": "oewn2024:oewn-14988729-n",
+          "source_definition": "a phosphoric ester of a nucleoside; the basic structural unit of nucleic acids (DNA or RNA)"
+        },
+        {
+          "word": "GENETICS",
+          "lemma": "genetics",
+          "definition": "The branch of biology concerned with heredity and variation",
+          "source_sense": "oewn2024:oewn-06085077-n",
+          "source_definition": "the branch of biology that studies heredity and variation in organisms"
+        }
+      ]
+    },
+    {
+      "id": "coverage-v1:cricket",
+      "topic": "cricket",
+      "aliases": [
+        "cricket sport",
+        "cricket vocabulary"
+      ],
+      "definition": "Cricket sport vocabulary, excluding the insect meaning",
+      "entries": [
+        {
+          "word": "BAT",
+          "lemma": "bat",
+          "definition": "The club used to strike the ball in cricket",
+          "source_sense": "oewn2024:oewn-03136727-n",
+          "source_definition": "the club used in playing cricket"
+        },
+        {
+          "word": "BALL",
+          "lemma": "ball",
+          "definition": "The round object delivered by the bowler in cricket",
+          "source_sense": "oewn2024:oewn-02781674-n",
+          "source_definition": "round object that is hit or thrown or kicked in games"
+        },
+        {
+          "word": "WICKET",
+          "lemma": "wicket",
+          "definition": "A set of three stumps topped by two bails in cricket",
+          "source_sense": "oewn2024:oewn-04590155-n",
+          "source_definition": "cricket equipment consisting of a set of three stumps topped by crosspieces; used in playing cricket"
+        },
+        {
+          "word": "BOWLER",
+          "lemma": "bowler",
+          "definition": "The cricket player who delivers the ball to the batter",
+          "source_sense": "oewn2024:oewn-09889502-n",
+          "source_definition": "a cricketer who delivers the ball to the batsman in cricket"
+        },
+        {
+          "word": "INNINGS",
+          "lemma": "innings",
+          "definition": "A batting turn of a cricket player or team",
+          "source_sense": "oewn2024:oewn-00458252-n",
+          "source_definition": "the batting turn of a cricket player or team"
+        },
+        {
+          "word": "OVER",
+          "lemma": "over",
+          "definition": "A set of six valid deliveries by one cricket bowler",
+          "source_sense": "oewn2024:oewn-15283505-n",
+          "source_definition": "(cricket) the division of play during which six balls are bowled at the batsman by one player from the other team from the same end of the pitch"
+        },
+        {
+          "word": "STUMP",
+          "lemma": "stump",
+          "definition": "One of the three upright posts forming a cricket wicket",
+          "source_sense": "oewn2024:oewn-04353081-n",
+          "source_definition": "(cricket) any of three upright wooden posts that form the wicket"
+        },
+        {
+          "word": "CRICKETER",
+          "lemma": "cricketer",
+          "definition": "An athlete who plays the bat-and-ball sport with eleven players per side",
+          "source_sense": "oewn2024:oewn-09996856-n",
+          "source_definition": "an athlete who plays cricket"
+        },
+        {
+          "word": "GOOGLY",
+          "lemma": "googly",
+          "definition": "A leg-spinner's delivery that turns in the opposite direction to the usual leg break",
+          "source_sense": "oewn2024:oewn-00478108-n",
+          "source_definition": "a cricket ball bowled as if to break one way that actually breaks in the opposite way"
+        },
+        {
+          "word": "FIELDER",
+          "lemma": "fielder",
+          "definition": "A cricket player on the side trying to stop runs and take wickets",
+          "source_sense": "oewn2024:oewn-10106152-n",
+          "source_definition": "a member of the cricket team that is fielding rather than batting"
+        },
+        {
+          "word": "DUCK",
+          "lemma": "duck",
+          "definition": "A batter's score of zero in cricket",
+          "source_sense": "oewn2024:oewn-13617087-n",
+          "source_definition": "(cricket) a score of nothing by a batsman"
+        },
+        {
+          "word": "FOLLOWON",
+          "lemma": "follow-on",
+          "definition": "A second consecutive innings required of a trailing cricket team under the rules",
+          "source_sense": "oewn2024:oewn-00458062-n",
+          "source_definition": "an immediate second innings forced on a cricket team scoring a prescribed number of runs fewer than its opponents in the first innings"
+        }
+      ]
+    },
+    {
+      "id": "coverage-v1:neuroscience",
+      "topic": "neuroscience",
+      "aliases": [
+        "brain science",
+        "neural biology"
+      ],
+      "definition": "Nervous system anatomy vocabulary",
+      "entries": [
+        {
+          "word": "NEURON",
+          "lemma": "neuron",
+          "definition": "A cell specialised for transmitting nerve signals",
+          "source_sense": "oewn2024:oewn-05473219-n",
+          "source_definition": "a cell that is specialized to conduct nerve impulses"
+        },
+        {
+          "word": "AXON",
+          "lemma": "axon",
+          "definition": "A nerve cell extension that usually carries signals away from its body",
+          "source_sense": "oewn2024:oewn-05476501-n",
+          "source_definition": "long nerve fiber that conducts away from the cell body of the neuron"
+        },
+        {
+          "word": "DENDRITE",
+          "lemma": "dendrite",
+          "definition": "A branching nerve cell extension that commonly receives signals",
+          "source_sense": "oewn2024:oewn-05477513-n",
+          "source_definition": "short fiber that conducts toward the cell body of the neuron"
+        },
+        {
+          "word": "SYNAPSE",
+          "lemma": "synapse",
+          "definition": "A junction through which a neuron communicates with another cell",
+          "source_sense": "oewn2024:oewn-05481580-n",
+          "source_definition": "the junction between two neurons (axon-to-dendrite) or between a neuron and a muscle"
+        },
+        {
+          "word": "CORTEX",
+          "lemma": "cortex",
+          "definition": "The outer layer of grey matter of the cerebrum",
+          "source_sense": "oewn2024:oewn-05494162-n",
+          "source_definition": "the layer of unmyelinated neurons (the grey matter) forming the cortex of the cerebrum"
+        },
+        {
+          "word": "CEREBELLUM",
+          "lemma": "cerebellum",
+          "definition": "A brain region important for coordination and motor learning",
+          "source_sense": "oewn2024:oewn-05493206-n",
+          "source_definition": "a major division of the vertebrate brain; situated above the medulla oblongata and beneath the cerebrum in humans"
+        },
+        {
+          "word": "HIPPOCAMPUS",
+          "lemma": "hippocampus",
+          "definition": "A brain structure with a central role in forming memories",
+          "source_sense": "oewn2024:oewn-05503912-n",
+          "source_definition": "a complex neural structure (shaped like a sea horse) consisting of grey matter and located on the floor of each lateral ventricle; intimately involved in motivation and emotion as part of the limbic system; has a central role in the formation of memories"
+        },
+        {
+          "word": "NERVE",
+          "lemma": "nerve",
+          "definition": "A bundle of fibres carrying signals through the body",
+          "source_sense": "oewn2024:oewn-05481998-n",
+          "source_definition": "any bundle of nerve fibers running to various organs and tissues of the body"
+        },
+        {
+          "word": "BRAIN",
+          "lemma": "brain",
+          "definition": "The part of the central nervous system enclosed by the skull",
+          "source_sense": "oewn2024:oewn-05488747-n",
+          "source_definition": "that part of the central nervous system that includes all the higher nervous centers; enclosed within the skull; continuous with the spinal cord"
+        },
+        {
+          "word": "MYELIN",
+          "lemma": "myelin",
+          "definition": "A fatty insulating material surrounding many nerve fibres",
+          "source_sense": "oewn2024:oewn-14982032-n",
+          "source_definition": "a white fatty substance that forms a medullary sheath around the axis cylinder of some nerve fibers"
+        },
+        {
+          "word": "SPINALCORD",
+          "lemma": "spinal cord",
+          "definition": "The long central nervous structure linking the brain with many body nerves",
+          "source_sense": "oewn2024:oewn-05511356-n",
+          "source_definition": "a major part of the central nervous system which conducts sensory and motor nerve impulses to and from the brain; a long tubelike structure extending from the base of the brain through the vertebral canal to the upper lumbar region"
+        },
+        {
+          "word": "CEREBRUM",
+          "lemma": "cerebrum",
+          "definition": "The large upper brain region divided into two hemispheres",
+          "source_sense": "oewn2024:oewn-05499645-n",
+          "source_definition": "anterior portion of the brain consisting of two hemispheres; dominant part of the brain in humans"
+        }
+      ]
+    }
+  ]
+}

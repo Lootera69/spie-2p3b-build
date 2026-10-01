@@ -25,6 +25,7 @@ from enum import Enum
 
 from . import epistemic, search
 from .certificate import certify
+from .chance import ChanceCrossResult, chance_cross_solve
 from .conformance import check_plan_conformance
 from .crosscheck import (
     CrossResult,
@@ -258,6 +259,11 @@ _INFO_RULES = frozenset(
         "belief-out-of-range",
         "belief-initial-not-in-support",
         "senses-unknown-var",
+        # Item-4 chance layer: a malformed initial_dist is an information-model violation too.
+        "dist-without-belief",
+        "dist-support-mismatch",
+        "dist-negative-weight",
+        "dist-not-normalized",
     }
 )
 
@@ -427,24 +433,106 @@ def _epistemic_conformance_gate(puzzle: Puzzle, cross: EpistemicCrossResult) -> 
     )
 
 
+# --- Item-4 chance-mode analogues: best-effort success under a random initial state. The
+# --- certified quantity is the exact optimal expected success probability P, cross-checked
+# --- three ways (belief DP P_A, per-world replay P_B, reachability upper bound U). ----------
+
+
+def _chance_reachability_gate(puzzle: Puzzle, cross: ChanceCrossResult) -> GateResult:
+    """The chance analogue of the reachability gate. The certified success probability ``P`` must
+    be positive, exactly agreed by the two independent tallies (belief-DP ``P_A`` == replay
+    ``P_B``), and bounded by the reachability upper bound (``P <= U``). A node-cap truncation or a
+    reachability-solver split is surfaced here too — a discrepancy is a hard FAIL, never
+    smoothed."""
+    findings: list[Finding] = []
+    if cross.probability == 0:
+        findings.append(Finding("chance-unwinnable", "no initial world is winnable (P == 0)"))
+    if cross.probability != cross.probability_replay:
+        findings.append(
+            Finding(
+                "probability-disagreement",
+                f"belief-DP P_A={cross.probability} != replay P_B={cross.probability_replay}",
+            )
+        )
+    if cross.probability > cross.upper_bound:
+        findings.append(
+            Finding(
+                "probability-exceeds-reachable",
+                f"P={cross.probability} exceeds reachable upper bound U={cross.upper_bound}",
+            )
+        )
+    if cross.truncated:
+        findings.append(
+            Finding(
+                "belief-dp-truncated",
+                "belief DP hit the node cap; P may be under-approximate",
+            )
+        )
+    if cross.reachability_disagreement:
+        findings.append(
+            Finding("solver-disagreement", "reachability solvers disagree on a pinned world")
+        )
+    if findings:
+        return GateResult("reachability", GateStatus.FAIL, tuple(findings))
+    return GateResult(
+        "reachability",
+        GateStatus.PASS,
+        detail=(
+            f"P={cross.probability} (belief DP == replay), bounded by U={cross.upper_bound}; "
+            "reachability solvers agree"
+        ),
+    )
+
+
+def _chance_conformance_gate(puzzle: Puzzle, cross: ChanceCrossResult) -> GateResult:
+    """The chance analogue of the conformance gate, made *best-effort-tolerant*: the certified
+    plan need not reach the goal on every ``B0`` world (a ``P < 1`` puzzle is precisely one it
+    cannot), but it must still be *uniform* — every decision branches only on observed history,
+    never on hidden state the player cannot see (no clairvoyance). A non-uniform plan fails here
+    rather than inflating ``P`` silently."""
+    if not cross.uniform:
+        return GateResult(
+            "conformance",
+            GateStatus.FAIL,
+            (Finding("non-uniform-plan", "plan decisions depend on unobserved (hidden) state"),),
+        )
+    winners = sum(1 for wr in cross.world_replays if wr.reached_goal)
+    return GateResult(
+        "conformance",
+        GateStatus.PASS,
+        detail=(
+            f"uniform best-effort plan; goal reached on {winners} of "
+            f"{len(cross.world_replays)} B0 world(s) (P={cross.probability})"
+        ),
+    )
+
+
 def verify(puzzle: Puzzle, provenance: Provenance | None = None) -> VerifyReport:
     """Run every verification gate and collect the results into a :class:`VerifyReport`.
 
     The suite branches on hidden state exactly as :func:`spie.certificate.certify` does. A
-    fully-observable puzzle runs the Phase-1/2 concrete gates (reachability / uniqueness /
-    shortcut / dead-state / minimality); a puzzle with hidden initial state runs their
-    epistemic analogues, driven by :func:`spie.crosscheck.epistemic_cross_solve` and the
-    certified contingent plan. Both then run the shared Phase-3 gates (observability,
+    puzzle with a non-empty :attr:`~spie.ir.Puzzle.initial_dist` runs the Item-4 *chance* mode
+    gates (best-effort reachability of the exact optimal ``P`` and uniformity-only conformance);
+    otherwise a fully-observable puzzle runs the Phase-1/2 concrete gates (reachability /
+    uniqueness / shortcut / dead-state / minimality) and a puzzle with hidden initial state runs
+    their epistemic analogues, driven by :func:`spie.crosscheck.epistemic_cross_solve` and the
+    certified contingent plan. All modes then run the shared Phase-3 gates (observability,
     information-necessity, epistemic-reduction) and the always-on determinism and
-    concept-relevance gates, so the report shape is stable across the two modes.
+    concept-relevance gates, so the report shape is stable across modes.
 
     ``provenance`` (a concept -> action-name map from
     :func:`spie.operationalize.operationalize_traced`) turns the concept-relevance gate from a
     deferred INFO into a real check that every source concept is load-bearing. Omit it — as every
     hand-authored caller does — and that gate stays INFO, so the report is unchanged."""
-    if puzzle.initial_belief:
-        cross = epistemic_cross_solve(puzzle)
+    if puzzle.initial_dist:
+        chance_cross = chance_cross_solve(puzzle)
         mode_gates: tuple[GateResult, ...] = (
+            _chance_reachability_gate(puzzle, chance_cross),
+            _chance_conformance_gate(puzzle, chance_cross),
+        )
+    elif puzzle.initial_belief:
+        cross = epistemic_cross_solve(puzzle)
+        mode_gates = (
             _epistemic_reachability_gate(puzzle, cross),
             _epistemic_uniqueness_gate(puzzle, cross),
             _epistemic_conformance_gate(puzzle, cross),
