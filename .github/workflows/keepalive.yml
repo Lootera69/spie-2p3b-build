@@ -1,0 +1,42 @@
+name: Keep BrainBloom warm
+
+# Pings /healthz on a schedule so the Render free instance stays warm during the
+# active window and real visitors avoid the ~1 min cold start. Window is
+# 07:00-23:00 IST (= 01:30-17:30 UTC); outside it the service is left to spin
+# down, to conserve the free plan's shared 750 instance-hours/month.
+#
+# Notes: GitHub cron is UTC-only and best-effort (can fire a few minutes late or,
+# rarely, be skipped) - fine for keep-warm. On a public repo, Actions minutes are
+# free/unlimited. GitHub auto-disables scheduled workflows after 60 days with no
+# repo activity; re-enable from the Actions tab if that ever happens.
+
+on:
+  schedule:
+    - cron: "30,40,50 1 * * *"     # 01:30-01:50 UTC = 07:00-07:20 IST
+    - cron: "*/10 2-16 * * *"      # 02:00-16:50 UTC = 07:30-22:20 IST
+    - cron: "0,10,20,30 17 * * *"  # 17:00-17:30 UTC = 22:30-23:00 IST
+  workflow_dispatch: {}            # manual "warm it up now" button
+
+concurrency:
+  group: keepalive
+  cancel-in-progress: false
+
+permissions: {}                    # outbound curl only; no repo access needed
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - name: Hit /healthz
+        run: |
+          url="https://brainbloom-workshop.onrender.com/healthz"
+          # First hit after a sleep triggers a ~1 min cold start, so allow a
+          # generous timeout and a couple of retries.
+          for attempt in 1 2 3; do
+            code=$(curl -s -o /dev/null -w '%{http_code}' --max-time 100 "$url" || echo 000)
+            echo "attempt $attempt -> HTTP $code"
+            [ "$code" = "200" ] && { echo "warm"; exit 0; }
+            sleep 10
+          done
+          echo "::warning::keepalive could not confirm 200 from $url (will retry next tick)"
