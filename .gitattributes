@@ -8,3 +8,13 @@
 # identical source. Python is newline-agnostic, so this cannot affect a gate verdict; it only keeps
 # the tree consistent across the two operating systems.
 *.py text eol=lf
+
+# Hash-pinned data files. Their raw bytes are verified against SHA256 constants at runtime
+# (coverage_sources.py) and underpin the sacred 20-puzzle corpus invariant. Git must NEVER apply
+# line-ending conversion to them: on a Linux checkout (such as the Render build) CRLF->LF
+# normalization changes the bytes, the SHA256 no longer matches, and startup aborts with
+# "Coverage packs SHA256 mismatch". Marking them binary guarantees byte-identical files on every
+# platform, independent of each machine's core.autocrlf setting.
+examples/*.json binary
+src/spie/questions/brainbloom/data/*.json binary
+src/spie/questions/brainbloom/data/*.md binary
