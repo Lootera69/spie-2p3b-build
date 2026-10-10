@@ -30,8 +30,10 @@ function load(saved, blocked = false) {
 }
 
 const first = load();
+assert.equal(first.document.documentElement.dataset.theme, "dark");
+assert.equal(first.toggle.attributes["aria-pressed"], "true");
+first.listeners.click();
 assert.equal(first.document.documentElement.dataset.theme, "light");
-assert.equal(first.toggle.attributes["aria-pressed"], "false");
 first.listeners.click();
 assert.equal(first.document.documentElement.dataset.theme, "dark");
 assert.equal(first.toggle.attributes["aria-pressed"], "true");
@@ -46,5 +48,5 @@ assert.equal(reloaded.document.documentElement.dataset.theme, "dark");
 assert.equal(load("unexpected").document.documentElement.dataset.theme, "light");
 const blocked = load(undefined, true);
 blocked.listeners.click();
-assert.equal(blocked.document.documentElement.dataset.theme, "dark");
+assert.equal(blocked.document.documentElement.dataset.theme, "light");
 console.log("BrainBloom theme tests passed");

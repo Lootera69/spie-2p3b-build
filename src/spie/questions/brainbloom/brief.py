@@ -8,6 +8,7 @@ from dataclasses import asdict, dataclass, field, replace
 from .catalog import CATEGORIES, DIFFICULTIES, QUIZ, TOPICS, Request
 from .instructions import EXAMPLES, MAX_LENGTH, combined_subject, interpret, validate_request
 from .lexicon import Dictionary
+from .reasoning_constraints import MINIMUMS, MODES, SCOPE, active, settings, validate
 from .topics import lookup_many, validate_meanings
 
 
@@ -37,6 +38,11 @@ ACTIVITIES = {
     "best-move": Activity("Plan the best next move", "activities", "best-move",
                           "Compare routes on a topic-labelled map and choose the first move "
                           "with the lowest total cost to the goal."),
+    "resource-plan": Activity(
+        "Plan a delivery with limited resources", "activities", "resource-plan",
+        "Choose the fastest complete delivery route that respects fuel, "
+        "deadlines and prerequisite tasks.",
+    ),
     "pattern": Activity("Discover a number rule", "activities", "pattern",
                         "Use input/output examples to find the only matching rule among "
                         "four stated possibilities."),
@@ -96,8 +102,11 @@ class Brief:
     instructions: str = ""
     grid: dict | None = None
     crossword_size: int | None = None
+    reasoning_mode: str = "auto"
+    min_supporting_clues: str | int = "auto"
 
     def __post_init__(self):
+        validate(self.reasoning_mode, self.min_supporting_clues)
         validate_meanings(self.meanings)
         if (not isinstance(self.activity, str)
                 or self.activity not in ("auto", "custom", *ACTIVITIES)):
@@ -135,6 +144,9 @@ def configuration() -> dict:
         "instruction_examples": EXAMPLES,
         "instruction_limit": MAX_LENGTH,
         "grid_example": EXAMPLE,
+        "reasoning_modes": MODES,
+        "minimum_supporting_clues": MINIMUMS,
+        "reasoning_help": SCOPE,
     }
 
 
@@ -181,6 +193,8 @@ def _difficulty_help(activity: Activity, difficulty: str) -> str:
             "contradiction": f"{level + 3} cards; combine at least {level + 1} ordering clues.",
             "most-likely": f"4 hidden-card hypotheses and {level} noisy readouts.",
             "best-move": f"{level + 4} map locations; compare full routes, not just first steps.",
+            "resource-plan": (f"One depot and {level + 2} delivery tasks; compare complete "
+                              "routes subject to fuel, deadlines and prerequisites."),
         }[activity.variation]
     if activity.family == "reasoning":
         return {
@@ -246,7 +260,12 @@ def _prepare(brief: Brief, dictionary: Dictionary) -> dict:
     choice = next((a for a in options if a["id"] == selected), None)
     report = {"lookup": lookup, "activities": options, "selected_activity": selected,
               "ready": False, "message": "", "request": None, "max_count": 20,
-              "difficulty_options": [], "difficulty_relevant": True, "search_relevant": False}
+              "difficulty_options": [], "difficulty_relevant": True, "search_relevant": False,
+              "reasoning_relevant": selected in ("autopilot", "logic-grid"),
+              "reasoning_controls": settings(brief)}
+    if active(brief) and not report["reasoning_relevant"]:
+        report["message"] = "Reasoning controls apply only to Autopilot and custom logic grids."
+        return report
     if choice is None:
         report["message"] = (
             "No activity fits these settings. Add a related topic, change the challenge level "
@@ -324,6 +343,7 @@ def _prepare(brief: Brief, dictionary: Dictionary) -> dict:
         topic_mode="combined" if activity.uses_topics else "single",
         meanings=lookup["meanings"] if activity.uses_topics else {},
         crossword_size=chosen_size if selected == "crossword" else None,
+        reasoning_mode=brief.reasoning_mode, min_supporting_clues=brief.min_supporting_clues,
     )
     report.update({"ready": True, "request": asdict(request),
                    "message": f"Ready: {activity.label.lower()}. " + (
@@ -348,6 +368,7 @@ def _prepare_grid(brief: Brief) -> dict:
         "ready": False, "request": None, "uses_topics": False,
         "difficulty_relevant": False, "difficulty_options": [], "search_relevant": False,
         "max_count": 20, "message": "", "grid_analysis": None,
+        "reasoning_relevant": True, "reasoning_controls": settings(brief),
     }
     if brief.qtype not in ACTIVITIES["logic-grid"].types:
         report["message"] = "Custom grids use Multiple Choice, True / False, Type Answer or Riddle."
@@ -376,7 +397,9 @@ def _prepare_grid(brief: Brief) -> dict:
                              "grid/question pairs. Reduce the count or change the target.")
         return report
     request = Request("logic-grid", brief.qtype, analysis["difficulty"], brief.count,
-                      brief.seed, category, grid=brief.grid)
+                      brief.seed, category, grid=brief.grid,
+                      reasoning_mode=brief.reasoning_mode,
+                      min_supporting_clues=brief.min_supporting_clues)
     report.update(ready=True, request=asdict(request), message=(
         "Your rules already give one unique complete grid."
         if analysis["status"] == "unique" else

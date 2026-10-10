@@ -6,6 +6,8 @@
   <title>BrainBloom · Question Workshop</title>
   <link rel="icon" type="image/svg+xml" href="/favicon.svg">
   <link rel="stylesheet" href="style.css">
+  <script src="library.js" defer></script>
+  <script src="player.js" defer></script>
   <script src="app.js" defer></script>
 </head>
 <body>
@@ -133,6 +135,17 @@
             <p class="hint">Choose any size from 5×5 to 15×15. A larger board keeps the
               same number of clues with more blank space. Difficulty controls entry count.</p>
           </div>
+          <fieldset id="reasoning-controls" class="reasoning-controls" hidden>
+            <legend>How should the puzzle be solved?</legend>
+            <label for="reasoning-mode">Reasoning method</label>
+            <select id="reasoning-mode"><option value="auto">Any verified method</option>
+              <option value="deduction-only">Deduction only — no assumed cases</option></select>
+            <label for="min-supporting-clues">Clues needed together</label>
+            <select id="min-supporting-clues"><option value="auto">Choose automatically</option>
+              <option value="2">At least 2 clues</option><option value="3">At least 3 clues</option>
+              <option value="4">At least 4 clues</option></select>
+            <p id="reasoning-help" class="hint">These requirements are checked before a puzzle is shown. A stricter choice can leave no suitable puzzle in the search.</p>
+          </fieldset>
           <label for="count">How many puzzles?</label>
           <input id="count" name="count" type="number" min="1" max="20" value="1" required>
           <p class="hint" id="count-hint">Create up to 20 different drafts.</p>
@@ -163,7 +176,28 @@
       </aside>
       <section class="preview" id="drafts-pane" role="region" aria-labelledby="drafts-title">
         <div class="preview-top"><div class="section-label"><span>02</span><h2 id="drafts-title">Your drafts</h2></div>
-          <button id="download" class="small" disabled>Download draft JSON ↓</button></div>
+          <div class="draft-actions">
+            <button id="save-puzzles" type="button" class="small" disabled>Save puzzles</button>
+            <button id="open-library" type="button" class="small" aria-expanded="false" aria-controls="library-panel">My library</button>
+            <button id="download" class="small" disabled>Download draft JSON ↓</button>
+            <button id="play-mode" type="button" class="small" aria-pressed="false" disabled>Play mode</button>
+            <button id="share-puzzles" type="button" class="small" aria-expanded="false" aria-controls="share-panel" disabled>Share</button>
+          </div></div>
+        <section id="share-panel" class="player-panel" aria-labelledby="share-title" hidden>
+          <h3 id="share-title">Share these puzzles</h3>
+          <p id="share-status" class="hint" role="status" aria-live="polite"></p>
+          <label for="share-link">Puzzle link</label><input id="share-link" type="text" readonly>
+          <button id="copy-share" type="button" class="small">Copy link</button>
+          <button id="close-share" type="button" class="small">Close</button>
+        </section>
+        <p id="save-status" class="save-status" role="status" aria-live="polite"></p>
+        <section id="library-panel" class="library-panel" aria-labelledby="library-title" hidden>
+          <div class="library-heading"><h3 id="library-title" tabindex="-1">My puzzle library</h3>
+            <button id="close-library" type="button" class="small">Close library</button></div>
+          <p class="hint">Saved in this browser. Clearing browser data removes these saves. Download draft JSON to keep a separate copy.</p>
+          <p id="library-status" role="status" aria-live="polite"></p>
+          <div id="library-list"></div>
+        </section>
         <p id="status" role="status" aria-live="polite" tabindex="-1">Ready when you are.</p>
         <div id="results" class="preview-scroll" tabindex="0" role="region" aria-label="Puzzle drafts"><div class="empty"><span class="empty-mark">?</span>
           <h3>Make something worth thinking about.</h3>

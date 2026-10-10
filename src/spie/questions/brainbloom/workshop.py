@@ -353,6 +353,10 @@ def generate(
             f"Only {len(items)} distinct drafts found; choose fewer questions or another topic. "
             "No partial batch exported."
         )
+    saved_request = asdict(request)
+    if request.engine_revision < 5:
+        saved_request.pop("reasoning_mode", None)
+        saved_request.pop("min_supporting_clues", None)
     return {
         **({"dictionary": context} if dictionary else {}),
         "version": (8 if request.topic == "activities" else
@@ -365,7 +369,7 @@ def generate(
                       else TOPIC_VERSION if request.topic_mode == "combined"
                       else REASONING_VERSION if request.topic == "reasoning"
                       else DICTIONARY_VERSION if dictionary else VERSION),
-        "request": asdict(request),
+        "request": saved_request,
         "items": items,
         "proofs": proofs,
         "rejected": [],

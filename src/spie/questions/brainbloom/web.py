@@ -19,10 +19,16 @@ from urllib.parse import urlsplit
 from .brief import Brief, prepare
 from .brief import configuration as brief_configuration
 from .catalog import Request, configuration
-from .service import Generator
+from .feedback import feedback_for, grid_feedback
+from .service import Generator, verify_bundle
 
 STATIC = Path(__file__).with_name("static")
 MAX_BODY = 8192
+# Replay includes the complete canonical items, proofs and dictionary snapshot.
+# Keep the larger allowance confined to these routes; generation stays small.
+MAX_SAVED_BODY = 2 * 1024 * 1024
+MAX_ANSWER = 2000
+SAVED_PATHS = ("/api/verify-saved", "/api/check-answer", "/api/check-grid")
 # A deployed instance is unauthenticated and answers serially, so one caller must
 # not be able to monopolise it. Loopback runs stay uncapped (limit 0 disables).
 PUBLIC_RATE_LIMIT = 60
@@ -158,6 +164,8 @@ def handler_for(
             assets = {
                 "/": ("index.html", "text/html; charset=utf-8"),
                 "/app.js": ("app.js", "text/javascript; charset=utf-8"),
+                "/library.js": ("library.js", "text/javascript; charset=utf-8"),
+                "/player.js": ("player.js", "text/javascript; charset=utf-8"),
                 "/style.css": ("style.css", "text/css; charset=utf-8"),
                 "/favicon.svg": ("favicon.svg", "image/svg+xml"),
             }
@@ -167,17 +175,21 @@ def handler_for(
             name, mime = assets[self.path]
             self.send(200, (STATIC / name).read_bytes(), mime)
 
+        def body_limit(self) -> int:
+            return MAX_SAVED_BODY if self.path in SAVED_PATHS else MAX_BODY
+
         def read_body(self) -> bytes:
             # Read the whole bounded body once, before the content-type or JSON
             # rejection below, so every reply still consumes the request. An unread
             # body makes Windows reset the socket, surfacing to the client as an
             # aborted connection. Chunked or oversized framing cannot be bounded, so
             # it is refused here without reading.
+            maximum = self.body_limit()
             if self.headers.get("Transfer-Encoding"):
-                raise ValueError(f"A 1-{MAX_BODY} byte JSON request is required")
+                raise ValueError(f"A 1-{maximum} byte JSON request is required")
             length = int(self.headers.get("Content-Length", "0"))
-            if not 0 < length <= MAX_BODY:
-                raise ValueError(f"A 1-{MAX_BODY} byte JSON request is required")
+            if not 0 < length <= maximum:
+                raise ValueError(f"A 1-{maximum} byte JSON request is required")
             self.connection.settimeout(10)
             body = self.rfile.read(length)
             if len(body) != length:
@@ -187,10 +199,11 @@ def handler_for(
         def drain(self) -> None:
             # Best-effort consume the body on an already-decided path (403/404) so the
             # socket closes cleanly. Never raises: strict framing is read_body's job on
-            # the generate path, not a settled rejection's.
+            # an accepted route, not a settled rejection's.
             try:
                 length = int(self.headers.get("Content-Length", "0"))
-                if self.headers.get("Transfer-Encoding") or not 0 < length <= MAX_BODY:
+                if (self.headers.get("Transfer-Encoding")
+                        or not 0 < length <= self.body_limit()):
                     return
                 self.connection.settimeout(10)
                 self.rfile.read(length)
@@ -201,7 +214,7 @@ def handler_for(
             if not self.local_request():
                 self.drain()
                 return
-            if self.path not in ("/api/generate", "/api/topics", "/api/prepare"):
+            if self.path not in ("/api/generate", "/api/topics", "/api/prepare", *SAVED_PATHS):
                 self.drain()
                 self.send_json(404, {"error": "Not found"})
                 return
@@ -212,6 +225,44 @@ def handler_for(
                 data = json.loads(body)
                 if not isinstance(data, dict):
                     raise ValueError("Request must be an object")
+                if self.path in SAVED_PATHS:
+                    checking = self.path == "/api/check-answer"
+                    grid_check = self.path == "/api/check-grid"
+                    fields = ({"bundle", "index", "answer"} if checking else
+                              {"bundle", "index", "entries"} if grid_check else {"bundle"})
+                    if set(data) != fields:
+                        raise ValueError("Expected " + ", ".join(sorted(fields)) + " only")
+                    if checking or grid_check:
+                        if type(data["index"]) is not int or data["index"] < 0:
+                            raise ValueError("Index must be an integer within the saved bundle")
+                    if grid_check:
+                        entries = data["entries"]
+                        if (not isinstance(entries, list) or len(entries) > 12
+                                or any(not isinstance(v, str) or len(v) > 100 for v in entries)):
+                            raise ValueError(
+                                "Grid entries must be a list of at most 12 short labels")
+                    if checking:
+                        answer = data["answer"]
+                        if (not isinstance(answer, str) or not answer.strip()
+                                or len(answer) > MAX_ANSWER):
+                            raise ValueError(f"Answer must be text of 1-{MAX_ANSWER} characters")
+                    # Freshly reproduce every retained item and proof before any
+                    # client-supplied proof is used for answer coaching.
+                    bundle = data["bundle"]
+                    try:
+                        count = verify_bundle(bundle)
+                    except (KeyError, IndexError) as exc:
+                        raise ValueError("Invalid saved bundle structure") from exc
+                    if checking or grid_check:
+                        index = data["index"]
+                        if index >= count:
+                            raise ValueError("Index must be an integer within the saved bundle")
+                        self.send_json(200, grid_feedback(bundle["proofs"][index], entries)
+                                       if grid_check else feedback_for(
+                                           bundle["items"][index], bundle["proofs"][index], answer))
+                    else:
+                        self.send_json(200, {"ok": True, "count": count})
+                    return
                 if self.path == "/api/prepare":
                     self.send_json(200, prepare(Brief(**data), engine.dictionary))
                     return
@@ -230,7 +281,10 @@ def handler_for(
             except (ValueError, TypeError, OSError) as exc:
                 self.send_json(400, {"error": str(exc)})
                 return
-            except RuntimeError:
+            except RecursionError:
+                self.send_json(400, {"error": "JSON request is nested too deeply"})
+                return
+            except (RuntimeError, subprocess.TimeoutExpired):
                 self.send_json(500, {"error": "Independent checks disagreed; no puzzle released"})
                 return
             try:

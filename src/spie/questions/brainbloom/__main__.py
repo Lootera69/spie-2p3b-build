@@ -73,6 +73,12 @@ def main(argv: list[str] | None = None) -> int:
             command.add_argument("--count", type=int, default=1)
             command.add_argument("--crossword-size", type=int, choices=range(5, 16),
                                  help="Exact crossword board side length (5–15)")
+            command.add_argument("--reasoning-mode", default="auto",
+                                 choices=("auto", "deduction-only"),
+                                 help="Clue grids: require propagation without assumed cases")
+            command.add_argument("--min-supporting-clues", choices=("auto", "2", "3", "4"),
+                                 default="auto", help="Clue grids: require at least 2, 3 or 4 "
+                                 "supporting clues and verify the exact support")
             command.add_argument("--out", type=Path, required=True)
     replay = commands.add_parser(
         "check", help="Re-generate and independently re-prove saved drafts"
@@ -209,7 +215,10 @@ def main(argv: list[str] | None = None) -> int:
                           topic_mode=("combined" if topic in VARIATIONS and not args.sense
                                       else "single"), meanings=meanings,
                           grid=json.loads(args.grid.read_text(encoding="utf-8-sig"))
-                          if args.grid else None, crossword_size=args.crossword_size)
+                          if args.grid else None, crossword_size=args.crossword_size,
+                          reasoning_mode=args.reasoning_mode,
+                          min_supporting_clues=("auto" if args.min_supporting_clues == "auto"
+                                                else int(args.min_supporting_clues)))
         result = engine.build(request)
         write_bundle(args.out, result)
         print(f"Saved {len(result['items'])}/{request.count} unpublished drafts to {args.out}")

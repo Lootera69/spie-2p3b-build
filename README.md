@@ -7,6 +7,17 @@ difficulty and count, with playable previews and downloadable unpublished drafts
 It supports Multiple Choice, True / False, Type Answer, Crossword, Riddle and Wonder
 across the five platform categories. Checks depend on the family: mathematical
 proofs, exact word transformations or crossword reconstruction. Saved drafts can be replayed.
+Use **Check answer** for feedback on your chosen answer before revealing the full solution.
+Reasoning activities explain the selected route, rule, probability, or clue conflict when
+supported by their checked model. **Save puzzles** keeps a browser-local library with
+favourites and resumable answers, grid entries, hints and revealed solutions. Reopening
+a save requires the running generator to reproduce and verify its full puzzle bundle.
+**Check working grid** identifies duplicate entries and specific clue conflicts.
+Clue designers can require **deduction only** and **at least 2, 3 or 4 supporting clues**;
+the engine verifies both requirements before releasing the puzzle.
+**Plan a delivery with limited resources** adds fuel, deadlines and prerequisites.
+**Play mode** provides a focused player, and **Share** creates portable puzzle links.
+Shared puzzles start without progress.
 The launcher uses the existing sibling question bank and Studio verifier when available.
 
 **The workshop now uses plain-language activities.** Enter up to six topics,

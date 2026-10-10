@@ -25,6 +25,7 @@ ACTIVITY_PATTERNS = {
     "contradiction": (r"find (?:the )?impossible clue", r"spot (?:the )?contradiction"),
     "most-likely": (r"(?:choose|find) (?:the )?most likely explanation",),
     "best-move": (r"plan (?:the )?best next move", r"choose (?:the )?best next move"),
+    "resource-plan": (r"plan (?:a )?delivery with limited resources",),
     "pattern": (r"discover (?:a |the )?number rule", r"spot (?:the )?number pattern"),
     "logic-grid": (r"(?:create|build|solve) (?:a )?(?:custom )?logic grid",),
     "deduction": (

@@ -11,6 +11,7 @@ from .catalog import DIFFICULTIES
 from .topics import sample_words
 
 BUDGET = 6
+CONSTRAINED_BUDGET = 24
 GROUPS = ("Cards", "Badges", "Tokens")
 
 
@@ -38,9 +39,14 @@ def supporting_clues(model: dict, rules: list[dict], solution, query: dict) -> l
 
 
 def candidate(request, rng, context: dict) -> tuple[dict, dict]:
+    from .reasoning_constraints import ConstraintRejected, active, certify
+
     level = DIFFICULTIES[request.difficulty]
     candidates = []
-    for attempt in range(BUDGET):
+    constrained = active(request)
+    budget = CONSTRAINED_BUDGET if constrained else BUDGET
+    last_rejection = ""
+    for attempt in range(budget):
         names = sample_words(context, level * 3, rng)
         spec = {
             "groups": "\n".join(f"{GROUPS[g]}: " + ", ".join(names[g * 3:g * 3 + 3])
@@ -50,10 +56,20 @@ def candidate(request, rng, context: dict) -> tuple[dict, dict]:
             "answer_group": "Position" if level == 1 else GROUPS[level - 1],
         }
         inner = replace(request, topic="logic-grid", topic_mode="single", subject="",
-                        meanings={}, instructions="", grid=spec, count=1)
+                        meanings={}, instructions="", grid=spec, count=1,
+                        reasoning_mode="auto", min_supporting_clues="auto")
         item, proof = logic_grid.candidate(inner, rng)
-        support = supporting_clues(proof["model"], proof["added_rules"],
-                                   proof["solution_positions"], proof["query"])
+        if constrained:
+            try:
+                certificate = certify(request, proof)
+            except ConstraintRejected as exc:
+                last_rejection = str(exc)
+                continue
+            proof["reasoning_constraints"] = certificate
+            support = certificate["supporting_clues"]
+        else:
+            support = supporting_clues(proof["model"], proof["added_rules"],
+                                       proof["solution_positions"], proof["query"])
         # A question copied from one clue is not an autonomous reasoning challenge.
         if len(support) < 2:
             continue
@@ -61,6 +77,13 @@ def candidate(request, rng, context: dict) -> tuple[dict, dict]:
         score = (len(support), diversity, -len(proof["added_rules"]))
         candidates.append((score, attempt, item, proof, support, spec))
     if not candidates:
+        if constrained:
+            raise ValueError(
+                f"No Autopilot design met the requested reasoning controls within {budget} "
+                f"proposals. {last_rejection or 'The question needs fewer than two clues'}. "
+                "Choose another level, controls or variation number; "
+                "the requested controls were not relaxed."
+            )
         raise ValueError("No multi-clue design met the checks in this search. "
                          "Try another variation number or another level.")
     score, attempt, item, proof, support, spec = max(candidates, key=lambda row: row[0])
@@ -80,8 +103,8 @@ def candidate(request, rng, context: dict) -> tuple[dict, dict]:
         "minimum_supporting_clues": len(support), "supporting_clues": support,
     }
     proof["search"] = {
-        "budget": BUDGET, "qualified": len(candidates),
-        "rejected": BUDGET - len(candidates), "selected_attempt": attempt,
+        "budget": budget, "qualified": len(candidates),
+        "rejected": budget - len(candidates), "selected_attempt": attempt,
         "selected_score": list(score), "first_qualified_score": list(candidates[0][0]),
         "objective": "More supporting clues, then clue variety, then fewer total clues; "
                      "structural heuristic, not player-calibrated difficulty",

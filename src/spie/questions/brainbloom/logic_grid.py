@@ -20,6 +20,7 @@ EXAMPLE = {
     "complete": True, "target": "Lion", "answer_group": "Drink",
 }
 LABEL = re.compile(r"[A-Za-z][A-Za-z0-9 -]{0,29}\Z")
+CONSTRAINED_BUDGET = 12
 
 
 def parse(spec: object) -> dict:
@@ -270,7 +271,7 @@ def _suggestions(model: dict, solution, rng) -> list[dict]:
     return clues
 
 
-def candidate(request, rng: random.Random) -> tuple[dict, dict]:
+def _candidate_once(request, rng: random.Random) -> tuple[dict, dict]:
     model = parse(request.grid)
     initial = check(model, model["rules"])
     if not initial:
@@ -405,3 +406,28 @@ def candidate(request, rng: random.Random) -> tuple[dict, dict]:
         if request.qtype == "riddle":
             item["hintText"] = "\n".join(quality["hints"])
     return item, proof
+
+
+def candidate(request, rng: random.Random) -> tuple[dict, dict]:
+    from .reasoning_constraints import ConstraintRejected, active, certify
+
+    if not active(request):
+        return _candidate_once(request, rng)
+    last_rejection = ""
+    support_cache = {}
+    for attempt in range(CONSTRAINED_BUDGET):
+        item, proof = _candidate_once(request, rng)
+        try:
+            certificate = certify(request, proof, cache=support_cache)
+        except ConstraintRejected as exc:
+            last_rejection = str(exc)
+            continue
+        proof["reasoning_constraints"] = certificate
+        proof["constraint_search"] = {"budget": CONSTRAINED_BUDGET, "attempts": attempt + 1,
+                                      "rejected": attempt, "selected_attempt": attempt}
+        return item, proof
+    raise ValueError(
+        f"No custom grid met the requested reasoning controls within {CONSTRAINED_BUDGET} "
+        f"proposals. {last_rejection}. Change the rules, controls or variation number; "
+        "the requested controls were not relaxed."
+    )

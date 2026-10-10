@@ -5,7 +5,7 @@ from __future__ import annotations
 from dataclasses import replace
 
 from ...forge.contract import XP
-from . import contradiction, families, patterns, reasoning, routes
+from . import contradiction, families, patterns, reasoning, resource_planning, routes
 from .catalog import Request, lesson_group
 from .topics import sample_words
 
@@ -24,6 +24,9 @@ def _quiz_item(
     if len(choices) != 4 or len(set(choices)) != 4:
         raise RuntimeError("An activity must supply four distinct answer choices")
     rng.shuffle(choices)
+    if request.variation == "resource-plan":
+        # Keep the player's A-D buttons aligned with the labelled route orders.
+        choices.sort()
     item = {"type": request.qtype, "category": request.category, "difficulty": request.difficulty,
             "title": title, "question": draft["stem"], "choices": [],
             "correctAnswer": answer, "correctExplanation": draft["explanation"],
@@ -43,6 +46,13 @@ def _quiz_item(
             "Compare the best complete trip through each possible first stop.",
             "A cheap first leg can lead to an expensive full trip.",
             "Share this: explain why the chosen first stop minimizes the total cost."))
+    elif request.variation == "resource-plan":
+        item["lessonContent"] = "\n".join((
+            "Visit every delivery once, then return to the depot.",
+            "Track elapsed time and remaining fuel on every leg.",
+            "A delivery must arrive by its deadline, and only after its prerequisites.",
+            "Compare completion times only among plans satisfying every condition.",
+            "Share this: explain why each faster-looking plan fails a constraint."))
     if request.qtype == "multiple-choice":
         item["choices"] = choices
     elif request.qtype == "true-false":
@@ -56,6 +66,8 @@ def _quiz_item(
         proof.update(claim=claim, claim_holds=truth)
     else:
         item["acceptedAnswers"] = [answer, f"the answer is {answer}", f"answer: {answer}"]
+        if request.variation == "resource-plan":
+            item["acceptedAnswers"].append(answer[-1])
         if request.qtype == "riddle":
             item["hintText"] = "\n".join(draft["hints"])
     return item, proof
@@ -114,6 +126,9 @@ def candidate(request: Request, rng, context: dict, seed: int) -> tuple[dict, di
     if request.variation == "pattern":
         draft = patterns.render(patterns.propose(names, level, rng))
         return _quiz_item(request, draft, rng, "Discover the rule", names)
+    if request.variation == "resource-plan":
+        draft = resource_planning.render(resource_planning.propose(names, level, rng))
+        return _quiz_item(request, draft, rng, "Deliveries under constraints", names)
     if request.variation == "best-move":
         draft = routes.render(routes.propose(names, level, rng))
         return _quiz_item(request, draft, rng, "Cheapest next stop", names)

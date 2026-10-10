@@ -95,6 +95,87 @@ each other. Setup and drafts scroll independently, with fixed action bars and
 small-screen tabs. The green/cream styling remains consistent. A written-instruction
 option is documented in [written instructions and panels](brainbloom-instructions.md).
 
+### Check an answer and keep your progress
+
+Quiz cards include **Check answer** separately from revealing the answer. You can retry
+after feedback. Routes compare full-trip costs, rule discovery identifies a competing
+rule's failed example, Bayesian and planning puzzles compare their exact probabilities
+or costs, and clue puzzles explain why a proposed placement conflicts with the clues.
+Unsupported activities or unrecognised typed answers receive a general retry message;
+the engine does not invent a cause for the mistake. True/false checks interpret the
+displayed claim. Each check first replays the submitted full bundle; this does not change
+its content, proof, revision, or export format.
+
+**Check working grid** checks all entered placements against the clues without revealing
+the completed grid. It highlights repeated labels, a direct clue conflict, or a set of
+entries that conflicts with several clues together. When several entries are highlighted,
+at least one must change; the message does not claim every highlighted entry is wrong.
+Partial consistent grids remain unfinished rather than being marked solved.
+
+**Save puzzles** saves the current set in this browser. **My library** lists saved sets,
+allows favourites and removal, and offers **Open & resume**. After the first save, answer
+choices, typed answers, working-grid/crossword entries, progressive hint counts and revealed
+answers save automatically. Saved puzzles are reopened from the full original bundle,
+not regenerated from only a seed. The running generator checks that bundle before display,
+so reopening requires a connection to it. Editing the setup does not alter the saved puzzle.
+
+The library holds up to 20 sets and 3 MB in total, with each bundle limited to just under
+2 MB for replay requests. A full, unavailable or corrupt store produces a visible message
+and does not silently discard old saves. Library data belongs to this browser and website
+origin; clearing browser data removes it, and it does not sync across devices. Download
+draft JSON for a separate copy of the puzzles (browser play progress is not in that export).
+No account or database is required. Local saves are not proof of authorship.
+
+### Creator reasoning requirements
+
+Select **Design a clue puzzle for me** or **Create a custom logic grid** to choose
+**Deduction only — no assumed cases** and a minimum of **2, 3 or 4 clues** needed together.
+These controls apply to those two activities and all four quiz formats. Other activities
+reject non-default requirements instead of silently ignoring them.
+
+Deduction only requires a complete checked propagation trace, including all-different
+matching, with no assumed cases or exhaustive fallback in that trace. The independent
+answer and uniqueness checks still use Z3 and finite enumeration. Minimum support is
+the exact smallest clue subset that forces the question's answer, including the displayed
+claim for true/false puzzles. A selected minimum is a lower bound, and the certificate
+reports the actual count. This does not measure human difficulty.
+
+Generation makes at most 12 custom-grid proposals or 24 constrained autopilot proposals;
+exact support searches also have a finite subset budget. Requirements are never relaxed
+to fill a batch. Infeasible settings or exhausted searches return an explanation. Large
+grids and batches can take several seconds or longer to generate and replay; each answer
+or grid check verifies the whole submitted bundle. New requests use engine revision 5;
+saved revisions 1–4 retain their original replay behaviour.
+
+### Deliveries with limited resources
+
+Choose **Plan a delivery with limited resources** for 3, 4 or 5 deliveries at easy, medium
+or hard level. Compare four complete plans with travel times and fuel costs, inclusive
+arrival deadlines, prerequisites, and a required return to the depot. Listed legs work
+in either direction; unlisted legs cannot be used. Locations are fictional topic labels.
+
+The engine proves a unique fastest feasible full route using subset dynamic programming
+and independent enumeration of all delivery orders. Each wrong plan isolates a fuel,
+deadline or prerequisite violation; coaching explains that violation. At least one
+invalid plan looks faster, and medium/hard puzzles also defeat the cheapest-first-leg
+shortcut. Multiple choice, true/false, typed answers and riddles are supported. Typed
+answers accept both `Plan A` and its corresponding letter, for example `A`.
+
+### Play and share
+
+**Play mode** hides creator settings and metadata while keeping hints, checks, saving
+and optional answer reveal. **Back to creator** restores the setup without losing progress.
+**Share** creates a URL fragment containing the original puzzle bundle; the server checks
+it before display. Recipients start in play mode with blank grids and hidden answers,
+even if they already have a revealed copy saved locally. Progress is never shared.
+
+Links use native browser gzip when available and are limited to 24,000 characters and
+just under 2 MB of decoded content. Oversized sets produce a clear error; share fewer
+puzzles or keep the JSON download. Compressed links need a current browser. Links from
+localhost work only on that computer; create them on the deployed site for other people.
+The full bundle includes solutions for replay and reveal, so links do not provide answer
+secrecy against someone inspecting the data. No server database or short-link service is used.
+
 Typed formats include accepted variants. Riddles include hints. Crossword exports
 contain `crosswordData.size`, a square letter/null `grid`, and numbered clues with
 `answer`, `startRow`, `startCol` and `direction`. Wonders contain an insight in
@@ -110,7 +191,7 @@ search measurements, independently checked answer and structural fingerprint.
 Current topic-based workshop drafts use **v5**, preserving a meaning and vocabulary
 membership for every topic, all source licences and per-puzzle coverage checks.
 v3/v4 remain the legacy single-topic formats. Logic grids use v6, Autopilot v7,
-and discovery/decision activities v8. New requests record `engine_revision: 4`.
+and discovery/decision activities v8. New requests record `engine_revision: 5`.
 Revision 4 uses concise reasoning and contradiction wording that fits Studio's
 120-word question ceiling, with short titles that do not repeat the answer.
 The mathematical models, assumptions and answers remain unchanged.
@@ -130,7 +211,7 @@ CLI examples:
 `--bank PATH` and `--platform-verifier PATH` also work with `generate`. The CLI
 refuses to overwrite files. `check` re-creates content and checks using recorded
 seeds; it rejects altered items, proofs, counts or publication state. It supports
-all envelope versions v1 through v8 and engine revisions 1 through 4.
+all envelope versions v1 through v8 and engine revisions 1 through 5.
 It does not authenticate the author or re-run
 the saved editorial review. Outputs are deterministic for the same implementation,
 solver version, inputs and bank.
@@ -203,6 +284,8 @@ or enjoyment claims can be made. Session-file authenticity is not verified.
 | Deduction lab | Z3 plus exhaustive permutations and exact minimum-support search | Consequences of explicitly invented card-position clues |
 | Bayesian lab | Exact fractions plus independent finite-outcome enumeration | The stated priors and conditional-independence assumptions |
 | Planning lab | Bellman recursion, exhaustive policy costs, branch-by-branch rollout | Optimal among the four supplied unit-cost questions |
+| Delivery planning | Subset dynamic programming and independent full-route enumeration | Unique fastest feasible route on the supplied map under fuel, deadline and prerequisite rules |
+| Creator reasoning controls | Complete propagation trace and exact smallest supporting-clue subset | The selected grid question or displayed true/false claim; not human difficulty |
 
 Every draft passes local field validation. The optional Studio verifier covers the
 four quiz types only. Crosswords and Wonders use local validation against the web
@@ -222,7 +305,7 @@ rather than filling the batch with copies.
 
 ## Verification and next extensions
 
-The tests cover all 303 catalogued family/category/type/difficulty combinations, replay,
+The tests cover catalogued family/category/type/difficulty combinations, replay,
 malformed bundles, tamper detection, wrong solver verdicts, crossword corruption,
 offline generation, CLI defaults, and web request handling. Dictionary tests additionally
 cover sense separation, lexical matching, anagram collisions, compound words, source

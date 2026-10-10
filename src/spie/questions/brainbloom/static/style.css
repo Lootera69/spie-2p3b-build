@@ -256,3 +256,49 @@ summary:hover { color:#152f22; }
 [data-theme="dark"] .crossword-cell.blocked { background:#09140e; }
 [data-theme="dark"] .crossword-cell input.correct { background:#28553a; }
 [data-theme="dark"] .crossword-cell input.wrong { background:#633c36; }
+
+/* Saved puzzles and coaching share the existing responsive drafts pane. */
+.draft-actions,.library-actions,.library-heading { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+.draft-actions { justify-content:flex-end; }
+.preview-top { flex-wrap:wrap; }
+.save-status { flex:0 0 auto; margin:0 20px 10px; color:var(--muted); font-size:11px; }
+.save-status:empty { display:none; }
+.save-status.error { color:#9b352c; }
+.library-panel { flex:0 1 auto; max-height:45%; min-height:120px; overflow:auto; margin:0 16px 14px; padding:14px; border:1px solid var(--line); border-radius:12px; background:#fffef9; }
+.library-heading { justify-content:space-between; }
+.library-heading h3 { margin:0; font-size:15px; }
+#library-status { font-size:12px; overflow-wrap:anywhere; }
+#library-status:empty { display:none; }
+.library-entry { padding:12px 0; border-top:1px solid var(--line); }
+.library-entry h4 { margin:0; font-size:13px; overflow-wrap:anywhere; }
+.library-actions { margin-top:8px; font-size:12px; }
+.library-actions [aria-pressed="true"] { border:1px solid var(--green); }
+.check-answer { margin:16px 0 0; }
+.answer-feedback { font-size:13px; border-left:3px solid var(--green); padding:8px 12px; white-space:pre-wrap; }
+.answer-feedback:empty { display:none; }
+.answer-feedback[data-result="incorrect"] { border-color:#b26752; }
+[data-theme="dark"] .library-panel { background:var(--surface); }
+[data-theme="dark"] .save-status.error { color:#ffaba1; }
+[data-theme="dark"] .answer-feedback[data-result="incorrect"] { border-color:#ef9c91; }
+@media(max-width:760px) {
+  .draft-actions { justify-content:flex-start; gap:6px; width:100%; }
+  .draft-actions .small { padding:8px 10px; }
+  .save-status { margin-left:14px; margin-right:14px; }
+  .library-panel { margin-left:10px; margin-right:10px; max-height:50%; }
+}
+
+/* Reasoning controls and focused play mode. */
+.reasoning-controls { min-width:0; margin:16px 0; padding:12px; border:1px solid var(--line); border-radius:10px; }
+.reasoning-controls legend { padding:0 4px; font-weight:650; font-size:12px; }
+.reasoning-controls label:first-of-type { margin-top:2px; }
+.player-panel { flex:0 1 auto; overflow:auto; min-height:140px; max-height:55%; margin:0 16px 14px; padding:14px; border:1px solid var(--line); border-radius:12px; }
+.player-panel h3 { margin:0 0 8px; font-size:15px; }
+.player-panel label { margin-top:8px; }
+.player-panel .small { margin-top:10px; }
+.logic-table select.grid-conflict { border:2px solid #aa3d31; background:#fff0ed; }
+[data-theme="dark"] .logic-table select.grid-conflict { border-color:#ef9c91; background:#492e30; }
+.feedback { white-space:pre-wrap; }
+.play-mode .workspace { grid-template-columns:minmax(0,1fr); max-width:980px; width:100%; margin:auto; }
+.play-mode .intro, .play-mode footer, .play-mode .creator-detail, .play-mode #download, .play-mode .preview-top .section-label>span { display:none; }
+.play-mode .card { padding:clamp(18px,3vw,34px); }
+.play-mode .preview-top { padding-top:18px; }

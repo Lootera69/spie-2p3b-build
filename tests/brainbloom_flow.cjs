@@ -37,6 +37,8 @@ window.fetch = async (url, options) => {
   if (url === "/api/prepare" && body.subject === delayedSubject) await sleep(700);
   return response;
 };
+window.eval(fs.readFileSync(path.join(assets, "library.js"), "utf8"));
+window.eval(fs.readFileSync(path.join(assets, "player.js"), "utf8"));
 window.eval(fs.readFileSync(path.join(assets, "app.js"), "utf8"));
 const el = id => document.getElementById(id);
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
@@ -66,8 +68,10 @@ async function chooseMeaning(term, text) {
 }
 
 async function main() {
+  assert.equal(document.documentElement.dataset.theme, "dark");
+  assert.equal(el("theme-toggle").getAttribute("aria-pressed"), "true");
+  el("theme-toggle").click();
   assert.equal(document.documentElement.dataset.theme, "light");
-  assert.equal(el("theme-toggle").getAttribute("aria-pressed"), "false");
   el("theme-toggle").click();
   assert.equal(document.documentElement.dataset.theme, "dark");
   assert.equal(el("theme-toggle").textContent, "Light mode");
@@ -126,7 +130,7 @@ async function main() {
   });
   assert.deepEqual(JSON.parse(exportedText), generated.at(-1),
     "Download must retain the entire replay bundle and its source notices");
-  assert.equal(exportBlobs.size, 0, "Export releases its object URL");
+  await until(() => exportBlobs.size === 0, "Export releases its object URL");
 
   change("subject", "bank, crane, space", "input");
   await until(() => !el("generate").disabled, "Added topic ready");
@@ -201,8 +205,8 @@ async function main() {
   change("category", "science");
   change("qtype", "multiple-choice");
   await until(() => !el("generate").disabled, "Default science scenario ready");
-  assert.match(el("topic-status").textContent, /built-in scenario/);
-  assert.match(el("activity-help").textContent, /speed and journeys/);
+  assert.match(el("topic-status").textContent, /Science vocabulary because topics are blank/);
+  assert.match(el("activity-help").textContent, /clues/i);
 
   // A viewport-contained split view has two independent scroll roots.
   assert.equal(window.getComputedStyle(el("setup-scroll")).overflow, "auto");
@@ -296,7 +300,8 @@ async function main() {
   const gridSelects = [...document.querySelectorAll(".logic-table select")];
   ["Tiger", "Lion", "Owl"].forEach((value, i) => { gridSelects[i].value = value; });
   [...el("results").querySelectorAll("button")].find(b => b.textContent === "Check working grid").click();
-  assert.match(el("results").textContent, /3\/3 entries match/);
+  await until(() => el("results").querySelector(".feedback").dataset.result === "correct", "Working grid verified against clues");
+  assert.match(el("results").querySelector(".feedback").textContent, /every clue/);
   el("results").querySelector(".reveal").click();
   assert.ok(gridSelects.every(s => s.disabled));
   assert.match(el("results").textContent, /unique complete grid is shown/);
@@ -311,6 +316,10 @@ async function main() {
   assert.equal(el("topic").value, "autopilot");
   assert.equal(el("subject").value, "animals");
   assert.equal(el("difficulty").value, "easy");
+  assert.equal(el("reasoning-controls").hidden, false);
+  change("reasoning-mode", "deduction-only");
+  change("min-supporting-clues", "2");
+  await until(() => !el("generate").disabled, "Verified reasoning requirements ready");
   const beforeAuto = generated.length;
   el("generate").click();
   await until(() => generated.length > beforeAuto && !el("download").disabled, "Autonomous puzzle ready");
@@ -319,12 +328,26 @@ async function main() {
   assert.equal(auto.request.grid, null);
   assert.equal(auto.proofs[0].authored_rules.length, 0);
   assert.ok(auto.proofs[0].added_rules.length >= 2);
+  assert.equal(auto.request.reasoning_mode, "deduction-only");
+  assert.equal(auto.request.min_supporting_clues, 2);
+  assert.equal(auto.proofs[0].reasoning_constraints.deduction_only, true);
+  assert.ok(auto.proofs[0].reasoning_constraints.minimum_supporting_clues >= 2);
   assert.match(el("results").textContent, /How BrainBloom designed this/);
   const hint = [...el("results").querySelectorAll("button")].find(b => b.textContent === "Show next hint");
   assert.ok(hint);
-  assert.doesNotMatch(el("results").textContent, /Start with this clue:/);
+  assert.ok(!el("results").textContent.includes(auto.proofs[0].quality.hints[0]));
   hint.click();
-  assert.match(el("results").textContent, /Start with this clue:/);
+  assert.ok(el("results").textContent.includes(auto.proofs[0].quality.hints[0]));
+  change("topic", "resource-plan");
+  await until(() => !el("generate").disabled, "Delivery planning ready");
+  assert.equal(el("reasoning-controls").hidden, true);
+  const beforePlan = generated.length;
+  el("generate").click();
+  await until(() => generated.length > beforePlan && !el("download").disabled, "Delivery planning generated");
+  const plan = generated.at(-1);
+  assert.equal(plan.request.variation, "resource-plan");
+  assert.equal(plan.request.reasoning_mode, "auto", "Hidden grid requirements do not apply to delivery plans");
+  assert.equal(plan.proofs[0].quality.optimal_routes, 1);
   assert.equal(errors.length, 0, errors.join("\n"));
   process.stdout.write("Workshop DOM flow passed: automatic meanings, optional overrides, strict input, hard reasoning defaults, instructions, custom grids, grading, JSON export, responsive panels and preserved state.\n");
 }

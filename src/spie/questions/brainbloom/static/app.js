@@ -76,6 +76,9 @@ refreshStudioHeadline();
 const form = byId("generator"), status = byId("status"), results = byId("results");
 const typeLabels = {"multiple-choice":"Multiple Choice", "true-false":"True / False", "type-answer":"Type Answer", crossword:"Crossword", riddle:"Riddle", wonder:"Wonder"};
 let bundle = null, busy = false, config = null, nextCard = 0;
+const library = window.BrainBloomLibrary?.create();
+let savedId = null, progress = {}, progressDirty = false, saveTimer = null, openingSaved = false;
+let playMode = false, shareRevision = 0, pendingSharedHash = null;
 let lookupRevision = 0, prepareTimer = null, prepared = null, meanings = {};
 let activePane = "setup";
 const paneScrollPositions = {setup:0, drafts:0};
@@ -86,6 +89,109 @@ function element(tag, text, className) {
   if (text !== undefined) node.textContent = text;
   if (className) node.className = className;
   return node;
+}
+function saveNotice(message, failed = false) {
+  byId("save-status").textContent = message;
+  byId("save-status").classList.toggle("error", failed);
+}
+function flushProgress() {
+  clearTimeout(saveTimer); saveTimer = null;
+  if (!savedId || !library || !progressDirty) return true;
+  try {
+    library.update(savedId, progress);
+    progressDirty = false;
+    saveNotice("Saved in this browser · Progress saves automatically.");
+    return true;
+  } catch (error) { saveNotice(`Progress could not be saved. ${error.message}`, true); return false; }
+}
+function rememberProgress(index, state) {
+  if (JSON.stringify(progress[index]) === JSON.stringify(state)) return;
+  progress[index] = state;
+  progressDirty = true;
+  if (savedId) {
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(flushProgress, 250);
+  }
+}
+function libraryButton(text, action) {
+  const button = element("button", text, "small"); button.type = "button";
+  button.addEventListener("click", action); return button;
+}
+function renderLibrary() {
+  const list = byId("library-list"); list.replaceChildren();
+  byId("library-status").textContent = "";
+  try {
+    if (!library) throw new Error("Puzzle storage is unavailable. You can still download your drafts.");
+    const entries = library.list();
+    byId("open-library").textContent = entries.length ? `My library (${entries.length})` : "My library";
+    if (!entries.length) list.append(element("p", "No saved puzzles yet. Generate a puzzle, then choose Save puzzles.", "hint"));
+    for (const entry of entries) {
+      const row = element("article", undefined, "library-entry");
+      row.append(element("h4", entry.title));
+      row.append(element("p", `${entry.count} ${entry.count === 1 ? "puzzle" : "puzzles"} · Saved ${new Date(entry.updatedAt).toLocaleDateString()}`, "hint"));
+      const actions = element("div", undefined, "library-actions");
+      const open = libraryButton("Open & resume", () => openSaved(entry.id));
+      open.disabled = busy || openingSaved;
+      const favorite = libraryButton(entry.favorite ? "★ Favourite" : "☆ Favourite", () => {
+        try { library.favorite(entry.id, !entry.favorite); renderLibrary(); }
+        catch (error) { byId("library-status").textContent = error.message; }
+      });
+      favorite.setAttribute("aria-pressed", String(entry.favorite));
+      const remove = libraryButton("Remove", () => {
+        // Confirmation is inline and names the save, so accidental taps are recoverable.
+        const confirm = element("div", undefined, "library-actions");
+        confirm.append(element("span", "Remove this saved set from this browser?"));
+        confirm.append(libraryButton("Remove saved set", () => {
+          try {
+            library.remove(entry.id);
+            if (savedId === entry.id) { clearTimeout(saveTimer); savedId = null; saveNotice("Removed from library. The open puzzles are still available."); }
+            renderLibrary(); updateControls();
+          } catch (error) { byId("library-status").textContent = error.message; }
+        }), libraryButton("Keep it", renderLibrary));
+        actions.replaceWith(confirm);
+      });
+      actions.append(open, favorite, remove); row.append(actions); list.append(row);
+    }
+  } catch (error) { byId("library-status").textContent = error.message; }
+}
+function toggleLibrary(open) {
+  byId("library-panel").hidden = !open;
+  byId("open-library").setAttribute("aria-expanded", String(open));
+  if (open) { renderLibrary(); showDrafts(); byId("library-title").focus(); }
+  else byId("open-library").focus();
+}
+async function openSaved(id) {
+  if (busy || openingSaved) return;
+  if (!flushProgress()) return;
+  openingSaved = true; busy = true; updateControls(); renderLibrary();
+  results.inert = true;
+  byId("library-status").textContent = "Checking this saved puzzle before reopening it…";
+  try {
+    const entry = library.get(id);
+    if (!entry) throw new Error("This saved puzzle was removed. Refresh the library.");
+    const response = await fetch("/api/verify-saved", {method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({bundle:entry.bundle})});
+    const data = await response.json();
+    if (!response.ok || !data.ok) throw new Error(data.error || "The saved puzzle could not be checked.");
+    // Read again after replay so another tab's updated progress is respected.
+    const latest = library.get(id);
+    if (!latest) throw new Error("This saved puzzle was removed while opening it.");
+    invalidatePlayer();
+    bundle = entry.bundle; savedId = id; progress = latest.progress; progressDirty = false;
+    results.replaceChildren();
+    bundle.items.forEach((item, i) => results.append(showCard(item, bundle.proofs[i], i)));
+    byId("download").disabled = false; byId("download").textContent = "Download draft JSON ↓";
+    byId("drafts-tab").textContent = `Drafts (${bundle.items.length})`;
+    status.className = ""; status.textContent = `${entry.title} · Saved puzzle checked. Your progress has been restored.`;
+    saveNotice("Saved in this browser · Progress saves automatically.");
+    toggleLibrary(false); showDrafts(true);
+  } catch (error) {
+    byId("library-status").textContent = error instanceof TypeError ? "Cannot reach the generator to check this save. Try again when connected." : error.message;
+  } finally {
+    openingSaved = false; busy = false; results.inert = false; updateControls();
+    const message = byId("library-status").textContent;
+    renderLibrary(); byId("library-status").textContent = message;
+    resumeSharedLink();
+  }
 }
 function populate(select, entries, preferred) {
   select.replaceChildren();
@@ -104,7 +210,16 @@ function readBrief() {
     instructions:byId("topic").value === "custom" ? byId("instructions").value : ""};
   if (gridMode || byId("topic").value === "custom") brief.grid = grid;
   if (brief.qtype === "crossword") brief.crossword_size = byId("crossword-size").value ? Number(byId("crossword-size").value) : null;
+  if (["autopilot", "logic-grid"].includes(brief.activity)) {
+    brief.reasoning_mode = byId("reasoning-mode").value;
+    const minimum = byId("min-supporting-clues").value;
+    brief.min_supporting_clues = minimum === "auto" ? "auto" : Number(minimum);
+  }
   return brief;
+}
+function updateReasoningControls() {
+  const supported = ["autopilot", "logic-grid"].includes(byId("topic").value);
+  byId("reasoning-controls").hidden = !supported;
 }
 function renderGridSetup(data, brief) {
   const active = brief.activity === "logic-grid" || data.selected_activity === "logic-grid";
@@ -138,16 +253,19 @@ function gridTable(rows) {
   table.append(body);
   const wrap = element("div", undefined, "table-scroll"); wrap.append(table); return wrap;
 }
-function logicGridPlayer(proof, card) {
+function logicGridPlayer(proof, card, index) {
+  const cardBundle = bundle;
   const details = element("details"); details.open = true;
   details.append(element("summary", "Working grid"));
   if (proof.quality?.hints?.length) {
     const hints = element("details"); hints.append(element("summary", "Need a solving hint?"));
-    const next = element("button", "Show next hint", "secondary"); next.type = "button";
+    const next = element("button", "Show next hint", "secondary next-hint"); next.type = "button";
+    next.dataset.shown = "0";
     const text = element("div"); text.setAttribute("aria-live", "polite");
     let index = 0;
     next.addEventListener("click", () => {
       text.append(element("p", proof.quality.hints[index++]));
+      next.dataset.shown = String(index);
       next.disabled = index === proof.quality.hints.length;
       if (next.disabled) next.textContent = "All hints shown";
     });
@@ -171,16 +289,40 @@ function logicGridPlayer(proof, card) {
   table.append(body); const wrap = element("div", undefined, "table-scroll"); wrap.append(table);
   const feedback = element("p", "", "feedback"); feedback.setAttribute("role", "status");
   const check = element("button", "Check working grid", "secondary"); check.type = "button";
-  check.addEventListener("click", () => {
-    const matches = inputs.filter(({select, answer}) => select.value === answer).length;
-    feedback.textContent = `${matches}/${inputs.length} entries match the unique solution.`;
+  let revision = 0;
+  inputs.forEach(({select}) => select.addEventListener("change", () => {
+    ++revision; feedback.textContent = "";
+    inputs.forEach(({select}) => { select.classList.remove("grid-conflict"); select.removeAttribute("aria-invalid"); });
+  }));
+  check.addEventListener("click", async () => {
+    const current = ++revision;
+    check.disabled = true; feedback.textContent = "Checking your entries against the clues…";
+    try {
+      const response = await fetch("/api/check-grid", {method:"POST", headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({bundle:cardBundle, index, entries:inputs.map(({select}) => select.value)})});
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || "The grid could not be checked.");
+      if (current !== revision || !card.isConnected) return;
+      feedback.textContent = data.message;
+      feedback.dataset.result = data.correct ? "correct" : data.consistent ? "incomplete" : "incorrect";
+      inputs.forEach(({select}) => { select.classList.remove("grid-conflict"); select.removeAttribute("aria-invalid"); });
+      for (const conflict of data.conflicts) for (const cell of conflict.cells) {
+        inputs[cell]?.select.classList.add("grid-conflict"); inputs[cell]?.select.setAttribute("aria-invalid", "true");
+      }
+    } catch (error) {
+      if (current === revision && card.isConnected) feedback.textContent = error instanceof TypeError ? "Cannot reach the generator. Your entries are kept; try again." : error.message;
+    } finally { check.disabled = card.classList.contains("revealed"); }
   });
   details.append(wrap, check, feedback); card.append(details);
-  return () => { inputs.forEach(({select, answer}) => { select.value = answer; select.disabled = true; }); check.disabled = true; feedback.textContent = "The unique complete grid is shown."; };
+  return () => { ++revision; inputs.forEach(({select, answer}) => { select.value = answer; select.disabled = true; select.classList.remove("grid-conflict"); select.removeAttribute("aria-invalid"); }); check.disabled = true; feedback.textContent = "The unique complete grid is shown."; };
 }
 function updateControls() {
   form.querySelectorAll("select, input, textarea, button").forEach(control => { control.disabled = busy || !config; });
   byId("generate").disabled = busy || !prepared?.ready;
+  byId("save-puzzles").disabled = busy || !bundle?.items?.length || !library;
+  byId("save-puzzles").textContent = savedId ? "Save progress" : "Save puzzles";
+  for (const id of ["play-mode", "share-puzzles"]) byId(id).disabled = busy || !bundle?.items?.length;
+  byId("copy-share").disabled = busy || !byId("share-link").value;
   byId("variation").disabled = busy || !prepared?.ready || (prepared.selected_activity === "word-wonder" && prepared.max_count === 1);
   if (prepared?.selected_activity === "logic-grid" && prepared.max_count === 1 && prepared.grid_analysis?.solution_count === 1) byId("variation").disabled = true;
   for (const option of byId("difficulty").options) {
@@ -189,6 +331,11 @@ function updateControls() {
   }
 }
 function updatePanes() {
+  if (playMode) {
+    byId("pane-tabs").hidden = true; byId("setup-pane").hidden = true; byId("drafts-pane").hidden = false;
+    byId("drafts-pane").setAttribute("role", "region"); byId("drafts-pane").setAttribute("aria-labelledby", "drafts-title");
+    return;
+  }
   const compact = window.innerWidth <= 760;
   byId("pane-tabs").hidden = !compact;
   for (const name of ["setup", "drafts"]) {
@@ -256,6 +403,8 @@ function renderPreparation(data, brief) {
   if (brief.activity === "custom") byId("activity-help").textContent = "Write your brief below. Review the interpretation before creating your puzzle.";
   renderInstructions(data, brief);
   renderGridSetup(data, brief);
+  updateReasoningControls();
+  byId("reasoning-help").textContent = "The engine checks these requirements before showing a puzzle. Stricter choices may leave no suitable puzzle within the search. Clue counts apply to the question asked; deduction only requires a complete grid without assumed cases.";
   byId("crossword-controls").hidden = brief.qtype !== "crossword";
   if (brief.qtype === "crossword") {
     const recommendation = data.crossword_recommendation;
@@ -342,6 +491,7 @@ function schedulePreparation(delay = 180) {
   clearTimeout(prepareTimer);
   lookupRevision++;
   prepared = null;
+  updateReasoningControls();
   byId("count").max = "20";
   byId("topic-status").textContent = "Checking how your choices fit together…";
   byId("crossword-recommendation").textContent = "Checking word lengths and crossings…";
@@ -420,8 +570,10 @@ function crosswordPlayer(item, card) {
   card.append(clues, check, feedback);
   return () => { inputs.forEach(({input, letter}) => { input.value = letter; input.disabled = true; input.classList.remove("wrong", "correct"); }); check.disabled = true; feedback.textContent = "The completed grid is shown."; };
 }
-function showCard(item, proof) {
+function showCard(item, proof, index = 0) {
   const card = element("article", undefined, "card"), id = ++nextCard;
+  const cardBundle = bundle, saved = progress[index] || {};
+  card.dataset.index = String(index);
   const head = element("div", undefined, "card-head");
   const level = item.type === "wonder" ? "unscored" : item.difficulty;
   head.append(element("h3", item.title), element("span", `${typeLabels[item.type]} · ${level} · draft`, "badge"));
@@ -430,15 +582,15 @@ function showCard(item, proof) {
   const buttons = []; let selected = null, input = null, showGrid = null;
   if (proof.solution_table) {
     if (proof.autopilot) {
-      const designed = element("details"); designed.append(element("summary", "How BrainBloom designed this"));
+      const designed = element("details", undefined, "creator-detail"); designed.append(element("summary", "How BrainBloom designed this"));
       proof.autopilot.decisions.forEach(text => designed.append(element("p", text)));
       card.append(designed);
     }
-    const clues = element("details"); clues.append(element("summary", proof.autopilot ? "Clues invented by BrainBloom" : "Your rules and engine-added clues"));
+    const clues = element("details", undefined, "creator-detail"); clues.append(element("summary", proof.autopilot ? "Clues invented by BrainBloom" : "Your rules and engine-added clues"));
     proof.authored_rules.forEach((r, i) => clues.append(element("p", `Your rule ${i + 1}: ${r.text}.`)));
     proof.added_rules.forEach(r => clues.append(element("p", `Added to ensure uniqueness: ${r.text}.`)));
     if (!proof.added_rules.length) clues.append(element("p", "No additional clues were needed."));
-    card.append(clues); showGrid = logicGridPlayer(proof, card);
+    card.append(clues); showGrid = logicGridPlayer(proof, card, index);
   }
   if (item.type === "crossword") showGrid = crosswordPlayer(item, card);
   else if (item.choices.length) {
@@ -456,19 +608,44 @@ function showCard(item, proof) {
     card.append(options);
   } else if (item.type !== "wonder") {
     const label = element("label", "Your answer"); label.htmlFor = `answer-${id}`;
-    input = element("input"); input.type = "text"; input.id = label.htmlFor; input.autocomplete = "off";
+    input = element("input"); input.type = "text"; input.id = label.htmlFor; input.autocomplete = "off"; input.maxLength = 2000;
     card.append(label, input);
     if (item.hintText) {
       const hints = element("details"); hints.append(element("summary", "Need a hint?"));
       item.hintText.split("\n").forEach(line => hints.append(element("p", line))); card.append(hints);
     }
   } else card.append(element("p", "Take a moment to consider it. Wonders are unscored.", "hint"));
+  let feedbackRevision = 0, checking = false;
+  const feedback = element("p", "", "answer-feedback"); feedback.setAttribute("role", "status");
+  const check = element("button", "Check answer", "small check-answer"); check.type = "button";
+  if (item.type !== "wonder" && item.type !== "crossword") {
+    card.append(check, feedback);
+    check.addEventListener("click", async () => {
+      if (checking || card.classList.contains("revealed")) return;
+      const answer = input ? input.value.trim() : selected === null ? "" : item.choices[selected];
+      if (!answer) { feedback.textContent = input ? "Enter an answer first." : "Choose an answer first."; return; }
+      const revision = ++feedbackRevision;
+      checking = true; check.disabled = true; feedback.textContent = "Checking your answer…"; delete feedback.dataset.result;
+      try {
+        const response = await fetch("/api/check-answer", {method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({bundle:cardBundle, index, answer})});
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.error || "The answer could not be checked.");
+        if (revision !== feedbackRevision || !card.isConnected) return;
+        feedback.textContent = data.message;
+        feedback.dataset.result = data.correct ? "correct" : "incorrect";
+      } catch (error) {
+        if (revision === feedbackRevision && card.isConnected) feedback.textContent = error instanceof TypeError ? "Cannot reach the generator. Your answer is kept; try checking again." : error.message;
+      } finally { checking = false; check.disabled = card.classList.contains("revealed"); }
+    });
+  }
   const reveal = element("button", item.type === "wonder" ? "Reveal insight" : item.type === "crossword" ? "Reveal completed grid" : "Reveal answer & reasoning", "reveal"); reveal.type = "button";
   reveal.addEventListener("click", () => {
+    card.classList.add("revealed"); ++feedbackRevision;
+    check.disabled = true; feedback.textContent = "";
     const answer = element("div", undefined, "answer");
     buttons.forEach((button, i) => {
       button.disabled = true; button.classList.remove("chosen");
-      if (item.choices[i] === item.correctAnswer) button.classList.add("correct");
+      if (normalize(item.choices[i]) === normalize(item.correctAnswer)) button.classList.add("correct");
       else if (i === selected) button.classList.add("wrong");
     });
     if (input) {
@@ -501,24 +678,54 @@ function showCard(item, proof) {
       if (quality.expected_questions) details.append(element("p", `Optimal expected cost: ${quality.expected_questions} questions; checked by decision-tree rollout and exhaustive policy evaluation.`));
       details.append(element("p", "Search scores are family-specific structural heuristics, not ratings from players or comparisons with frontier AI models."));
     }
+    if (proof.reasoning_constraints) {
+      const checked = proof.reasoning_constraints;
+      details.append(element("p", `Creator reasoning requirements checked: ${checked.deduction_only ? "the full grid is solved without assumed cases" : "a verified solving method is used"}. Exact clue support for this question: ${checked.minimum_supporting_clues}.`));
+    }
     details.append(element("p", "Difficulty is a structural estimate. Wording, clue quality, and novelty still need editorial review."));
     answer.append(details); reveal.replaceWith(answer);
   });
-  card.append(reveal); return card;
+  card.append(reveal);
+  // Progress is a separate browser record; the replayable puzzle is never edited.
+  const fields = [...card.querySelectorAll("input, select")];
+  if (Array.isArray(saved.fields)) fields.forEach((field, i) => {
+    if (typeof saved.fields[i] === "string") field.value = saved.fields[i].slice(0, 2000);
+  });
+  if (Number.isInteger(saved.selected) && buttons[saved.selected]) buttons[saved.selected].click();
+  const hint = card.querySelector(".next-hint");
+  if (hint && Number.isInteger(saved.hints) && saved.hints > 0) {
+    for (let i = 0; i < Math.min(saved.hints, proof.quality.hints.length); i++) hint.click();
+    hint.closest("details").open = true;
+  }
+  if (saved.revealed === true) reveal.click();
+  const remember = () => rememberProgress(index, {
+    selected, fields:fields.map(field => field.value),
+    hints:Number(hint?.dataset.shown || 0), revealed:card.classList.contains("revealed"),
+  });
+  const edited = () => { ++feedbackRevision; feedback.textContent = ""; delete feedback.dataset.result; remember(); };
+  card.addEventListener("input", edited); card.addEventListener("change", edited);
+  card.addEventListener("click", event => {
+    if (event.target.closest(".option")) edited();
+    else remember();
+  });
+  return card;
 }
 async function generate(event) {
   event?.preventDefault();
   if (busy || !config || !form.reportValidity()) return;
   const brief = readBrief();
+  if (!flushProgress()) return;
   let generating = false;
   busy = true;
+  results.inert = true;
   updateControls();
   status.className = "";
   try {
     const plan = await prepareBrief(brief);
     if (!plan?.ready) throw new Error(plan?.message || "Please check the settings above.");
     const request = plan.request;
-    bundle = null; byId("download").disabled = true;
+    invalidatePlayer();
+    bundle = null; savedId = null; progress = {}; progressDirty = false; saveNotice(""); updateControls(); byId("download").disabled = true;
     results.setAttribute("aria-busy", "true"); results.replaceChildren();
     status.textContent = "Creating your puzzles and checking every answer…";
     generating = true;
@@ -530,16 +737,141 @@ async function generate(event) {
     if (data.dictionary) status.textContent += ` Topics: ${data.dictionary.label}.`;
     if (!data.summary.complete) { status.className = "error"; status.textContent += ` ${data.summary.rejected} withheld by editorial checks. Try a smaller batch or another family.`; }
     if (data.checks.platform_verifier?.status === "not-supported-for-type") status.textContent += " Native format checks passed; Studio's quiz-only verifier does not cover this type.";
-    data.items.forEach((item, i) => results.append(showCard(item, data.proofs[i])));
+    data.items.forEach((item, i) => results.append(showCard(item, data.proofs[i], i)));
+    saveNotice(data.items.length ? "Save these puzzles to keep your progress in this browser." : "");
     data.rejected.forEach(rejection => results.append(element("div", "Draft withheld: " + (rejection.issues.map(x => typeof x === "string" ? x : `${x.rule}: ${x.message}`).join("; ") || "Editorial warnings; see report."), "reject")));
     byId("drafts-tab").textContent = `Drafts (${data.items.length})`;
     showDrafts(true);
     byId("download").textContent = data.items.length ? "Download draft JSON ↓" : "Download rejection report ↓"; byId("download").disabled = false;
   } catch (error) { status.className = "error"; status.textContent = error instanceof TypeError ? "Cannot reach the local generator. Restart it and try again." : error.message; if (generating) showDrafts(true); }
-  finally { busy = false; updateControls(); results.setAttribute("aria-busy", "false"); }
+  finally {
+    busy = false; results.inert = false; updateControls(); results.setAttribute("aria-busy", "false");
+    resumeSharedLink();
+  }
 }
 form.addEventListener("submit", generate);
-for (const id of ["category", "qtype", "topic", "difficulty", "search-effort"]) {
+function setPlayMode(enabled) {
+  playMode = enabled;
+  document.body.classList.toggle("play-mode", enabled);
+  byId("play-mode").textContent = enabled ? "Back to creator" : "Play mode";
+  byId("play-mode").setAttribute("aria-pressed", String(enabled));
+  byId("drafts-title").textContent = enabled ? "Your puzzles" : "Your drafts";
+  results.setAttribute("aria-label", enabled ? "Puzzles to play" : "Puzzle drafts");
+  showDrafts();
+}
+function closeSharePanel(focus = true) {
+  byId("share-panel").hidden = true;
+  byId("share-puzzles").setAttribute("aria-expanded", "false");
+  if (focus) byId("share-puzzles").focus();
+  ++shareRevision;
+}
+function invalidatePlayer() {
+  closeSharePanel(false);
+  byId("share-link").value = ""; byId("share-status").textContent = "";
+  if (!pendingSharedHash && location.hash.startsWith("#bb=")) history.replaceState(null, "", location.pathname + location.search);
+}
+byId("play-mode").addEventListener("click", () => setPlayMode(!playMode));
+byId("share-puzzles").addEventListener("click", async () => {
+  if (busy || !bundle?.items?.length) return;
+  if (!byId("share-panel").hidden) { closeSharePanel(); return; }
+  const revision = ++shareRevision, sharedBundle = bundle;
+  byId("share-panel").hidden = false; byId("share-puzzles").setAttribute("aria-expanded", "true");
+  byId("share-link").value = ""; byId("copy-share").disabled = true;
+  byId("copy-share").textContent = "Copy link";
+  byId("share-status").textContent = "Preparing your puzzle link…";
+  try {
+    const url = await window.BrainBloomPlayer.shareURL(sharedBundle, location.href);
+    if (revision !== shareRevision || sharedBundle !== bundle) return;
+    byId("share-link").value = url; byId("copy-share").disabled = false;
+    byId("share-status").textContent = "Recipients start with blank puzzles and can reveal answers when ready.";
+    if (["localhost", "127.0.0.1", "[::1]"].includes(location.hostname)) byId("share-status").textContent += " This local preview link works only on this computer. Create links on your deployed website to share with others.";
+    byId("share-link").focus(); byId("share-link").select();
+  } catch (error) { if (revision === shareRevision) byId("share-status").textContent = error.message; }
+});
+byId("copy-share").addEventListener("click", async () => {
+  const link = byId("share-link");
+  if (!link.value) return;
+  const revision = shareRevision;
+  try {
+    await navigator.clipboard.writeText(link.value);
+    if (revision === shareRevision) byId("copy-share").textContent = "Copied";
+  } catch {
+    if (revision !== shareRevision) return;
+    link.focus(); link.select();
+    byId("share-status").textContent = "Select and copy the link from the field above.";
+  }
+});
+byId("close-share").addEventListener("click", () => closeSharePanel());
+byId("share-panel").addEventListener("keydown", event => {
+  if (event.key === "Escape") { event.preventDefault(); closeSharePanel(); }
+});
+function resumeSharedLink() {
+  if (!pendingSharedHash || busy || !config) return;
+  const pending = pendingSharedHash; pendingSharedHash = null;
+  if (location.hash === pending) loadSharedLink();
+}
+async function loadSharedLink() {
+  if (!location.hash.startsWith("#bb=")) { pendingSharedHash = null; return; }
+  if (busy || !config) { pendingSharedHash = location.hash; return; }
+  if (!flushProgress()) return;
+  pendingSharedHash = null;
+  const openedHash = location.hash;
+  busy = true; results.inert = true; updateControls();
+  status.className = ""; status.textContent = "Checking the shared puzzles before opening them…";
+  showDrafts(true);
+  try {
+    const shared = await window.BrainBloomPlayer.readShare(openedHash);
+    const response = await fetch("/api/verify-saved", {method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({bundle:shared})});
+    const data = await response.json();
+    if (location.hash !== openedHash) return;
+    if (!response.ok || !data.ok || !data.count) throw new Error(data.error || "This link has no playable puzzles.");
+    closeSharePanel(false);
+    byId("share-link").value = "";
+    bundle = shared; savedId = null; progress = {}; progressDirty = false;
+    results.replaceChildren(); bundle.items.forEach((item, i) => results.append(showCard(item, bundle.proofs[i], i)));
+    byId("download").disabled = false; byId("download").textContent = "Download draft JSON ↓";
+    byId("drafts-tab").textContent = `Drafts (${bundle.items.length})`;
+    setPlayMode(true);
+    status.textContent = `${bundle.items.length} shared ${bundle.items.length === 1 ? "puzzle" : "puzzles"} checked and ready to play.`;
+    saveNotice("Save these puzzles to keep your progress in this browser.");
+  } catch (error) {
+    status.className = "error";
+    status.textContent = error instanceof TypeError ? "Cannot reach the generator to check this link. Try again when connected." : error.message;
+  } finally {
+    busy = false; results.inert = false; updateControls();
+    resumeSharedLink();
+  }
+}
+window.addEventListener("hashchange", loadSharedLink);
+byId("save-puzzles").addEventListener("click", () => {
+  if (!bundle?.items?.length || !library || busy) return;
+  clearTimeout(saveTimer);
+  try {
+    const entry = library.save(bundle, progress);
+    savedId = entry.id; progressDirty = false; saveNotice("Saved in this browser · Progress saves automatically.");
+    renderLibrary(); updateControls();
+  } catch (error) { saveNotice(error.message, true); }
+});
+byId("open-library").addEventListener("click", () => toggleLibrary(byId("library-panel").hidden));
+byId("close-library").addEventListener("click", () => toggleLibrary(false));
+byId("library-panel").addEventListener("keydown", event => {
+  if (event.key === "Escape") { event.preventDefault(); toggleLibrary(false); }
+});
+window.addEventListener("pagehide", flushProgress);
+document.addEventListener("visibilitychange", () => { if (document.visibilityState === "hidden") flushProgress(); });
+window.addEventListener("storage", event => {
+  if (event.key !== null && event.key !== window.BrainBloomLibrary?.storageKey) return;
+  try {
+    if (savedId && !library.get(savedId)) {
+      savedId = null; clearTimeout(saveTimer);
+      saveNotice("This save was removed in another tab. Save puzzles to keep your current progress.");
+      updateControls();
+    }
+  } catch (error) { saveNotice(error.message, true); }
+  renderLibrary();
+});
+renderLibrary();
+for (const id of ["category", "qtype", "topic", "difficulty", "search-effort", "reasoning-mode", "min-supporting-clues"]) {
   byId(id).addEventListener("change", () => {
     if (id === "topic") {
       byId("grid-controls").hidden = byId("topic").value !== "logic-grid";
@@ -596,6 +928,7 @@ byId("try-autopilot").addEventListener("click", () => {
   if (![...byId("topic").options].some(o => o.value === "autopilot")) byId("topic").append(new Option("Design a clue puzzle for me", "autopilot"));
   byId("topic").value = "autopilot"; byId("subject").value = "animals";
   meanings = {}; byId("difficulty").value = "easy"; byId("count").value = "1";
+  byId("reasoning-mode").value = "auto"; byId("min-supporting-clues").value = "auto";
   byId("design-mode").value = "automatic";
   schedulePreparation(0);
 });
@@ -630,7 +963,7 @@ byId("download").addEventListener("click", () => {
   const link = element("a"); link.href = url; link.download = `brainbloom-${bundle.request.category}-${bundle.request.qtype}-${bundle.request.seed}.draft.json`;
   document.body.append(link); link.click(); link.remove(); setTimeout(() => URL.revokeObjectURL(url), 1000);
 });
-fetch("/api/config").then(response => { if (!response.ok) throw new Error("Setup unavailable"); return response.json(); }).then(data => {
+fetch("/api/config").then(response => { if (!response.ok) throw new Error("Setup unavailable"); return response.json(); }).then(async data => {
   config = data; populate(byId("category"), Object.entries(data.categories), "logic");
   loadGridExample();
   populate(byId("qtype"), data.types.map(type => [type, typeLabels[type]]), "multiple-choice");
@@ -651,5 +984,6 @@ fetch("/api/config").then(response => { if (!response.ok) throw new Error("Setup
     byId("setup").after(details);
   }
   byId("setup").textContent += data.history?.enabled ? ` Saved-design comparison enabled (${data.history.designs} previous designs).` : " Cross-session design comparison is off.";
-  prepareBrief();
+  await prepareBrief();
+  await loadSharedLink();
 }).catch(() => { byId("setup").textContent = "Could not load the supported families. Restart the generator and reload this page."; });
