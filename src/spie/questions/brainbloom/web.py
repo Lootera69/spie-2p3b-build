@@ -103,7 +103,8 @@ def handler_for(
                 "connect-src 'self'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'"
             ))
             self.end_headers()
-            self.wfile.write(payload)
+            if self.command != "HEAD":
+                self.wfile.write(payload)
 
         def send_json(self, status: int, value: object) -> None:
             self.send(status, json.dumps(value).encode("utf-8"), "application/json; charset=utf-8")
@@ -142,10 +143,16 @@ def handler_for(
                 return False
             return True
 
+        def do_HEAD(self) -> None:
+            if self.path != "/healthz":
+                self.send_error(501, "Unsupported method ('HEAD')")
+                return
+            self.do_GET()
+
         def do_GET(self) -> None:
             if self.path == "/healthz":
                 # Platform health checks arrive before any origin is known, and with
-                # the probe's own Host header. Static, bodiless, ahead of the check.
+                # the probe's own Host header. HEAD keeps the same headers, no body.
                 self.send_json(200, {"status": "ok"})
                 return
             if not self.local_request():

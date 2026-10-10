@@ -416,10 +416,43 @@ def test_public_origin_widens_the_allowlist_without_opening_other_hosts():
         thread.join(timeout=5)
 
 
-def test_healthz_answers_before_the_origin_check_and_never_generates(http_server):
-    status, _, body = http_call(http_server, "GET", "/healthz", headers={"Host": "probe.internal"})
-    assert status == 200 and json.loads(body) == {"status": "ok"}
+@pytest.mark.parametrize("method", ["GET", "HEAD"])
+def test_healthz_answers_before_the_origin_check_and_never_generates(
+    http_server, monkeypatch, method,
+):
+    def forbidden(*args, **kwargs):
+        pytest.fail("Health probes must not generate puzzles or consume the client request cap")
+
+    monkeypatch.setattr(Generator, "build", forbidden)
+    monkeypatch.setattr(web_module.RateLimiter, "allow", forbidden)
+    # Read the wire directly: HTTPResponse.read() discards a HEAD response body
+    # even if the server incorrectly transmits one.
+    with socket.create_connection(http_server.server_address, timeout=5) as connection:
+        connection.sendall((
+            f"{method} /healthz HTTP/1.0\r\nHost: probe.internal\r\n"
+            "Origin: https://probe.internal\r\nConnection: close\r\n\r\n"
+        ).encode("ascii"))
+        chunks = []
+        while chunk := connection.recv(4096):
+            chunks.append(chunk)
+    head, separator, body = b"".join(chunks).partition(b"\r\n\r\n")
+    assert separator
+    status, *lines = head.decode("ascii").split("\r\n")
+    assert status == "HTTP/1.0 200 OK"
+    headers = dict(line.split(": ", 1) for line in lines)
+    expected = b'{"status": "ok"}'
+    assert headers["Content-Length"] == str(len(expected))
+    assert headers["Content-Type"] == "application/json; charset=utf-8"
+    assert headers["Cache-Control"] == "no-store"
+    assert headers["X-Content-Type-Options"] == "nosniff"
+    assert "default-src 'none'" in headers["Content-Security-Policy"]
+    assert body == (expected if method == "GET" else b"")
     assert http_call(http_server, "POST", "/healthz", "{}", {"Host": "probe.internal"})[0] == 403
+
+
+def test_head_support_is_confined_to_the_health_probe(http_server):
+    for path in ("/", "/api/config", "/healthz?probe=1"):
+        assert http_call(http_server, "HEAD", path)[0] == 501
 
 
 def test_rate_limit_caps_one_client_without_touching_a_loopback_run():

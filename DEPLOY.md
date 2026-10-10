@@ -54,7 +54,8 @@ controls three things at once:
 
 `PORT` sets the listening port (`--port`); the image defaults to 10000, which is what
 Render routes to. `/healthz` answers before the origin check, so the platform's probe — which
-arrives with its own `Host` and no `Origin` — is not rejected; it is static and bodiless.
+arrives with its own `Host` and no `Origin` — is not rejected. `GET` returns the static
+`{"status": "ok"}` response; `HEAD` returns the same headers without a response body.
 
 Nothing above weakens the local default. With no public origin configured the behaviour is
 byte-for-byte what it was: `127.0.0.1` only, no cap, same startup banner.
@@ -72,6 +73,13 @@ curl -s -H "Origin: https://YOUR-SERVICE.onrender.com" \
 ```
 
 A cross-origin request must come back `403`, and more than 60 requests a minute `429`.
+
+For a cron-job.org keep-warm job, use **HEAD** with
+`https://YOUR-SERVICE.onrender.com/healthz` to receive no application response body.
+Render can answer before the application is ready during a cold start. Its upstream
+response can still exceed cron-job.org's 64 KB limit through its reported content length,
+and the first request can time out while the service starts. Check a later run after the
+service is ready; HEAD alone does not guarantee successful cold-start probes.
 
 ## Build it locally first
 
