@@ -1,0 +1,1244 @@
+{
+  "benchmark": "brainbloom-state-planning-fixed-seeds-v2",
+  "configuration": {
+    "seeds": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9
+    ],
+    "levels": [
+      1,
+      2,
+      3
+    ],
+    "proposal_budget": 2000,
+    "maximum_states": 512,
+    "maximum_steps": 12
+  },
+  "environment": {
+    "python": "3.12.10 (tags/v3.12.10:0cc8128, Apr  8 2025, 12:21:36) [MSC v.1943 64 bit (AMD64)]",
+    "platform": "Windows-11-10.0.26300-SP0",
+    "z3_solver": "4.13.4.0",
+    "source_sha256": {
+      "tools/benchmark_state_planning.py": "7e105d02c76812e1871aaa009731b343c880f45e07864b8df22b08c323e1a187",
+      "src/spie/questions/brainbloom/state_planning.py": "9ca74fe1e8f1cf87ad9052cade1928e55dfca74169818ed7c17641e9af30244a",
+      "src/spie/search.py": "9ae0771a69f0138ea3ade3abb66e327e400092cdebdc877be4a8cfcc24d73a82",
+      "src/spie/interpreter.py": "0ed33db39140b65c0b867416ab95b8c5208d2a800c39bdd0bda2b32da7fb68a1",
+      "src/spie/z3_compile.py": "8fac41b443073bc15a33f69e06ec7e1ae978a0d44e644653bbc6a42239816c9e"
+    }
+  },
+  "summary": {
+    "requested": 30,
+    "verified": 30,
+    "rejected": 0,
+    "request_acceptance_rate": 1.0,
+    "proposals_attempted": 10400,
+    "proposals_rejected": 10370,
+    "proposal_acceptance_rate": 0.0028846153846153848,
+    "known_proposal_rejection_reasons": {
+      "unsolved": 8003,
+      "choice": 944,
+      "mechanics": 1423
+    },
+    "proposal_rejections_without_reason_breakdown": 0,
+    "distinct_structures": 30,
+    "distinct_topologies": 22,
+    "multiple_optimal_continuations": 18,
+    "committed_first_branching": 30,
+    "later_committed_branching": 30,
+    "mechanic_necessity": {
+      "energy": {
+        "signature_changes": 30,
+        "answer_changes": 27,
+        "optimum_changes": 30,
+        "unreachable_after_removal": 0
+      },
+      "gates": {
+        "signature_changes": 30,
+        "answer_changes": 4,
+        "optimum_changes": 30,
+        "unreachable_after_removal": 0
+      },
+      "switches": {
+        "signature_changes": 30,
+        "answer_changes": 30,
+        "optimum_changes": 30,
+        "unreachable_after_removal": 29
+      },
+      "recharge": {
+        "signature_changes": 30,
+        "answer_changes": 30,
+        "optimum_changes": 30,
+        "unreachable_after_removal": 30
+      }
+    },
+    "best_steps": {
+      "count": 30,
+      "min": 4,
+      "median": 6.0,
+      "p95": 7,
+      "max": 7
+    },
+    "reachable_states": {
+      "count": 30,
+      "min": 21,
+      "median": 76.0,
+      "p95": 140,
+      "max": 143
+    },
+    "first_move_margin": {
+      "count": 30,
+      "min": 1,
+      "median": 1.0,
+      "p95": 2,
+      "max": 2
+    },
+    "seconds": {
+      "generation": {
+        "count": 30,
+        "min": 0.010169,
+        "median": 0.521346,
+        "p95": 3.496945,
+        "max": 3.81609
+      },
+      "certification": {
+        "count": 30,
+        "min": 0.580293,
+        "median": 0.88112,
+        "p95": 1.465632,
+        "max": 1.491155
+      },
+      "independent_audit": {
+        "count": 30,
+        "min": 0.046222,
+        "median": 0.094364,
+        "p95": 0.161236,
+        "max": 0.219922
+      },
+      "replay": {
+        "count": 30,
+        "min": 0.710313,
+        "median": 1.4853125,
+        "p95": 4.713198,
+        "max": 5.17818
+      },
+      "generation_and_certification": {
+        "count": 30,
+        "min": 0.815867,
+        "median": 1.5469535,
+        "p95": 4.750465,
+        "max": 4.858370000000001
+      }
+    }
+  },
+  "levels": {
+    "1": {
+      "requested": 10,
+      "verified": 10,
+      "rejected": 0,
+      "request_acceptance_rate": 1.0,
+      "proposals_attempted": 3345,
+      "proposals_rejected": 3335,
+      "proposal_acceptance_rate": 0.0029895366218236174,
+      "known_proposal_rejection_reasons": {
+        "unsolved": 1874,
+        "choice": 474,
+        "mechanics": 987
+      },
+      "proposal_rejections_without_reason_breakdown": 0,
+      "distinct_structures": 10,
+      "distinct_topologies": 3,
+      "multiple_optimal_continuations": 6,
+      "committed_first_branching": 10,
+      "later_committed_branching": 10,
+      "mechanic_necessity": {
+        "energy": {
+          "signature_changes": 10,
+          "answer_changes": 10,
+          "optimum_changes": 10,
+          "unreachable_after_removal": 0
+        },
+        "gates": {
+          "signature_changes": 10,
+          "answer_changes": 1,
+          "optimum_changes": 10,
+          "unreachable_after_removal": 0
+        },
+        "switches": {
+          "signature_changes": 10,
+          "answer_changes": 10,
+          "optimum_changes": 10,
+          "unreachable_after_removal": 9
+        },
+        "recharge": {
+          "signature_changes": 10,
+          "answer_changes": 10,
+          "optimum_changes": 10,
+          "unreachable_after_removal": 10
+        }
+      },
+      "best_steps": {
+        "count": 10,
+        "min": 4,
+        "median": 5.0,
+        "p95": 5,
+        "max": 5
+      },
+      "reachable_states": {
+        "count": 10,
+        "min": 42,
+        "median": 67.0,
+        "p95": 108,
+        "max": 108
+      },
+      "first_move_margin": {
+        "count": 10,
+        "min": 1,
+        "median": 1.0,
+        "p95": 1,
+        "max": 1
+      },
+      "seconds": {
+        "generation": {
+          "count": 10,
+          "min": 0.052891,
+          "median": 0.831754,
+          "p95": 3.81609,
+          "max": 3.81609
+        },
+        "certification": {
+          "count": 10,
+          "min": 0.580293,
+          "median": 0.7667855,
+          "p95": 0.934375,
+          "max": 0.934375
+        },
+        "independent_audit": {
+          "count": 10,
+          "min": 0.046222,
+          "median": 0.0942255,
+          "p95": 0.125266,
+          "max": 0.125266
+        },
+        "replay": {
+          "count": 10,
+          "min": 0.710313,
+          "median": 1.615423,
+          "p95": 4.713198,
+          "max": 4.713198
+        },
+        "generation_and_certification": {
+          "count": 10,
+          "min": 0.815867,
+          "median": 1.5733675,
+          "p95": 4.750465,
+          "max": 4.750465
+        }
+      }
+    },
+    "2": {
+      "requested": 10,
+      "verified": 10,
+      "rejected": 0,
+      "request_acceptance_rate": 1.0,
+      "proposals_attempted": 1506,
+      "proposals_rejected": 1496,
+      "proposal_acceptance_rate": 0.006640106241699867,
+      "known_proposal_rejection_reasons": {
+        "unsolved": 1175,
+        "choice": 203,
+        "mechanics": 118
+      },
+      "proposal_rejections_without_reason_breakdown": 0,
+      "distinct_structures": 10,
+      "distinct_topologies": 9,
+      "multiple_optimal_continuations": 7,
+      "committed_first_branching": 10,
+      "later_committed_branching": 10,
+      "mechanic_necessity": {
+        "energy": {
+          "signature_changes": 10,
+          "answer_changes": 8,
+          "optimum_changes": 10,
+          "unreachable_after_removal": 0
+        },
+        "gates": {
+          "signature_changes": 10,
+          "answer_changes": 2,
+          "optimum_changes": 10,
+          "unreachable_after_removal": 0
+        },
+        "switches": {
+          "signature_changes": 10,
+          "answer_changes": 10,
+          "optimum_changes": 10,
+          "unreachable_after_removal": 10
+        },
+        "recharge": {
+          "signature_changes": 10,
+          "answer_changes": 10,
+          "optimum_changes": 10,
+          "unreachable_after_removal": 10
+        }
+      },
+      "best_steps": {
+        "count": 10,
+        "min": 5,
+        "median": 6.0,
+        "p95": 7,
+        "max": 7
+      },
+      "reachable_states": {
+        "count": 10,
+        "min": 34,
+        "median": 75.0,
+        "p95": 143,
+        "max": 143
+      },
+      "first_move_margin": {
+        "count": 10,
+        "min": 1,
+        "median": 1.0,
+        "p95": 2,
+        "max": 2
+      },
+      "seconds": {
+        "generation": {
+          "count": 10,
+          "min": 0.010169,
+          "median": 0.2994695,
+          "p95": 0.856312,
+          "max": 0.856312
+        },
+        "certification": {
+          "count": 10,
+          "min": 0.827187,
+          "median": 0.8963289999999999,
+          "p95": 1.491155,
+          "max": 1.491155
+        },
+        "independent_audit": {
+          "count": 10,
+          "min": 0.058814,
+          "median": 0.099673,
+          "p95": 0.161236,
+          "max": 0.161236
+        },
+        "replay": {
+          "count": 10,
+          "min": 0.886004,
+          "median": 1.299788,
+          "p95": 1.890453,
+          "max": 1.890453
+        },
+        "generation_and_certification": {
+          "count": 10,
+          "min": 0.926712,
+          "median": 1.2639295000000002,
+          "p95": 1.952709,
+          "max": 1.952709
+        }
+      }
+    },
+    "3": {
+      "requested": 10,
+      "verified": 10,
+      "rejected": 0,
+      "request_acceptance_rate": 1.0,
+      "proposals_attempted": 5549,
+      "proposals_rejected": 5539,
+      "proposal_acceptance_rate": 0.0018021265092809514,
+      "known_proposal_rejection_reasons": {
+        "unsolved": 4954,
+        "choice": 267,
+        "mechanics": 318
+      },
+      "proposal_rejections_without_reason_breakdown": 0,
+      "distinct_structures": 10,
+      "distinct_topologies": 10,
+      "multiple_optimal_continuations": 5,
+      "committed_first_branching": 10,
+      "later_committed_branching": 10,
+      "mechanic_necessity": {
+        "energy": {
+          "signature_changes": 10,
+          "answer_changes": 9,
+          "optimum_changes": 10,
+          "unreachable_after_removal": 0
+        },
+        "gates": {
+          "signature_changes": 10,
+          "answer_changes": 1,
+          "optimum_changes": 10,
+          "unreachable_after_removal": 0
+        },
+        "switches": {
+          "signature_changes": 10,
+          "answer_changes": 10,
+          "optimum_changes": 10,
+          "unreachable_after_removal": 10
+        },
+        "recharge": {
+          "signature_changes": 10,
+          "answer_changes": 10,
+          "optimum_changes": 10,
+          "unreachable_after_removal": 10
+        }
+      },
+      "best_steps": {
+        "count": 10,
+        "min": 6,
+        "median": 6.0,
+        "p95": 7,
+        "max": 7
+      },
+      "reachable_states": {
+        "count": 10,
+        "min": 21,
+        "median": 76.5,
+        "p95": 140,
+        "max": 140
+      },
+      "first_move_margin": {
+        "count": 10,
+        "min": 1,
+        "median": 1.0,
+        "p95": 2,
+        "max": 2
+      },
+      "seconds": {
+        "generation": {
+          "count": 10,
+          "min": 0.0478,
+          "median": 0.8135895,
+          "p95": 3.496945,
+          "max": 3.496945
+        },
+        "certification": {
+          "count": 10,
+          "min": 0.831815,
+          "median": 1.007995,
+          "p95": 1.465632,
+          "max": 1.465632
+        },
+        "independent_audit": {
+          "count": 10,
+          "min": 0.062371,
+          "median": 0.0932645,
+          "p95": 0.219922,
+          "max": 0.219922
+        },
+        "replay": {
+          "count": 10,
+          "min": 0.919155,
+          "median": 2.0998725,
+          "p95": 5.17818,
+          "max": 5.17818
+        },
+        "generation_and_certification": {
+          "count": 10,
+          "min": 1.030477,
+          "median": 2.1925109999999997,
+          "p95": 4.858370000000001,
+          "max": 4.858370000000001
+        }
+      }
+    }
+  },
+  "evidence_format": "compact-benchmark-results-v1",
+  "raw_report": {
+    "path": "artifacts/state-planning/fixed-seeds-0-9-v1.json",
+    "sha256": "15c84cfbfbd999e5ed538d28ae165c5f33a028e90dbe9e4e8eca5c3115911cf9",
+    "bytes": 357202
+  },
+  "scope": "Derived from the existing complete report without rerunning measurements. Raw models, complete certificates and witnesses remain in the full local report.",
+  "results": [
+    {
+      "level": 1,
+      "seed": 0,
+      "status": "verified",
+      "best_steps": 5,
+      "optimal_plan_count": 2,
+      "first_move_margin": 1,
+      "reachable_states": 43,
+      "structure": "a6d4d4f01eb94c91e824618fd58172adda17280a2e230ab1658db558b72d6042",
+      "topology": "35fc8a3bda82bed33ffe9cb756fd9474163aceaec33e1e721d39b47b1dc3da89",
+      "search": {
+        "budget": 2000,
+        "attempts": 669,
+        "rejections": {
+          "unsolved": 371,
+          "choice": 93,
+          "mechanics": 204
+        }
+      },
+      "seconds": {
+        "generation": 1.574213,
+        "certification": 0.632803,
+        "independent_audit": 0.07262,
+        "replay": 2.622714
+      }
+    },
+    {
+      "level": 1,
+      "seed": 1,
+      "status": "verified",
+      "best_steps": 5,
+      "optimal_plan_count": 1,
+      "first_move_margin": 1,
+      "reachable_states": 58,
+      "structure": "8cf1098530a1228d056a37e806ff662aa468a3d5c09a7205a4e0816e87ca7e24",
+      "topology": "6f6d667f4d8d34b986e1c4cb85bdea98bfe5eea8be62ebd50713767c83d40e4b",
+      "search": {
+        "budget": 2000,
+        "attempts": 124,
+        "rejections": {
+          "unsolved": 72,
+          "choice": 14,
+          "mechanics": 37
+        }
+      },
+      "seconds": {
+        "generation": 0.392926,
+        "certification": 0.809238,
+        "independent_audit": 0.092615,
+        "replay": 1.157776
+      }
+    },
+    {
+      "level": 1,
+      "seed": 2,
+      "status": "verified",
+      "best_steps": 5,
+      "optimal_plan_count": 2,
+      "first_move_margin": 1,
+      "reachable_states": 108,
+      "structure": "fd37666d437e6913dbda24045d1cd559b851144f87492bb9f5453fc99ed59e3b",
+      "topology": "35fc8a3bda82bed33ffe9cb756fd9474163aceaec33e1e721d39b47b1dc3da89",
+      "search": {
+        "budget": 2000,
+        "attempts": 14,
+        "rejections": {
+          "unsolved": 4,
+          "choice": 0,
+          "mechanics": 9
+        }
+      },
+      "seconds": {
+        "generation": 0.052891,
+        "certification": 0.762976,
+        "independent_audit": 0.119,
+        "replay": 0.710313
+      }
+    },
+    {
+      "level": 1,
+      "seed": 3,
+      "status": "verified",
+      "best_steps": 5,
+      "optimal_plan_count": 1,
+      "first_move_margin": 1,
+      "reachable_states": 96,
+      "structure": "fbf3106358d78202594bccadf53e3067108e949db8e317545544ba17b69eaf3f",
+      "topology": "6f6d667f4d8d34b986e1c4cb85bdea98bfe5eea8be62ebd50713767c83d40e4b",
+      "search": {
+        "budget": 2000,
+        "attempts": 347,
+        "rejections": {
+          "unsolved": 184,
+          "choice": 54,
+          "mechanics": 108
+        }
+      },
+      "seconds": {
+        "generation": 1.028037,
+        "certification": 0.580293,
+        "independent_audit": 0.079428,
+        "replay": 1.792649
+      }
+    },
+    {
+      "level": 1,
+      "seed": 4,
+      "status": "verified",
+      "best_steps": 5,
+      "optimal_plan_count": 2,
+      "first_move_margin": 1,
+      "reachable_states": 54,
+      "structure": "eb0a995df979f19856678702a3153fdfd1418190e95f14b28bfe86b4f6359d38",
+      "topology": "35fc8a3bda82bed33ffe9cb756fd9474163aceaec33e1e721d39b47b1dc3da89",
+      "search": {
+        "budget": 2000,
+        "attempts": 85,
+        "rejections": {
+          "unsolved": 45,
+          "choice": 12,
+          "mechanics": 27
+        }
+      },
+      "seconds": {
+        "generation": 0.248426,
+        "certification": 0.794825,
+        "independent_audit": 0.090446,
+        "replay": 1.097153
+      }
+    },
+    {
+      "level": 1,
+      "seed": 5,
+      "status": "verified",
+      "best_steps": 5,
+      "optimal_plan_count": 2,
+      "first_move_margin": 1,
+      "reachable_states": 76,
+      "structure": "c8c75b61191961f66ac2fbc36d73243eaf63001418db16c286dc354c2022cec4",
+      "topology": "6f6d667f4d8d34b986e1c4cb85bdea98bfe5eea8be62ebd50713767c83d40e4b",
+      "search": {
+        "budget": 2000,
+        "attempts": 378,
+        "rejections": {
+          "unsolved": 211,
+          "choice": 67,
+          "mechanics": 99
+        }
+      },
+      "seconds": {
+        "generation": 0.937159,
+        "certification": 0.759391,
+        "independent_audit": 0.095836,
+        "replay": 1.631976
+      }
+    },
+    {
+      "level": 1,
+      "seed": 6,
+      "status": "verified",
+      "best_steps": 5,
+      "optimal_plan_count": 3,
+      "first_move_margin": 1,
+      "reachable_states": 88,
+      "structure": "ea0b650257171feefa7831c7405f4f2849a5e36abd0c3e2e62ca3f8afdcc816f",
+      "topology": "6f6d667f4d8d34b986e1c4cb85bdea98bfe5eea8be62ebd50713767c83d40e4b",
+      "search": {
+        "budget": 2000,
+        "attempts": 1127,
+        "rejections": {
+          "unsolved": 646,
+          "choice": 149,
+          "mechanics": 331
+        }
+      },
+      "seconds": {
+        "generation": 3.81609,
+        "certification": 0.934375,
+        "independent_audit": 0.116277,
+        "replay": 4.713198
+      }
+    },
+    {
+      "level": 1,
+      "seed": 7,
+      "status": "verified",
+      "best_steps": 4,
+      "optimal_plan_count": 1,
+      "first_move_margin": 1,
+      "reachable_states": 97,
+      "structure": "8eede6873644de0870be15039b639c23f8896d9ab32c4249a7e1863af6c7e76c",
+      "topology": "930d808a951b64407a273224400327b70373a05a589cc34aba9ed3a37a7980c7",
+      "search": {
+        "budget": 2000,
+        "attempts": 82,
+        "rejections": {
+          "unsolved": 51,
+          "choice": 10,
+          "mechanics": 20
+        }
+      },
+      "seconds": {
+        "generation": 0.304288,
+        "certification": 0.770595,
+        "independent_audit": 0.125266,
+        "replay": 0.876668
+      }
+    },
+    {
+      "level": 1,
+      "seed": 8,
+      "status": "verified",
+      "best_steps": 4,
+      "optimal_plan_count": 2,
+      "first_move_margin": 1,
+      "reachable_states": 42,
+      "structure": "e5758e0ff2fd26df833583a0d452b9b3c7a29ceec2cfc3fa8814ac93c7932b59",
+      "topology": "930d808a951b64407a273224400327b70373a05a589cc34aba9ed3a37a7980c7",
+      "search": {
+        "budget": 2000,
+        "attempts": 340,
+        "rejections": {
+          "unsolved": 197,
+          "choice": 57,
+          "mechanics": 85
+        }
+      },
+      "seconds": {
+        "generation": 0.992763,
+        "certification": 0.605111,
+        "independent_audit": 0.046222,
+        "replay": 1.832391
+      }
+    },
+    {
+      "level": 1,
+      "seed": 9,
+      "status": "verified",
+      "best_steps": 5,
+      "optimal_plan_count": 1,
+      "first_move_margin": 1,
+      "reachable_states": 51,
+      "structure": "3d77761501a829548c616663f24c82bfdb2117ea83e685938fa151adfa08ba72",
+      "topology": "6f6d667f4d8d34b986e1c4cb85bdea98bfe5eea8be62ebd50713767c83d40e4b",
+      "search": {
+        "budget": 2000,
+        "attempts": 179,
+        "rejections": {
+          "unsolved": 93,
+          "choice": 18,
+          "mechanics": 67
+        }
+      },
+      "seconds": {
+        "generation": 0.726349,
+        "certification": 0.822512,
+        "independent_audit": 0.104485,
+        "replay": 1.59887
+      }
+    },
+    {
+      "level": 2,
+      "seed": 0,
+      "status": "verified",
+      "best_steps": 5,
+      "optimal_plan_count": 1,
+      "first_move_margin": 1,
+      "reachable_states": 102,
+      "structure": "71ecfe6ff75fb0cdda86c8e47d62796891a6d872ef7d75c815fe89bf66ea5b4a",
+      "topology": "50e31818d10bc18b1172a5b73d4c845258a5cdee8442eed09f4a4347b9a7fd8f",
+      "search": {
+        "budget": 2000,
+        "attempts": 37,
+        "rejections": {
+          "unsolved": 29,
+          "choice": 3,
+          "mechanics": 4
+        }
+      },
+      "seconds": {
+        "generation": 0.096206,
+        "certification": 0.83605,
+        "independent_audit": 0.112232,
+        "replay": 0.886004
+      }
+    },
+    {
+      "level": 2,
+      "seed": 1,
+      "status": "verified",
+      "best_steps": 6,
+      "optimal_plan_count": 2,
+      "first_move_margin": 1,
+      "reachable_states": 34,
+      "structure": "832a4f813989c3e550ece9ef592b901847d3866942a29b2256129544e7823e9f",
+      "topology": "aa19d59d3ebe9ba2e31f65d28a8b0dacd19e59d457e6d128521578087324b3e0",
+      "search": {
+        "budget": 2000,
+        "attempts": 360,
+        "rejections": {
+          "unsolved": 279,
+          "choice": 50,
+          "mechanics": 30
+        }
+      },
+      "seconds": {
+        "generation": 0.856312,
+        "certification": 0.961567,
+        "independent_audit": 0.060438,
+        "replay": 1.659046
+      }
+    },
+    {
+      "level": 2,
+      "seed": 2,
+      "status": "verified",
+      "best_steps": 5,
+      "optimal_plan_count": 5,
+      "first_move_margin": 1,
+      "reachable_states": 95,
+      "structure": "b7cd68c8b0ec3c13b874a76b436ce2b8fd9a7a23ecfed36f0f2cb23d1dc154cf",
+      "topology": "f6da2fd2177d227110af83ba29dd18cc01ededb38fd50c3a7ca469ac17f5e36f",
+      "search": {
+        "budget": 2000,
+        "attempts": 194,
+        "rejections": {
+          "unsolved": 151,
+          "choice": 24,
+          "mechanics": 18
+        }
+      },
+      "seconds": {
+        "generation": 0.488227,
+        "certification": 0.876115,
+        "independent_audit": 0.106454,
+        "replay": 1.457678
+      }
+    },
+    {
+      "level": 2,
+      "seed": 3,
+      "status": "verified",
+      "best_steps": 6,
+      "optimal_plan_count": 2,
+      "first_move_margin": 1,
+      "reachable_states": 39,
+      "structure": "05696918243a1f721f94b91c59cc7ccaddf3da8517f607db6e8078bf47435150",
+      "topology": "bced82f06237d4eb75281b44820d6b165d61f3c8ca46b10de3cc1dc4abedf6a1",
+      "search": {
+        "budget": 2000,
+        "attempts": 294,
+        "rejections": {
+          "unsolved": 240,
+          "choice": 32,
+          "mechanics": 21
+        }
+      },
+      "seconds": {
+        "generation": 0.772254,
+        "certification": 1.180455,
+        "independent_audit": 0.082124,
+        "replay": 1.890453
+      }
+    },
+    {
+      "level": 2,
+      "seed": 4,
+      "status": "verified",
+      "best_steps": 6,
+      "optimal_plan_count": 2,
+      "first_move_margin": 1,
+      "reachable_states": 65,
+      "structure": "0ff4a45cf28911b1c3651fde8a921db65ac7623b010f7ef70c365c1dd3c139ea",
+      "topology": "45362fb96b205e012376766f6383d0f2b22fbe99a3ccc0ba50870b2e92c9078d",
+      "search": {
+        "budget": 2000,
+        "attempts": 119,
+        "rejections": {
+          "unsolved": 89,
+          "choice": 17,
+          "mechanics": 12
+        }
+      },
+      "seconds": {
+        "generation": 0.289365,
+        "certification": 0.874152,
+        "independent_audit": 0.058814,
+        "replay": 1.056826
+      }
+    },
+    {
+      "level": 2,
+      "seed": 5,
+      "status": "verified",
+      "best_steps": 5,
+      "optimal_plan_count": 1,
+      "first_move_margin": 2,
+      "reachable_states": 143,
+      "structure": "7bb2b0c3e3a6e00ebf5ec554a102ad441c1a845a988d7f449e75134e12c991dc",
+      "topology": "0f9b2c2f8f215d6b066e638100bd15e55b13b31b63b3de6d3298f21dbffa82d9",
+      "search": {
+        "budget": 2000,
+        "attempts": 134,
+        "rejections": {
+          "unsolved": 114,
+          "choice": 15,
+          "mechanics": 4
+        }
+      },
+      "seconds": {
+        "generation": 0.309574,
+        "certification": 0.827187,
+        "independent_audit": 0.161236,
+        "replay": 1.153737
+      }
+    },
+    {
+      "level": 2,
+      "seed": 6,
+      "status": "verified",
+      "best_steps": 6,
+      "optimal_plan_count": 2,
+      "first_move_margin": 1,
+      "reachable_states": 117,
+      "structure": "0f2b56c7814c5639e204af418c5892d1b39d2f9f903b8b4dc0b4509b68b1e2fe",
+      "topology": "96ebde4c43bcae6001378c49242211d7253721e8a8b8fd39eab7068da80580a3",
+      "search": {
+        "budget": 2000,
+        "attempts": 1,
+        "rejections": {
+          "unsolved": 0,
+          "choice": 0,
+          "mechanics": 0
+        }
+      },
+      "seconds": {
+        "generation": 0.010169,
+        "certification": 0.916543,
+        "independent_audit": 0.110598,
+        "replay": 0.901714
+      }
+    },
+    {
+      "level": 2,
+      "seed": 7,
+      "status": "verified",
+      "best_steps": 6,
+      "optimal_plan_count": 2,
+      "first_move_margin": 1,
+      "reachable_states": 66,
+      "structure": "46c9d8d7bcfc4e9834cee3d8e57915b0a51f2258ae20395d8dad6cda4cae5e19",
+      "topology": "bced82f06237d4eb75281b44820d6b165d61f3c8ca46b10de3cc1dc4abedf6a1",
+      "search": {
+        "budget": 2000,
+        "attempts": 239,
+        "rejections": {
+          "unsolved": 179,
+          "choice": 40,
+          "mechanics": 19
+        }
+      },
+      "seconds": {
+        "generation": 0.554465,
+        "certification": 0.990581,
+        "independent_audit": 0.068341,
+        "replay": 1.425132
+      }
+    },
+    {
+      "level": 2,
+      "seed": 8,
+      "status": "verified",
+      "best_steps": 5,
+      "optimal_plan_count": 2,
+      "first_move_margin": 1,
+      "reachable_states": 84,
+      "structure": "dc55892f2d12049903cc570951c425e6a3e5de1f4195f54e61640d59efaa7db5",
+      "topology": "deed4c7c17bb7139ba0dd9ce8cc467aac815f25fd53c67cbb6e5b2885ed1df56",
+      "search": {
+        "budget": 2000,
+        "attempts": 76,
+        "rejections": {
+          "unsolved": 59,
+          "choice": 8,
+          "mechanics": 8
+        }
+      },
+      "seconds": {
+        "generation": 0.198343,
+        "certification": 0.849827,
+        "independent_audit": 0.092892,
+        "replay": 1.174444
+      }
+    },
+    {
+      "level": 2,
+      "seed": 9,
+      "status": "verified",
+      "best_steps": 7,
+      "optimal_plan_count": 1,
+      "first_move_margin": 1,
+      "reachable_states": 66,
+      "structure": "ecb89898387f1886c72f6c30c013f6ad81dcddc738b000823efd5930c5ed6370",
+      "topology": "6367cb6caa290599012ece4c2228a7ff6230524d8ee00a18324f23412797c9b1",
+      "search": {
+        "budget": 2000,
+        "attempts": 52,
+        "rejections": {
+          "unsolved": 35,
+          "choice": 14,
+          "mechanics": 2
+        }
+      },
+      "seconds": {
+        "generation": 0.171776,
+        "certification": 1.491155,
+        "independent_audit": 0.107848,
+        "replay": 1.512947
+      }
+    },
+    {
+      "level": 3,
+      "seed": 0,
+      "status": "verified",
+      "best_steps": 6,
+      "optimal_plan_count": 2,
+      "first_move_margin": 1,
+      "reachable_states": 64,
+      "structure": "6d82c18c06e4d94013543920da1442cb54a6736a7f39af744f18a8c16302d25d",
+      "topology": "2eac867acdbcd1f70bd83234c94c62dc6592e768db800af3f1e16b32e5d6b117",
+      "search": {
+        "budget": 2000,
+        "attempts": 171,
+        "rejections": {
+          "unsolved": 154,
+          "choice": 10,
+          "mechanics": 6
+        }
+      },
+      "seconds": {
+        "generation": 0.426252,
+        "certification": 0.92697,
+        "independent_audit": 0.089901,
+        "replay": 1.309402
+      }
+    },
+    {
+      "level": 3,
+      "seed": 1,
+      "status": "verified",
+      "best_steps": 6,
+      "optimal_plan_count": 2,
+      "first_move_margin": 1,
+      "reachable_states": 21,
+      "structure": "c377a28e142370b21362984b45069d66dbe6d653a7027cb84c8849ad699f528e",
+      "topology": "f923193668d78ac470040942d5e281c24d60f0e68457706a2e9cc2d2323e46e1",
+      "search": {
+        "budget": 2000,
+        "attempts": 1042,
+        "rejections": {
+          "unsolved": 931,
+          "choice": 51,
+          "mechanics": 59
+        }
+      },
+      "seconds": {
+        "generation": 2.078319,
+        "certification": 0.886125,
+        "independent_audit": 0.062371,
+        "replay": 3.733186
+      }
+    },
+    {
+      "level": 3,
+      "seed": 2,
+      "status": "verified",
+      "best_steps": 7,
+      "optimal_plan_count": 1,
+      "first_move_margin": 2,
+      "reachable_states": 53,
+      "structure": "ed2d7f65fe6bf00f5f8c2a24cf02dbc400b59e94a3cab1f39570ead623c64094",
+      "topology": "f3c8a4e2ca715acb2adec71563af49a232c69c4efbdfcb5572cb4444d94b9877",
+      "search": {
+        "budget": 2000,
+        "attempts": 374,
+        "rejections": {
+          "unsolved": 348,
+          "choice": 15,
+          "mechanics": 10
+        }
+      },
+      "seconds": {
+        "generation": 0.875666,
+        "certification": 1.292211,
+        "independent_audit": 0.075887,
+        "replay": 1.916043
+      }
+    },
+    {
+      "level": 3,
+      "seed": 3,
+      "status": "verified",
+      "best_steps": 6,
+      "optimal_plan_count": 1,
+      "first_move_margin": 2,
+      "reachable_states": 76,
+      "structure": "498689daf811433300488b144fa7d2a73b0994df4f65f75dcc70997f30d996f2",
+      "topology": "4c0ccb012e9f2e7e16f1c3c6412b1b0b942a7a4f6abd7a8085122f15ffa7bd9e",
+      "search": {
+        "budget": 2000,
+        "attempts": 111,
+        "rejections": {
+          "unsolved": 100,
+          "choice": 8,
+          "mechanics": 2
+        }
+      },
+      "seconds": {
+        "generation": 0.257568,
+        "certification": 0.904781,
+        "independent_audit": 0.096628,
+        "replay": 1.163152
+      }
+    },
+    {
+      "level": 3,
+      "seed": 4,
+      "status": "verified",
+      "best_steps": 6,
+      "optimal_plan_count": 1,
+      "first_move_margin": 1,
+      "reachable_states": 77,
+      "structure": "c58f59c5cf7eea8305c13b2dd84b2a572e5cca54e5fcd8e513987f8da28e4abc",
+      "topology": "97b85c9e6628b15d8eb49e0aec9bfcfec1250ed83b5467cb16b61d2632dcfd88",
+      "search": {
+        "budget": 2000,
+        "attempts": 20,
+        "rejections": {
+          "unsolved": 17,
+          "choice": 0,
+          "mechanics": 2
+        }
+      },
+      "seconds": {
+        "generation": 0.0478,
+        "certification": 0.982677,
+        "independent_audit": 0.078677,
+        "replay": 0.919155
+      }
+    },
+    {
+      "level": 3,
+      "seed": 5,
+      "status": "verified",
+      "best_steps": 6,
+      "optimal_plan_count": 2,
+      "first_move_margin": 1,
+      "reachable_states": 42,
+      "structure": "fe325fd1368809e6bc5b144ba155885fc918bd60cc90740618c70a9085ea784d",
+      "topology": "e20c5a98c8e365b1259ef50a78804851d4102b245995717d14d221b2fc95c28a",
+      "search": {
+        "budget": 2000,
+        "attempts": 1065,
+        "rejections": {
+          "unsolved": 940,
+          "choice": 50,
+          "mechanics": 74
+        }
+      },
+      "seconds": {
+        "generation": 1.95838,
+        "certification": 0.831815,
+        "independent_audit": 0.076802,
+        "replay": 3.306512
+      }
+    },
+    {
+      "level": 3,
+      "seed": 6,
+      "status": "verified",
+      "best_steps": 7,
+      "optimal_plan_count": 2,
+      "first_move_margin": 1,
+      "reachable_states": 77,
+      "structure": "8d0f1d98388b51c7dfbd7204dc08bb05bed3b56136ceef0a9c07649377fdb9c4",
+      "topology": "5f6cd3aab735c6246ee2b0f1cea41879c869b22d535f4712dfaa38ad575af5d8",
+      "search": {
+        "budget": 2000,
+        "attempts": 1388,
+        "rejections": {
+          "unsolved": 1230,
+          "choice": 65,
+          "mechanics": 92
+        }
+      },
+      "seconds": {
+        "generation": 3.496945,
+        "certification": 1.361425,
+        "independent_audit": 0.121991,
+        "replay": 5.17818
+      }
+    },
+    {
+      "level": 3,
+      "seed": 7,
+      "status": "verified",
+      "best_steps": 6,
+      "optimal_plan_count": 1,
+      "first_move_margin": 1,
+      "reachable_states": 122,
+      "structure": "f1774f34f60fd7ce9ccb852d56e622c63782440b47a677596cc4d2cfbf099f3e",
+      "topology": "09fb73f513b1a88d7bde5ce1c6a188ecf5ff829773df60b2d940f5d42abc1f5c",
+      "search": {
+        "budget": 2000,
+        "attempts": 981,
+        "rejections": {
+          "unsolved": 879,
+          "choice": 49,
+          "mechanics": 52
+        }
+      },
+      "seconds": {
+        "generation": 2.323049,
+        "certification": 1.131814,
+        "independent_audit": 0.124505,
+        "replay": 3.882901
+      }
+    },
+    {
+      "level": 3,
+      "seed": 8,
+      "status": "verified",
+      "best_steps": 6,
+      "optimal_plan_count": 1,
+      "first_move_margin": 1,
+      "reachable_states": 140,
+      "structure": "60d7db035826b4fb696b5cf5352239fab52f38b169c9fd02ea0bdbd32f8a8ccb",
+      "topology": "3f415f56d4f25e5a66fc026ce4f43ca897c1f2401761d3e08b373f93deccde07",
+      "search": {
+        "budget": 2000,
+        "attempts": 232,
+        "rejections": {
+          "unsolved": 207,
+          "choice": 11,
+          "mechanics": 13
+        }
+      },
+      "seconds": {
+        "generation": 0.751513,
+        "certification": 1.465632,
+        "independent_audit": 0.219922,
+        "replay": 2.283702
+      }
+    },
+    {
+      "level": 3,
+      "seed": 9,
+      "status": "verified",
+      "best_steps": 6,
+      "optimal_plan_count": 5,
+      "first_move_margin": 1,
+      "reachable_states": 91,
+      "structure": "c8096bbe86bd9c7dfb15d89d695b2bcf71809f49c5e4230dc21d756614ec25c9",
+      "topology": "b30ea9b25d94d7ff12392d77a6fba6a3b82b36e08cda17890d442b2530e40698",
+      "search": {
+        "budget": 2000,
+        "attempts": 165,
+        "rejections": {
+          "unsolved": 148,
+          "choice": 8,
+          "mechanics": 8
+        }
+      },
+      "seconds": {
+        "generation": 0.353331,
+        "certification": 1.033313,
+        "independent_audit": 0.114951,
+        "replay": 1.32843
+      }
+    }
+  ]
+}

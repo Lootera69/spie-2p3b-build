@@ -12,6 +12,7 @@ from .topics import sample_words
 
 BUDGET = 6
 CONSTRAINED_BUDGET = 24
+SYNTHESIS_BUDGET = 6
 GROUPS = ("Cards", "Badges", "Tokens")
 
 
@@ -44,7 +45,8 @@ def candidate(request, rng, context: dict) -> tuple[dict, dict]:
     level = DIFFICULTIES[request.difficulty]
     candidates = []
     constrained = active(request)
-    budget = CONSTRAINED_BUDGET if constrained else BUDGET
+    budget = (SYNTHESIS_BUDGET if request.engine_revision >= 6 else
+              CONSTRAINED_BUDGET if constrained else BUDGET)
     last_rejection = ""
     for attempt in range(budget):
         names = sample_words(context, level * 3, rng)
@@ -58,7 +60,17 @@ def candidate(request, rng, context: dict) -> tuple[dict, dict]:
         inner = replace(request, topic="logic-grid", topic_mode="single", subject="",
                         meanings={}, instructions="", grid=spec, count=1,
                         reasoning_mode="auto", min_supporting_clues="auto")
-        item, proof = logic_grid.candidate(inner, rng)
+        if request.engine_revision >= 6:
+            inner = replace(inner, reasoning_mode=request.reasoning_mode,
+                            min_supporting_clues=request.min_supporting_clues)
+            try:
+                item, proof = logic_grid.candidate(inner, rng)
+            except ConstraintRejected as exc:
+                last_rejection = str(exc)
+                continue
+            support = proof["reasoning_constraints"]["supporting_clues"]
+        else:
+            item, proof = logic_grid.candidate(inner, rng)
         if constrained:
             try:
                 certificate = certify(request, proof)
@@ -67,7 +79,7 @@ def candidate(request, rng, context: dict) -> tuple[dict, dict]:
                 continue
             proof["reasoning_constraints"] = certificate
             support = certificate["supporting_clues"]
-        else:
+        elif request.engine_revision < 6:
             support = supporting_clues(proof["model"], proof["added_rules"],
                                        proof["solution_positions"], proof["query"])
         # A question copied from one clue is not an autonomous reasoning challenge.
@@ -110,4 +122,10 @@ def candidate(request, rng, context: dict) -> tuple[dict, dict]:
                      "structural heuristic, not player-calibrated difficulty",
     }
     proof["dictionary_sha256"] = digest(context)
+    if request.engine_revision >= 6:
+        proof["autopilot"]["version"] = "autopilot-design-v2"
+        proof["autopilot"]["decisions"][2] = (
+            "Repaired clue sets using rival arrangements and short answer proofs.")
+        proof["autopilot"]["support_scope"] = (
+            "displayed true-false claim" if "claim" in proof else "grid question")
     return item, proof

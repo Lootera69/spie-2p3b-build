@@ -25,7 +25,7 @@ def test_concise_rendering_retains_logical_model_answers_and_revision_three_repl
     old = engine.build(replace(request, engine_revision=3))
     current = engine.build(request)
     old_item, item = old["items"][0], current["items"][0]
-    assert current["request"]["engine_revision"] == 5
+    assert current["request"]["engine_revision"] == 8
     assert 2 <= len(re.findall(r"[a-z0-9]+", item["title"].lower())) <= 4
     assert len(re.findall(r"[a-z0-9]+", item["question"].lower())) <= 120
     assert old_item["question"] != item["question"]

@@ -37,7 +37,7 @@ function load(saved, options = {}) {
     if (delayed.has(url)) await new Promise(resolve => { pending.set(url, resolve); });
     return response;
   };
-  for (const file of ["library.js", "player.js", "app.js"]) w.eval(fs.readFileSync(path.join(assets, file), "utf8"));
+  for (const file of ["library.js", "player.js", "workspace.js", "app.js"]) w.eval(fs.readFileSync(path.join(assets, file), "utf8"));
   const el = id => d.getElementById(id);
   const storage = () => w.localStorage.getItem("brainbloom-library-v1");
   return {w,d,el,errors,generated,requests,responses,storage,
@@ -68,6 +68,8 @@ async function main() {
   assert.equal(a.el("play-mode").getAttribute("aria-pressed"), "true");
   assert.ok(a.d.body.classList.contains("play-mode"));
   assert.equal(a.el("setup-pane").hidden, true);
+  assert.equal(a.el("workspace-splitter").hidden, true);
+  assert.equal(a.el("reset-layout").hidden, true);
   assert.equal(a.el("drafts-pane").hidden, false);
   assert.equal(a.el("results").getAttribute("aria-label"), "Puzzles to play");
   assert.equal(a.el("drafts-title").textContent, "Your puzzles");
@@ -76,6 +78,8 @@ async function main() {
   assert.equal(a.el("play-mode").getAttribute("aria-pressed"), "false");
   assert.ok(!a.d.body.classList.contains("play-mode"));
   assert.equal(a.el("setup-pane").hidden, false);
+  assert.equal(a.el("workspace-splitter").hidden, false);
+  assert.equal(a.el("reset-layout").hidden, false);
   assert.equal(a.el("drafts-title").textContent, "Your drafts");
   const choices = [...card.querySelectorAll(".option")];
   const wrong = item.choices.findIndex(c => c !== item.correctAnswer);

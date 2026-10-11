@@ -37,6 +37,9 @@ Examples of user-facing activities:
 - **Find the impossible clue** → use a finite ordering chain to identify the one incompatible statement.
 - **Choose the most likely explanation** → calculate exact posterior probabilities from stated evidence.
 - **Plan the best next move** → compare complete costs of routes on a weighted map.
+- **Plan with energy and switches** → choose a first action by planning through energy
+  costs, gate changes and one recharge. Competing successful plans and mechanic necessity
+  are checked; the optimal first action is unique, although later optimal paths may tie.
 - **Unscramble a word**, **Find the missing letters**, **Put words in order**.
 - **Connect words in a crossword**, **Explore patterns in words**.
 - Without custom topics, compatible built-in number and science calculations.
@@ -66,8 +69,10 @@ paths as a manually authored grid.
 Autopilot uses three positions: Easy has one group (three topic labels), Medium has two
 groups (six labels), and Hard has three groups (nine labels). Levels that cannot include
 all supplied topics are disabled. Blank topics use the category vocabulary, visibly indicated
-in setup. Each run compares six candidate designs and ranks qualifying questions by minimum
-supporting-clue count, clue-type variety and total clue count. A question answerable from a
+in setup. Each run compares six candidate designs. The synthesis introduced in revision 6 uses
+counterexamples and short answer proofs to repair clues for eligible questions, then ranks
+qualifying designs by minimum supporting-clue count, clue-type variety and total clue count.
+For true/false items, support describes the actual displayed claim. A question answerable from a
 single clue is rejected. Search is bounded and can ask for another variation if no candidate
 qualifies. This is an automatic clue-puzzle designer; other activities remain available for
 crosswords, Wonders, numerical and probability puzzles.

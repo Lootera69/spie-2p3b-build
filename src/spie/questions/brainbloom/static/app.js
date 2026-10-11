@@ -82,6 +82,7 @@ let playMode = false, shareRevision = 0, pendingSharedHash = null;
 let lookupRevision = 0, prepareTimer = null, prepared = null, meanings = {};
 let activePane = "setup";
 const paneScrollPositions = {setup:0, drafts:0};
+const workspaceLayout = window.BrainBloomWorkspace.create({workspace:byId("workspace"), splitter:byId("workspace-splitter"), reset:byId("reset-layout")});
 // Preserve numeric signs, fraction bars and decimal points when grading typed answers.
 const normalize = text => text.normalize("NFKC").toLowerCase().replace(/\s+/g, " ").trim();
 function element(tag, text, className) {
@@ -317,7 +318,7 @@ function logicGridPlayer(proof, card, index) {
   return () => { ++revision; inputs.forEach(({select, answer}) => { select.value = answer; select.disabled = true; select.classList.remove("grid-conflict"); select.removeAttribute("aria-invalid"); }); check.disabled = true; feedback.textContent = "The unique complete grid is shown."; };
 }
 function updateControls() {
-  form.querySelectorAll("select, input, textarea, button").forEach(control => { control.disabled = busy || !config; });
+  form.querySelectorAll("select, input, textarea, button:not(#reset-layout)").forEach(control => { control.disabled = busy || !config; });
   byId("generate").disabled = busy || !prepared?.ready;
   byId("save-puzzles").disabled = busy || !bundle?.items?.length || !library;
   byId("save-puzzles").textContent = savedId ? "Save progress" : "Save puzzles";
@@ -331,6 +332,7 @@ function updateControls() {
   }
 }
 function updatePanes() {
+  workspaceLayout.update({hasDrafts:Boolean(bundle?.items?.length), compact:window.innerWidth <= 760, playMode});
   if (playMode) {
     byId("pane-tabs").hidden = true; byId("setup-pane").hidden = true; byId("drafts-pane").hidden = false;
     byId("drafts-pane").setAttribute("role", "region"); byId("drafts-pane").setAttribute("aria-labelledby", "drafts-title");

@@ -18,6 +18,7 @@ from .generate import THEMES
 from .generate import Request as LegacyRequest
 from .generate import candidate as conditional_candidate
 from .lexicon import Dictionary, validate_context
+from .state_planning import ProposalExhausted
 from .topics import coverage, resolve_many
 
 VERSION = "brainbloom-symbolic-v2"
@@ -322,8 +323,15 @@ def generate(
     seen_structures = set()
     items, proofs = [], []
     skipped = 0
+    exhausted = 0
     for offset in range(request.count * 30):
-        item, proof = candidate(request, request.seed + offset, context)
+        try:
+            item, proof = candidate(request, request.seed + offset, context)
+        except ProposalExhausted:
+            # Rejected inventions consume the same finite candidate budget as
+            # duplicates. Verification errors must still abort the batch.
+            exhausted += 1
+            continue
         # Crosswords share a general prompt but carry distinct layouts and clues.
         content = (
             item["question"] if request.qtype != "crossword" else digest(item["crosswordData"])
@@ -349,6 +357,12 @@ def generate(
         if len(items) == request.count:
             break
     if len(items) != request.count:
+        if exhausted:
+            raise ValueError(
+                f"Only {len(items)} distinct verified drafts found within the bounded search; "
+                f"{exhausted} candidate searches exhausted their budget. "
+                "Choose fewer questions or another seed. No partial batch exported."
+            )
         raise ValueError(
             f"Only {len(items)} distinct drafts found; choose fewer questions or another topic. "
             "No partial batch exported."
@@ -400,5 +414,8 @@ def generate(
                 else "lexical question comparison"
             ),
             "duplicate_candidates_skipped": skipped,
+            **({"search_candidates_exhausted": exhausted}
+               if request.topic == "activities" and request.variation == "state-planning"
+               else {}),
         },
     }

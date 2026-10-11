@@ -26,6 +26,7 @@ ACTIVITY_PATTERNS = {
     "most-likely": (r"(?:choose|find) (?:the )?most likely explanation",),
     "best-move": (r"plan (?:the )?best next move", r"choose (?:the )?best next move"),
     "resource-plan": (r"plan (?:a )?delivery with limited resources",),
+    "state-planning": (r"plan with energy and switches",),
     "pattern": (r"discover (?:a |the )?number rule", r"spot (?:the )?number pattern"),
     "logic-grid": (r"(?:create|build|solve) (?:a )?(?:custom )?logic grid",),
     "deduction": (

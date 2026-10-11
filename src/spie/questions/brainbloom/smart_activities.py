@@ -53,6 +53,13 @@ def _quiz_item(
             "A delivery must arrive by its deadline, and only after its prerequisites.",
             "Compare completion times only among plans satisfying every condition.",
             "Share this: explain why each faster-looking plan fails a constraint."))
+    elif request.variation == "state-planning":
+        item["lessonContent"] = "\n".join((
+            "Track your location, remaining energy and switch settings after each action.",
+            "Check which moves become possible when a switch changes a gate.",
+            "Compare complete plans from each available first action.",
+            "A move that looks closer can leave too little energy to reach the goal.",
+            "Share this: explain how your first action helps the rest of the plan."))
     if request.qtype == "multiple-choice":
         item["choices"] = choices
     elif request.qtype == "true-false":
@@ -129,6 +136,16 @@ def candidate(request: Request, rng, context: dict, seed: int) -> tuple[dict, di
     if request.variation == "resource-plan":
         draft = resource_planning.render(resource_planning.propose(names, level, rng))
         return _quiz_item(request, draft, rng, "Deliveries under constraints", names)
+    if request.variation == "state-planning":
+        from . import state_planning
+
+        if request.engine_revision >= 8:
+            from .planning_invention import propose
+        else:
+            # Keep saved revision-seven seeds on their original search and RNG path.
+            propose = state_planning.propose
+        draft = state_planning.render(propose(names, level, rng))
+        return _quiz_item(request, draft, rng, "Energy and switches", names)
     if request.variation == "best-move":
         draft = routes.render(routes.propose(names, level, rng))
         return _quiz_item(request, draft, rng, "Cheapest next stop", names)

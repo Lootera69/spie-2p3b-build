@@ -17,6 +17,11 @@ The lab supports Multiple Choice, True / False, Type Answer and Riddle across th
 five platform categories. Existing dictionary crosswords and Wonders remain
 available through their generators. No neural model is loaded, trained or called.
 
+The workshop also includes **Plan with energy and switches**, a separate fully
+observable action-planning family with persistent gates and a single recharge.
+Its [state-planning report](research/state-planning.md) documents competing plans,
+mechanic ablations, independent verification and the bounded proposal search.
+
 ### 1. Multi-clue deduction
 
 - Sample a hidden arrangement of four, five or six topic-labelled cards.

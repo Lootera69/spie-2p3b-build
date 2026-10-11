@@ -19,7 +19,8 @@ VARIATIONS = {
                    "contradiction": "Find the impossible clue",
                    "most-likely": "Choose the most likely explanation",
                    "best-move": "Plan the best next move",
-                   "resource-plan": "Plan a delivery with limited resources"},
+                   "resource-plan": "Plan a delivery with limited resources",
+                   "state-planning": "Plan with energy and switches"},
     "autopilot": {"auto": "Automatic puzzle design"},
     "dictionary": {"auto": "Automatic", "anagram": "Anagram + dictionary clue",
                    "missing-letters": "Missing letters + dictionary clue",
@@ -187,14 +188,15 @@ class Request:
     instructions: str = ""
     grid: dict | None = None
     crossword_size: int | None = None
-    engine_revision: int = 5
+    engine_revision: int = 8
     reasoning_mode: str = "auto"
     min_supporting_clues: str | int = "auto"
 
     def __post_init__(self) -> None:
         from .topics import validate_meanings
 
-        if type(self.engine_revision) is not int or self.engine_revision not in (1, 2, 3, 4, 5):
+        if (type(self.engine_revision) is not int
+                or self.engine_revision not in (1, 2, 3, 4, 5, 6, 7, 8)):
             raise ValueError("Unsupported engine revision")
         from .reasoning_constraints import active, validate
 
@@ -209,6 +211,9 @@ class Request:
         if (self.topic == "activities" and self.variation == "resource-plan"
                 and self.engine_revision < 5):
             raise ValueError("Resource planning requires engine revision 5")
+        if (self.topic == "activities" and self.variation == "state-planning"
+                and self.engine_revision < 7):
+            raise ValueError("State planning requires engine revision 7")
 
         # The UI label is singular; BrainBloom's stored category is plural.
         if self.category == "wonder":

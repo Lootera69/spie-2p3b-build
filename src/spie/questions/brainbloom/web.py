@@ -173,6 +173,7 @@ def handler_for(
                 "/app.js": ("app.js", "text/javascript; charset=utf-8"),
                 "/library.js": ("library.js", "text/javascript; charset=utf-8"),
                 "/player.js": ("player.js", "text/javascript; charset=utf-8"),
+                "/workspace.js": ("workspace.js", "text/javascript; charset=utf-8"),
                 "/style.css": ("style.css", "text/css; charset=utf-8"),
                 "/favicon.svg": ("favicon.svg", "image/svg+xml"),
             }

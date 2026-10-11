@@ -304,6 +304,12 @@ def _candidate_once(request, rng: random.Random) -> tuple[dict, dict]:
         other = [c for c in added if c is not clue]
         if len(survivors(model, [*model["rules"], *other])) == 1:
             added.remove(clue)
+    synthesis, claim_info = None, {}
+    if request.engine_revision >= 6:
+        from .clue_synthesis import synthesize
+
+        added, (target, group), claim_info, synthesis = synthesize(
+            model, solution, pool, added, _queries(model), rng, request)
     rules = [*model["rules"], *added]
     checked = check(model, rules)
     if checked != [solution]:
@@ -318,7 +324,8 @@ def _candidate_once(request, rng: random.Random) -> tuple[dict, dict]:
         raise RuntimeError(
             "Quality gate rejected this grid: the clues do not support a fair human-style solve"
         )
-    target, group = rng.choice(_queries(model))
+    if synthesis is None:
+        target, group = rng.choice(_queries(model))
     if group == -1:
         answer = str(solution[target])
         options = [str(p) for p in range(1, model["size"] + 1)]
@@ -390,13 +397,18 @@ def _candidate_once(request, rng: random.Random) -> tuple[dict, dict]:
         proof["structural_key"] = grid_key(model, rules, solution, target, group)
         proof["structural_key_version"] = "grid-structure-v2"
         proof["quality_gate"] = "structural-analysis-complete"
+    if synthesis is not None:
+        proof["synthesis"] = synthesis
     if request.qtype == "multiple-choice":
         rng.shuffle(options)
         item["choices"] = options
     elif request.qtype == "true-false":
-        truth = bool(rng.randrange(2))
-        claim = answer if truth else rng.choice([v for v in options
-                                                if v not in (answer, "None of these")])
+        if claim_info:
+            truth, claim = claim_info["claim_holds"], claim_info["claim"]
+        else:
+            truth = bool(rng.randrange(2))
+            claim = answer if truth else rng.choice([v for v in options
+                                                    if v not in (answer, "None of these")])
         item.update(choices=["True", "False"], correctAnswer=str(truth),
                     question=stem + f"\nTrue or False: the answer is {claim}.",
                     correctExplanation=f"The claim is {str(truth).lower()}. " + explanation)
@@ -411,6 +423,16 @@ def _candidate_once(request, rng: random.Random) -> tuple[dict, dict]:
 def candidate(request, rng: random.Random) -> tuple[dict, dict]:
     from .reasoning_constraints import ConstraintRejected, active, certify
 
+    if request.engine_revision >= 6:
+        item, proof = _candidate_once(request, rng)
+        try:
+            proof["reasoning_constraints"] = certify(request, proof)
+        except ConstraintRejected as exc:
+            raise ConstraintRejected(
+                f"No custom grid met the requested reasoning controls within the bounded "
+                f"clue synthesis search. {exc}. The requested controls were not relaxed."
+            ) from exc
+        return item, proof
     if not active(request):
         return _candidate_once(request, rng)
     last_rejection = ""

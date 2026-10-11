@@ -153,6 +153,7 @@ def test_grid_uses_submitted_placement_and_includes_added_clues(
 
 @pytest.mark.parametrize("topic,variation", [
     ("activities", "best-move"), ("activities", "pattern"),
+    ("activities", "state-planning"),
     ("activities", "contradiction"), ("reasoning", "deduction"),
     ("reasoning", "bayesian"), ("reasoning", "planning"),
 ])

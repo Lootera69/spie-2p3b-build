@@ -201,7 +201,7 @@ def test_verification_failure_never_returns_feedback(http_server, bundle, monkey
     assert "internal verifier detail" not in result["error"]
 
 
-@pytest.mark.parametrize("script", ["library.js", "player.js"])
+@pytest.mark.parametrize("script", ["library.js", "player.js", "workspace.js"])
 def test_library_script_is_served_with_the_same_static_security_headers(http_server, script):
     status, headers, body = http_call(http_server, "GET", "/" + script)
     assert status == 200 and body

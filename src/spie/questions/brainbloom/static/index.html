@@ -8,6 +8,7 @@
   <link rel="stylesheet" href="style.css">
   <script src="library.js" defer></script>
   <script src="player.js" defer></script>
+  <script src="workspace.js" defer></script>
   <script src="app.js" defer></script>
 </head>
 <body>
@@ -26,7 +27,8 @@
     <div class="workspace" id="workspace">
       <aside id="setup-pane" role="region" aria-labelledby="setup-title">
         <form id="generator">
-          <div class="pane-heading"><div class="section-label"><span>01</span><h2 id="setup-title">Set the brief</h2></div></div>
+          <div class="pane-heading"><div class="section-label"><span>01</span><h2 id="setup-title">Set the brief</h2></div>
+            <button id="reset-layout" type="button" class="small" title="Restore automatic panel sizes">Auto size</button></div>
           <div class="setup-scroll" id="setup-scroll" tabindex="0" role="region" aria-label="Puzzle settings">
           <p class="family">Built without language models</p>
           <details id="designer-guide" open class="designer-guide">
@@ -174,6 +176,12 @@
           </div>
         </form>
       </aside>
+      <div id="workspace-splitter" class="workspace-splitter" role="separator" tabindex="0"
+        aria-label="Resize Set the brief" aria-orientation="vertical" aria-controls="setup-pane"
+        aria-valuemin="0" aria-valuemax="100" aria-valuenow="60" aria-describedby="splitter-help"
+        title="Drag to resize · Double-click to auto size">
+        <span id="splitter-help" class="visually-hidden">Drag or use Left and Right arrow keys to resize the panels. Hold Shift for larger steps. Home and End select the smallest and largest widths. Press Enter to restore automatic sizing.</span>
+      </div>
       <section class="preview" id="drafts-pane" role="region" aria-labelledby="drafts-title">
         <div class="preview-top"><div class="section-label"><span>02</span><h2 id="drafts-title">Your drafts</h2></div>
           <div class="draft-actions">

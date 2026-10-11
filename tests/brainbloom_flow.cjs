@@ -15,6 +15,8 @@ const dom = new JSDOM(fs.readFileSync(path.join(assets, "index.html"), "utf8"), 
   url:base, runScripts:"outside-only", virtualConsole:console,
 });
 const window = dom.window, document = window.document;
+// JSDOM has no layout engine; provide the desktop width for the real controller.
+document.getElementById("workspace").getBoundingClientRect = () => ({width:1220});
 const downloads = [], exportBlobs = new Map();
 window.URL.createObjectURL = blob => {
   const url = `blob:workshop-export-${exportBlobs.size}`;
@@ -39,6 +41,7 @@ window.fetch = async (url, options) => {
 };
 window.eval(fs.readFileSync(path.join(assets, "library.js"), "utf8"));
 window.eval(fs.readFileSync(path.join(assets, "player.js"), "utf8"));
+window.eval(fs.readFileSync(path.join(assets, "workspace.js"), "utf8"));
 window.eval(fs.readFileSync(path.join(assets, "app.js"), "utf8"));
 const el = id => document.getElementById(id);
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
@@ -81,6 +84,9 @@ async function main() {
   assert.equal(document.documentElement.dataset.theme, "light");
   assert.equal(window.localStorage.getItem("brainbloom-theme"), "light");
   await until(() => !el("generate").disabled, "Initial settings ready");
+  assert.equal(el("workspace").dataset.hasDrafts, "false");
+  assert.equal(el("workspace-splitter").getAttribute("aria-valuenow"), "60",
+    "Initial desktop setup expands the brief");
   assert.equal(el("topic").value, "auto");
   assert.equal(el("difficulty").value, "hard");
   assert.match(el("activity-help").textContent, /Solve a set of clues/);
@@ -110,7 +116,13 @@ async function main() {
   await until(() => !el("generate").disabled, "Typed planning ready");
   assert.equal(el("topic").value, "planning", "Compatible activity must be preserved");
   el("generate").click();
+  assert.equal(el("reset-layout").disabled, false, "Panel sizing stays available during generation");
   await until(() => !el("download").disabled, "Two-topic puzzle generated");
+  assert.equal(el("workspace").dataset.hasDrafts, "true");
+  assert.equal(el("workspace-splitter").getAttribute("aria-valuenow"), "28",
+    "Successful generation gives the drafts more room");
+  el("workspace-splitter").dispatchEvent(new window.KeyboardEvent("keydown", {key:"ArrowRight", bubbles:true}));
+  assert.equal(el("workspace-splitter").getAttribute("aria-valuenow"), "30");
   assert.equal(generated.at(-1).summary.accepted, 1,
     "Expected a playable draft: " + JSON.stringify(generated.at(-1).rejected));
   assert.deepEqual(generated.at(-1).request.meanings, {bank, crane});
@@ -217,6 +229,8 @@ async function main() {
   Object.defineProperty(window, "innerWidth", {value:390, configurable:true});
   window.dispatchEvent(new window.Event("resize"));
   assert.equal(el("pane-tabs").hidden, false);
+  assert.equal(el("workspace-splitter").hidden, true);
+  assert.equal(el("reset-layout").hidden, true);
   el("setup-tab").click();
   assert.ok(el("drafts-pane").hidden && !el("setup-pane").hidden);
 
@@ -242,7 +256,8 @@ async function main() {
   el("generate").click();
   await until(() => generated.length > before && !el("download").disabled, "Custom draft displayed");
   assert.equal(generated.at(-1).request.instructions, instructions);
-  assert.equal(generated.at(-1).items.length, 2);
+  assert.equal(generated.at(-1).items.length, 2,
+    "Expected both custom drafts: " + JSON.stringify(generated.at(-1).rejected));
   assert.ok(el("setup-pane").hidden && !el("drafts-pane").hidden);
   assert.equal(el("results").scrollTop, 0, "New drafts start at the top of their own pane");
   assert.equal(document.activeElement, el("status"), "Generation announces and focuses results");
@@ -264,6 +279,10 @@ async function main() {
   assert.equal(el("setup-tab").getAttribute("aria-selected"), "true");
   Object.defineProperty(window, "innerWidth", {value:1280, configurable:true});
   window.dispatchEvent(new window.Event("resize"));
+  assert.equal(el("workspace-splitter").hidden, false);
+  assert.equal(el("reset-layout").hidden, false);
+  assert.equal(el("workspace-splitter").getAttribute("aria-valuenow"), "30",
+    "Generation and mobile navigation preserve the manual panel size");
   assert.ok(el("pane-tabs").hidden && !el("setup-pane").hidden && !el("drafts-pane").hidden);
 
   // Real creator-authored grids: source selection, ambiguity, contradiction and play.

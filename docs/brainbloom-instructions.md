@@ -18,6 +18,7 @@ Examples:
 - `Find the impossible clue.`
 - `Choose the most likely explanation.`
 - `Plan the best next move.`
+- `Plan with energy and switches.`
 - `Discover a number rule.`
 
 The **How I understand this** panel shows the interpreted activity and settings.
@@ -105,6 +106,16 @@ On desktop, the viewport contains two independently scrolling panes:
   remain in the fixed bottom action bar.
 - **Drafts:** cards scroll inside the panel; title, status and Download remain visible.
 
+Before a puzzle is available, **Set the brief** uses about 60% of the panel space.
+Once puzzles are generated or reopened, it shrinks to about 28%, giving drafts
+more room. Both panels keep a minimum usable width on smaller desktop windows.
+Drag the divider to resize the panels at any time, including during generation.
+The browser remembers your chosen size and keeps it through generation and reloads.
+Manual sizing overrides the automatic layout until you reset it.
+Choose **Auto size**, double-click the divider, or focus it and press Enter to
+restore automatic sizing. The divider also supports Left/Right arrows (hold
+Shift for larger steps) and Home/End to reach the size limits.
+
 Starting generation brings the drafts panel into view and announces progress.
 When results arrive, the draft scroll position resets to the top and the status
 receives focus without moving the setup scroll position. Errors after generation
@@ -114,6 +125,7 @@ At widths up to 760px, Setup/Drafts tabs show one full-width panel at a time.
 Generation switches to Drafts automatically. Returning to Setup preserves fields,
 instructions and its scroll position. Tabs support arrow keys and Home/End; the
 panels have accessible labels and keyboard-focusable scroll roots.
+The desktop divider is hidden in this tabbed layout and in Play mode.
 
 The short-viewport layout hides the decorative intro to leave room for controls.
 The app uses dynamic viewport height for mobile browsers and contains overscroll
@@ -130,3 +142,7 @@ against the local server. It checks instruction editing/application, generated
 exports, separate scroll roots, automatic result visibility, preserved setup state,
 small-screen tab behaviour and keyboard navigation. This is a DOM/interaction test,
 not a substitute for pixel-level testing in every browser.
+
+`tests/brainbloom_workspace.cjs` checks automatic and manual sizing, keyboard and
+pointer interaction, minimum widths, cancelled drags, storage failures and returning
+from mobile or Play mode. It runs with the same jsdom dependency and needs no server.

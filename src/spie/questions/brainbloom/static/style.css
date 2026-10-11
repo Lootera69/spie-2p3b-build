@@ -84,10 +84,19 @@ main { flex:1; min-height:0; width:100%; padding:18px 32px 0; display:flex; flex
 .intro .eyebrow { margin:0 0 8px; }
 h1 { font-size:clamp(28px,3vw,42px); }
 .intro>p:last-child { font-size:14px; }
-.workspace { flex:1; min-height:0; grid-template-columns:minmax(290px,340px) minmax(0,1fr); align-items:stretch; gap:24px; }
+.workspace { --brief-width:60%; flex:1; min-height:0; grid-template-columns:clamp(290px,var(--brief-width),calc(100% - 340px)) 20px minmax(0,1fr); align-items:stretch; gap:0; }
+.workspace[data-has-drafts="true"] { --brief-width:28%; }
+.workspace-splitter { position:relative; min-height:0; cursor:col-resize; touch-action:none; border-radius:8px; }
+.workspace-splitter::before { content:""; position:absolute; top:12px; bottom:12px; left:calc(50% - .5px); width:1px; background:var(--line); }
+.workspace-splitter::after { content:""; position:absolute; top:calc(50% - 22px); left:calc(50% - 2px); width:4px; height:44px; border-radius:4px; background:var(--muted); }
+.workspace-splitter:hover::after,.workspace-splitter:focus-visible::after { background:var(--green); }
+.workspace-splitter:focus-visible { outline-offset:-3px; }
+body.resizing-workspace,body.resizing-workspace * { cursor:col-resize !important; user-select:none !important; }
+.visually-hidden { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip-path:inset(50%); white-space:nowrap; border:0; }
 aside { min-height:0; min-width:0; padding:0; margin:0; overflow:hidden; }
 #generator { display:flex; flex-direction:column; height:100%; min-height:0; }
-.pane-heading { flex:0 0 auto; padding:18px 22px; border-bottom:1px solid var(--line); }
+.pane-heading { flex:0 0 auto; display:flex; align-items:center; justify-content:space-between; gap:8px; flex-wrap:wrap; padding:18px 22px; border-bottom:1px solid var(--line); }
+#reset-layout { padding:6px 9px; font-size:11px; }
 .setup-scroll,.preview-scroll { flex:1; min-height:0; overflow:auto; overscroll-behavior:contain; scrollbar-gutter:stable; scroll-padding:16px; }
 .setup-scroll { padding:16px 22px 24px; }
 .setup-scroll:focus-visible,.preview-scroll:focus-visible { outline-offset:-3px; }
@@ -122,7 +131,7 @@ textarea { resize:vertical; min-height:110px; max-height:260px; line-height:1.6;
 .pane-tabs { flex:0 0 auto; display:flex; gap:6px; padding:4px; margin-bottom:12px; border:1px solid var(--line); border-radius:11px; background:#e8ede1; }
 .pane-tabs button { flex:1; padding:9px; background:transparent; color:var(--ink); }
 .pane-tabs button[aria-selected="true"] { background:var(--green); color:white; }
-@media(max-width:1000px) { .workspace { grid-template-columns:300px minmax(0,1fr); gap:16px; }main,header { padding-left:20px; padding-right:20px; }.card { padding:20px; } }
+@media(max-width:1000px) { main,header { padding-left:20px; padding-right:20px; }.card { padding:20px; } }
 @media(max-width:760px) {
   main { padding:10px 12px 0; }header { padding:10px 16px; }.brand { font-size:18px; }
   /* Reclaim the hero's vertical space for the panes; the header already carries the
@@ -130,6 +139,7 @@ textarea { resize:vertical; min-height:110px; max-height:260px; line-height:1.6;
      screen. Matches the existing max-height:620px behaviour. */
   .intro { display:none; }
   .workspace { display:flex; flex-direction:column; gap:0; }
+  .workspace-splitter,#reset-layout { display:none; }
   .workspace>aside,.workspace>.preview { flex:1; min-height:0; width:100%; margin:0; }
   .pane-tabs { margin-bottom:8px; }
   .pane-heading { padding:12px 16px; }.setup-scroll { padding:12px 16px 20px; }
@@ -299,6 +309,7 @@ summary:hover { color:#152f22; }
 [data-theme="dark"] .logic-table select.grid-conflict { border-color:#ef9c91; background:#492e30; }
 .feedback { white-space:pre-wrap; }
 .play-mode .workspace { grid-template-columns:minmax(0,1fr); max-width:980px; width:100%; margin:auto; }
+.play-mode .workspace-splitter,.play-mode #reset-layout { display:none; }
 .play-mode .intro, .play-mode footer, .play-mode .creator-detail, .play-mode #download, .play-mode .preview-top .section-label>span { display:none; }
 .play-mode .card { padding:clamp(18px,3vw,34px); }
 .play-mode .preview-top { padding-top:18px; }

@@ -16,6 +16,9 @@ a save requires the running generator to reproduce and verify its full puzzle bu
 Clue designers can require **deduction only** and **at least 2, 3 or 4 supporting clues**;
 the engine verifies both requirements before releasing the puzzle.
 **Plan a delivery with limited resources** adds fuel, deadlines and prerequisites.
+**Plan with energy and switches** invents competing plans involving a limited battery,
+two persistent gates and a single recharge. It verifies a unique best first action;
+later optimal action sequences may tie. See the [state-planning audit](docs/research/state-planning.md).
 **Play mode** provides a focused player, and **Share** creates portable puzzle links.
 Shared puzzles start without progress.
 The launcher uses the existing sibling question bank and Studio verifier when available.

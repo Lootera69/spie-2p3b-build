@@ -43,6 +43,11 @@ ACTIVITIES = {
         "Choose the fastest complete delivery route that respects fuel, "
         "deadlines and prerequisite tasks.",
     ),
+    "state-planning": Activity(
+        "Plan with energy and switches", "activities", "state-planning",
+        "Choose the best first action when movement spends energy and switches "
+        "change which routes are available.",
+    ),
     "pattern": Activity("Discover a number rule", "activities", "pattern",
                         "Use input/output examples to find the only matching rule among "
                         "four stated possibilities."),
@@ -195,6 +200,8 @@ def _difficulty_help(activity: Activity, difficulty: str) -> str:
             "best-move": f"{level + 4} map locations; compare full routes, not just first steps.",
             "resource-plan": (f"One depot and {level + 2} delivery tasks; compare complete "
                               "routes subject to fuel, deadlines and prerequisites."),
+            "state-planning": (f"{level + 3} locations; plan a complete sequence as energy "
+                               "and gate states change."),
         }[activity.variation]
     if activity.family == "reasoning":
         return {

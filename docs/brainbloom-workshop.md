@@ -140,12 +140,25 @@ the exact smallest clue subset that forces the question's answer, including the 
 claim for true/false puzzles. A selected minimum is a lower bound, and the certificate
 reports the actual count. This does not measure human difficulty.
 
-Generation makes at most 12 custom-grid proposals or 24 constrained autopilot proposals;
-exact support searches also have a finite subset budget. Requirements are never relaxed
-to fill a batch. Infeasible settings or exhausted searches return an explanation. Large
-grids and batches can take several seconds or longer to generate and replay; each answer
-or grid check verifies the whole submitted bundle. New requests use engine revision 5;
-saved revisions 1–4 retain their original replay behaviour.
+New requests use engine revision 8. The synthesis introduced in revision 6 remains:
+custom grids repair one planted arrangement using
+rival arrangements and short answer proofs, sharing at most 48 candidate evaluations,
+2,000 search nodes and 100,000 support subsets across up to eight eligible question/claim
+targets. Autopilot compares six such designs and passes reasoning requirements into
+the synthesis step. Explicit targets and authored rules remain fixed. Every selected
+grid and displayed claim is independently certified, including when controls are automatic.
+
+Requirements are never relaxed to fill a batch. Infeasible settings or exhausted searches
+return an explanation when no certified candidate meets the requested gates. Automatic
+mode may retain its certified baseline if repair does not improve it. Large grids and
+batches can take several seconds or longer to generate and replay; each answer or grid
+check verifies the whole submitted bundle. Saved revisions 1–7 retain their original
+replay behaviour, including revision 5's 12/24 proposal limits.
+
+The synthesis proof records actual work, support before/after repair, clue counts and
+budget exhaustion. It reports the best evaluated design, not a globally optimal puzzle
+or a measurement of human difficulty. The fixed-seed comparison and tiny exhaustive
+oracle can be run with `python tools/benchmark_clue_synthesis.py --candidate-revision 6 --oracle`.
 
 ### Deliveries with limited resources
 
@@ -160,6 +173,50 @@ deadline or prerequisite violation; coaching explains that violation. At least o
 invalid plan looks faster, and medium/hard puzzles also defeat the cheapest-first-leg
 shortcut. Multiple choice, true/false, typed answers and riddles are supported. Typed
 answers accept both `Plan A` and its corresponding letter, for example `A`.
+
+### Energy, gates and switches
+
+Choose **Plan with energy and switches** to invent a fully observable world with 4, 5
+or 6 fictional rooms at easy, medium or hard level. Moves spend energy, switches
+persistently flip the two gates, and a charger can refill the battery once. Every move,
+switch use and recharge takes one action. The question asks which first action leads
+to the fewest total actions when later choices are optimal. Multiple choice, true/false,
+typed answers and riddles are supported, including topic labels and saved-draft replay.
+
+Generation requires competing successful first actions and a later genuine branch.
+The choice check excludes returns to the decision room with unchanged gates, no energy
+gain and no improvement in recharge availability. Each mechanic must change the best
+action count or set of optimal first actions when disabled. A direct state interpreter,
+the existing action-puzzle interpreter and Z3 check the result. Only the optimal first
+action is required to be unique; full optimal action sequences may tie.
+
+Each proposal search is bounded at 2,000 candidates. The workshop retries exhausted
+searches within its existing batch candidate limit, records them, and returns an error
+if it cannot fill the requested batch. It never exports a partial or uncertified set.
+This is a finite mechanic family, with structural levels rather than player-calibrated
+difficulty. See the [domain, exact checks and benchmark](research/state-planning.md).
+
+Revision 8 adds guided repairs aimed at **spending more energy now to save actions
+later**. Every cheapest legal first action must still have a committed solution, yet
+take more total actions than the unique best first action. The independent strategy
+certificate checks every cheapest tie. Repair history and exact comparisons remain
+available in the proof; revision 7 keeps its original search for saved-draft replay.
+The [strategy-invention comparison](research/planning-invention.md) reports acceptance,
+actual graph work, diversity and verified repairs against an equal-budget restart
+baseline, including cases where guided search loses.
+
+The optional sibling Studio verifier currently rejects this family's longer rule text
+and full solution traces under its short-quiz editorial limits. An observed hard
+`space, ocean` sample had about 116 question words against a 60-word limit; its trace
+also exceeded the 1–2 sentence explanation limit, and a topic label triggered a lexical
+giveaway check. The standalone engine and native field checks pass. Studio's external
+gate remains enforced, so these results are not Studio-ready exports.
+
+For the native local creator/player preview without the optional sibling integration:
+
+```powershell
+./.venv/Scripts/python.exe -m spie.questions.brainbloom serve --no-integrations --no-history
+```
 
 ### Play and share
 
@@ -191,7 +248,7 @@ search measurements, independently checked answer and structural fingerprint.
 Current topic-based workshop drafts use **v5**, preserving a meaning and vocabulary
 membership for every topic, all source licences and per-puzzle coverage checks.
 v3/v4 remain the legacy single-topic formats. Logic grids use v6, Autopilot v7,
-and discovery/decision activities v8. New requests record `engine_revision: 5`.
+and discovery/decision activities v8. New requests record `engine_revision: 6`.
 Revision 4 uses concise reasoning and contradiction wording that fits Studio's
 120-word question ceiling, with short titles that do not repeat the answer.
 The mathematical models, assumptions and answers remain unchanged.
@@ -211,7 +268,7 @@ CLI examples:
 `--bank PATH` and `--platform-verifier PATH` also work with `generate`. The CLI
 refuses to overwrite files. `check` re-creates content and checks using recorded
 seeds; it rejects altered items, proofs, counts or publication state. It supports
-all envelope versions v1 through v8 and engine revisions 1 through 5.
+all envelope versions v1 through v8 and engine revisions 1 through 6.
 It does not authenticate the author or re-run
 the saved editorial review. Outputs are deterministic for the same implementation,
 solver version, inputs and bank.
@@ -285,6 +342,7 @@ or enjoyment claims can be made. Session-file authenticity is not verified.
 | Bayesian lab | Exact fractions plus independent finite-outcome enumeration | The stated priors and conditional-independence assumptions |
 | Planning lab | Bellman recursion, exhaustive policy costs, branch-by-branch rollout | Optimal among the four supplied unit-cost questions |
 | Delivery planning | Subset dynamic programming and independent full-route enumeration | Unique fastest feasible route on the supplied map under fuel, deadline and prerequisite rules |
+| Energy and switches | Complete direct/core state graphs, witness replay and Z3; four mechanic ablations | Minimum action count and unique optimal first action; later paths may tie |
 | Creator reasoning controls | Complete propagation trace and exact smallest supporting-clue subset | The selected grid question or displayed true/false claim; not human difficulty |
 
 Every draft passes local field validation. The optional Studio verifier covers the

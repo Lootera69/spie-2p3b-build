@@ -75,14 +75,18 @@ def test_custom_grid_deduction_only_and_exact_two_clue_answer(qtype):
 
 
 @pytest.mark.parametrize("minimum", [2, 3, 4])
-def test_autopilot_proposes_until_both_requested_gates_hold(minimum):
+@pytest.mark.parametrize("revision", [5, 6])
+def test_autopilot_proposes_until_both_requested_gates_hold(minimum, revision):
     request = Request("autopilot", difficulty="hard", subject="animals", seed=7,
-                      reasoning_mode="deduction-only", min_supporting_clues=minimum)
+                      reasoning_mode="deduction-only", min_supporting_clues=minimum,
+                      engine_revision=revision)
     bundle = Generator().build(request)
     proof = bundle["proofs"][0]
     assert proof["reasoning_constraints"]["minimum_supporting_clues"] >= minimum
     assert proof["reasoning_constraints"]["deduction_only"]
-    assert proof["search"]["budget"] == autopilot.CONSTRAINED_BUDGET
+    expected_budget = (autopilot.SYNTHESIS_BUDGET if revision == 6
+                       else autopilot.CONSTRAINED_BUDGET)
+    assert proof["search"]["budget"] == expected_budget
     assert proof["search"]["qualified"] + proof["search"]["rejected"] == proof["search"]["budget"]
     domains, _, conflict = propagate(proof["model"], proof["added_rules"])
     assert conflict is None and domains == [{p} for p in proof["solution_positions"]]
@@ -111,7 +115,8 @@ def test_false_claim_support_is_not_inflated_by_the_full_query():
         reasoning_constraints.certify(request, proof)
 
 
-def test_custom_grid_exhaustion_is_bounded_and_does_not_relax(monkeypatch):
+@pytest.mark.parametrize("revision", [5, 6])
+def test_custom_grid_exhaustion_is_bounded_and_does_not_relax(monkeypatch, revision):
     original = logic_grid._candidate_once
     calls = []
 
@@ -121,11 +126,13 @@ def test_custom_grid_exhaustion_is_bounded_and_does_not_relax(monkeypatch):
 
     monkeypatch.setattr(logic_grid, "_candidate_once", counted)
     with pytest.raises(ValueError, match="controls were not relaxed"):
-        candidate(Request("logic-grid", grid=ORDER, min_supporting_clues=4), 0)
-    assert len(calls) == logic_grid.CONSTRAINED_BUDGET
+        candidate(Request("logic-grid", grid=ORDER, min_supporting_clues=4,
+                          engine_revision=revision), 0)
+    assert len(calls) == (1 if revision == 6 else logic_grid.CONSTRAINED_BUDGET)
 
 
-def test_autopilot_exhaustion_rejects_every_proposal_without_early_abort(monkeypatch):
+@pytest.mark.parametrize("revision", [5, 6])
+def test_autopilot_exhaustion_rejects_every_proposal_without_early_abort(monkeypatch, revision):
     calls = []
     item, proof = candidate(Request("logic-grid", grid=ORDER), 0)
 
@@ -136,8 +143,10 @@ def test_autopilot_exhaustion_rejects_every_proposal_without_early_abort(monkeyp
     monkeypatch.setattr(logic_grid, "candidate", fixed_proposal)
     context = resolve_many(Dictionary(), "animals", {}, "logic")
     with pytest.raises(ValueError, match="controls were not relaxed"):
-        autopilot.candidate(Request("autopilot", min_supporting_clues=4), random.Random(0), context)
-    assert len(calls) == autopilot.CONSTRAINED_BUDGET
+        autopilot.candidate(Request("autopilot", min_supporting_clues=4,
+                                    engine_revision=revision), random.Random(0), context)
+    assert len(calls) == (autopilot.SYNTHESIS_BUDGET if revision == 6
+                          else autopilot.CONSTRAINED_BUDGET)
 
 
 def test_exact_support_work_cap_rejects_uncertified_output(monkeypatch):

@@ -1,0 +1,647 @@
+{
+  "benchmark": "planning-invention-equal-candidate-budget-v1",
+  "configuration": {
+    "seeds": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9
+    ],
+    "levels": [
+      1,
+      2,
+      3
+    ],
+    "budget": 1000,
+    "strategy": "invest-energy",
+    "legacy_budget": 2000
+  },
+  "environment": {
+    "python": "3.12.10 (tags/v3.12.10:0cc8128, Apr  8 2025, 12:21:36) [MSC v.1943 64 bit (AMD64)]",
+    "platform": "Windows-11-10.0.26300-SP0",
+    "z3_solver": "4.13.4.0",
+    "source_sha256": {
+      "tools/benchmark_planning_invention.py": "f58afc7e64927f69150ad0e169af02ebe1e90bf32c69c9feb6f726e524d9f699",
+      "tools/benchmark_state_planning.py": "7e105d02c76812e1871aaa009731b343c880f45e07864b8df22b08c323e1a187",
+      "src/spie/questions/brainbloom/planning_invention.py": "4e6d1325edd81287f34e8c2c5fc0baf77b08b0772128be1e44a38555dc4764aa",
+      "src/spie/questions/brainbloom/planning_strategy.py": "c71826e469ea02d0df6d1b4d38af17307bf9a955061db824e95ef574c4ce2920",
+      "src/spie/questions/brainbloom/state_planning.py": "1232abb5c895bc826f83b812cd6d0ce91664ce2d5f5219a5f4563d23683b0085",
+      "src/spie/search.py": "9ae0771a69f0138ea3ade3abb66e327e400092cdebdc877be4a8cfcc24d73a82",
+      "src/spie/interpreter.py": "0ed33db39140b65c0b867416ab95b8c5208d2a800c39bdd0bda2b32da7fb68a1",
+      "src/spie/z3_compile.py": "8fac41b443073bc15a33f69e06ec7e1ae978a0d44e644653bbc6a42239816c9e"
+    }
+  },
+  "summary": {
+    "guided": {
+      "requested": 30,
+      "verified": 27,
+      "exhausted": 3,
+      "acceptance_rate": 0.9,
+      "budgeted_candidate_attempts": 7973,
+      "verified_per_candidate_attempt": 0.0033864291985450895,
+      "actual_baseline_graph_calls": 6743,
+      "actual_ablation_graph_calls": 3840,
+      "actual_total_graph_calls": 10583,
+      "repair_attempts": 5960,
+      "rejection_reasons": {
+        "shape": 163,
+        "unsolved": 4730,
+        "choice": 1053,
+        "mechanics": 780,
+        "strategy": 153,
+        "duplicate": 1067
+      },
+      "distinct_structures": 27,
+      "distinct_topologies": 21,
+      "rescued_by_repair": 25,
+      "last_repair_rescued_strategy": 10,
+      "minimum_action_penalty": {
+        "count": 27,
+        "min": 1,
+        "median": 1,
+        "p95": 2,
+        "max": 2
+      },
+      "seconds": {
+        "generation": {
+          "count": 30,
+          "min": 0.018126,
+          "median": 0.4900505,
+          "p95": 3.236743,
+          "max": 3.422371,
+          "total": 25.895806
+        },
+        "certification": {
+          "count": 27,
+          "min": 0.288481,
+          "median": 0.791811,
+          "p95": 1.462984,
+          "max": 1.654305,
+          "total": 24.227667
+        },
+        "independent_audit": {
+          "count": 27,
+          "min": 0.038631,
+          "median": 0.109309,
+          "p95": 0.181402,
+          "max": 0.188512,
+          "total": 3.008807
+        },
+        "replay": {
+          "count": 30,
+          "min": 0.010912,
+          "median": 0.5531999999999999,
+          "p95": 3.622425,
+          "max": 3.985151,
+          "total": 29.743989
+        }
+      }
+    },
+    "restart": {
+      "requested": 30,
+      "verified": 25,
+      "exhausted": 5,
+      "acceptance_rate": 0.8333333333333334,
+      "budgeted_candidate_attempts": 13336,
+      "verified_per_candidate_attempt": 0.001874625074985003,
+      "actual_baseline_graph_calls": 12139,
+      "actual_ablation_graph_calls": 3096,
+      "actual_total_graph_calls": 15235,
+      "repair_attempts": 0,
+      "rejection_reasons": {
+        "shape": 1197,
+        "unsolved": 10024,
+        "choice": 1341,
+        "mechanics": 724,
+        "strategy": 25
+      },
+      "distinct_structures": 25,
+      "distinct_topologies": 19,
+      "rescued_by_repair": 0,
+      "last_repair_rescued_strategy": 0,
+      "minimum_action_penalty": {
+        "count": 25,
+        "min": 1,
+        "median": 1,
+        "p95": 2,
+        "max": 2
+      },
+      "seconds": {
+        "generation": {
+          "count": 30,
+          "min": 0.016607,
+          "median": 0.8641995,
+          "p95": 2.736639,
+          "max": 2.90728,
+          "total": 32.046106
+        },
+        "certification": {
+          "count": 25,
+          "min": 0.253761,
+          "median": 0.807746,
+          "p95": 1.112739,
+          "max": 1.164226,
+          "total": 20.966168
+        },
+        "independent_audit": {
+          "count": 25,
+          "min": 0.027181,
+          "median": 0.075382,
+          "p95": 0.126396,
+          "max": 0.159347,
+          "total": 2.014032
+        },
+        "replay": {
+          "count": 30,
+          "min": 0.015907,
+          "median": 1.114441,
+          "p95": 3.220289,
+          "max": 3.453785,
+          "total": 40.785291
+        }
+      }
+    }
+  },
+  "levels": {
+    "1": {
+      "guided": {
+        "requested": 10,
+        "verified": 10,
+        "exhausted": 0,
+        "acceptance_rate": 1.0,
+        "budgeted_candidate_attempts": 2187,
+        "verified_per_candidate_attempt": 0.004572473708276178,
+        "actual_baseline_graph_calls": 1620,
+        "actual_ablation_graph_calls": 2104,
+        "actual_total_graph_calls": 3724,
+        "repair_attempts": 1635,
+        "rejection_reasons": {
+          "shape": 76,
+          "unsolved": 533,
+          "choice": 561,
+          "mechanics": 448,
+          "strategy": 68,
+          "duplicate": 491
+        },
+        "distinct_structures": 10,
+        "distinct_topologies": 4,
+        "rescued_by_repair": 9,
+        "last_repair_rescued_strategy": 3,
+        "minimum_action_penalty": {
+          "count": 10,
+          "min": 1,
+          "median": 1.0,
+          "p95": 2,
+          "max": 2
+        },
+        "seconds": {
+          "generation": {
+            "count": 10,
+            "min": 0.049879,
+            "median": 0.596986,
+            "p95": 2.164943,
+            "max": 2.164943,
+            "total": 8.259675
+          },
+          "certification": {
+            "count": 10,
+            "min": 0.624007,
+            "median": 0.7139774999999999,
+            "p95": 0.783882,
+            "max": 0.783882,
+            "total": 7.082046
+          },
+          "independent_audit": {
+            "count": 10,
+            "min": 0.059787,
+            "median": 0.10549449999999999,
+            "p95": 0.142813,
+            "max": 0.142813,
+            "total": 1.029689
+          },
+          "replay": {
+            "count": 10,
+            "min": 0.047065,
+            "median": 0.6624654999999999,
+            "p95": 2.271006,
+            "max": 2.271006,
+            "total": 9.27198
+          }
+        }
+      },
+      "restart": {
+        "requested": 10,
+        "verified": 9,
+        "exhausted": 1,
+        "acceptance_rate": 0.9,
+        "budgeted_candidate_attempts": 4627,
+        "verified_per_candidate_attempt": 0.0019451048195374973,
+        "actual_baseline_graph_calls": 3941,
+        "actual_ablation_graph_calls": 2792,
+        "actual_total_graph_calls": 6733,
+        "repair_attempts": 0,
+        "rejection_reasons": {
+          "shape": 686,
+          "unsolved": 2592,
+          "choice": 651,
+          "mechanics": 682,
+          "strategy": 7
+        },
+        "distinct_structures": 9,
+        "distinct_topologies": 3,
+        "rescued_by_repair": 0,
+        "last_repair_rescued_strategy": 0,
+        "minimum_action_penalty": {
+          "count": 9,
+          "min": 1,
+          "median": 1,
+          "p95": 1,
+          "max": 1
+        },
+        "seconds": {
+          "generation": {
+            "count": 10,
+            "min": 0.057484,
+            "median": 1.0551775,
+            "p95": 2.90728,
+            "max": 2.90728,
+            "total": 13.431974
+          },
+          "certification": {
+            "count": 9,
+            "min": 0.578876,
+            "median": 0.711404,
+            "p95": 0.804004,
+            "max": 0.804004,
+            "total": 6.435137
+          },
+          "independent_audit": {
+            "count": 9,
+            "min": 0.052174,
+            "median": 0.061398,
+            "p95": 0.126396,
+            "max": 0.126396,
+            "total": 0.679716
+          },
+          "replay": {
+            "count": 10,
+            "min": 0.072255,
+            "median": 1.2477675000000001,
+            "p95": 3.453785,
+            "max": 3.453785,
+            "total": 16.056905
+          }
+        }
+      }
+    },
+    "2": {
+      "guided": {
+        "requested": 10,
+        "verified": 9,
+        "exhausted": 1,
+        "acceptance_rate": 0.9,
+        "budgeted_candidate_attempts": 1593,
+        "verified_per_candidate_attempt": 0.005649717514124294,
+        "actual_baseline_graph_calls": 1326,
+        "actual_ablation_graph_calls": 1492,
+        "actual_total_graph_calls": 2818,
+        "repair_attempts": 1190,
+        "rejection_reasons": {
+          "shape": 21,
+          "unsolved": 695,
+          "choice": 258,
+          "mechanics": 296,
+          "strategy": 68,
+          "duplicate": 246
+        },
+        "distinct_structures": 9,
+        "distinct_topologies": 9,
+        "rescued_by_repair": 8,
+        "last_repair_rescued_strategy": 4,
+        "minimum_action_penalty": {
+          "count": 9,
+          "min": 1,
+          "median": 1,
+          "p95": 2,
+          "max": 2
+        },
+        "seconds": {
+          "generation": {
+            "count": 10,
+            "min": 0.018126,
+            "median": 0.254838,
+            "p95": 3.422371,
+            "max": 3.422371,
+            "total": 5.601522
+          },
+          "certification": {
+            "count": 9,
+            "min": 0.729983,
+            "median": 0.854175,
+            "p95": 1.377674,
+            "max": 1.377674,
+            "total": 8.481185
+          },
+          "independent_audit": {
+            "count": 9,
+            "min": 0.078252,
+            "median": 0.109309,
+            "p95": 0.181402,
+            "max": 0.181402,
+            "total": 1.090869
+          },
+          "replay": {
+            "count": 10,
+            "min": 0.010912,
+            "median": 0.274968,
+            "p95": 3.985151,
+            "max": 3.985151,
+            "total": 6.387347
+          }
+        }
+      },
+      "restart": {
+        "requested": 10,
+        "verified": 10,
+        "exhausted": 0,
+        "acceptance_rate": 1.0,
+        "budgeted_candidate_attempts": 2708,
+        "verified_per_candidate_attempt": 0.003692762186115214,
+        "actual_baseline_graph_calls": 2541,
+        "actual_ablation_graph_calls": 236,
+        "actual_total_graph_calls": 2777,
+        "repair_attempts": 0,
+        "rejection_reasons": {
+          "shape": 167,
+          "unsolved": 2089,
+          "choice": 393,
+          "mechanics": 36,
+          "strategy": 13
+        },
+        "distinct_structures": 10,
+        "distinct_topologies": 10,
+        "rescued_by_repair": 0,
+        "last_repair_rescued_strategy": 0,
+        "minimum_action_penalty": {
+          "count": 10,
+          "min": 1,
+          "median": 1.0,
+          "p95": 2,
+          "max": 2
+        },
+        "seconds": {
+          "generation": {
+            "count": 10,
+            "min": 0.016607,
+            "median": 0.7978775,
+            "p95": 1.420235,
+            "max": 1.420235,
+            "total": 6.878076
+          },
+          "certification": {
+            "count": 10,
+            "min": 0.79772,
+            "median": 0.973857,
+            "p95": 1.112739,
+            "max": 1.112739,
+            "total": 9.698912
+          },
+          "independent_audit": {
+            "count": 10,
+            "min": 0.061076,
+            "median": 0.085315,
+            "p95": 0.159347,
+            "max": 0.159347,
+            "total": 0.942335
+          },
+          "replay": {
+            "count": 10,
+            "min": 0.015907,
+            "median": 1.061285,
+            "p95": 1.728959,
+            "max": 1.728959,
+            "total": 8.768035
+          }
+        }
+      }
+    },
+    "3": {
+      "guided": {
+        "requested": 10,
+        "verified": 8,
+        "exhausted": 2,
+        "acceptance_rate": 0.8,
+        "budgeted_candidate_attempts": 4193,
+        "verified_per_candidate_attempt": 0.0019079418077748629,
+        "actual_baseline_graph_calls": 3797,
+        "actual_ablation_graph_calls": 244,
+        "actual_total_graph_calls": 4041,
+        "repair_attempts": 3135,
+        "rejection_reasons": {
+          "shape": 66,
+          "unsolved": 3502,
+          "choice": 234,
+          "mechanics": 36,
+          "duplicate": 330,
+          "strategy": 17
+        },
+        "distinct_structures": 8,
+        "distinct_topologies": 8,
+        "rescued_by_repair": 8,
+        "last_repair_rescued_strategy": 3,
+        "minimum_action_penalty": {
+          "count": 8,
+          "min": 1,
+          "median": 1.0,
+          "p95": 2,
+          "max": 2
+        },
+        "seconds": {
+          "generation": {
+            "count": 10,
+            "min": 0.182261,
+            "median": 0.725358,
+            "p95": 3.236743,
+            "max": 3.236743,
+            "total": 12.034609
+          },
+          "certification": {
+            "count": 8,
+            "min": 0.288481,
+            "median": 1.0377049999999999,
+            "p95": 1.654305,
+            "max": 1.654305,
+            "total": 8.664436
+          },
+          "independent_audit": {
+            "count": 8,
+            "min": 0.038631,
+            "median": 0.120842,
+            "p95": 0.188512,
+            "max": 0.188512,
+            "total": 0.8882490000000001
+          },
+          "replay": {
+            "count": 10,
+            "min": 0.181368,
+            "median": 0.9193505,
+            "p95": 3.622425,
+            "max": 3.622425,
+            "total": 14.084662
+          }
+        }
+      },
+      "restart": {
+        "requested": 10,
+        "verified": 6,
+        "exhausted": 4,
+        "acceptance_rate": 0.6,
+        "budgeted_candidate_attempts": 6001,
+        "verified_per_candidate_attempt": 0.0009998333611064823,
+        "actual_baseline_graph_calls": 5657,
+        "actual_ablation_graph_calls": 68,
+        "actual_total_graph_calls": 5725,
+        "repair_attempts": 0,
+        "rejection_reasons": {
+          "shape": 344,
+          "unsolved": 5343,
+          "choice": 297,
+          "mechanics": 6,
+          "strategy": 5
+        },
+        "distinct_structures": 6,
+        "distinct_topologies": 6,
+        "rescued_by_repair": 0,
+        "last_repair_rescued_strategy": 0,
+        "minimum_action_penalty": {
+          "count": 6,
+          "min": 1,
+          "median": 2.0,
+          "p95": 2,
+          "max": 2
+        },
+        "seconds": {
+          "generation": {
+            "count": 10,
+            "min": 0.107902,
+            "median": 0.826514,
+            "p95": 2.272534,
+            "max": 2.272534,
+            "total": 11.736056
+          },
+          "certification": {
+            "count": 6,
+            "min": 0.253761,
+            "median": 0.9771460000000001,
+            "p95": 1.164226,
+            "max": 1.164226,
+            "total": 4.8321190000000005
+          },
+          "independent_audit": {
+            "count": 6,
+            "min": 0.027181,
+            "median": 0.067637,
+            "p95": 0.10634,
+            "max": 0.10634,
+            "total": 0.391981
+          },
+          "replay": {
+            "count": 10,
+            "min": 0.150364,
+            "median": 1.1567,
+            "p95": 3.112579,
+            "max": 3.112579,
+            "total": 15.960351000000001
+          }
+        }
+      }
+    }
+  },
+  "paired_outcomes": {
+    "both_verified": 23,
+    "guided_only_verified": 4,
+    "restart_only_verified": 2,
+    "both_exhausted": 1
+  },
+  "legacy_context": {
+    "requested": 30,
+    "verified": 30,
+    "exhausted": 0,
+    "strategy_qualified": 16
+  },
+  "evidence_format": "compact-benchmark-results-v1",
+  "raw_report": {
+    "path": "artifacts/planning-invention/fixed-seeds-0-9-budget1000-v1.json",
+    "sha256": "7d7663f34aadc4ac062fdd83056e3c2ff9176aa955d8e20e12881e84bb0190f9",
+    "bytes": 1966766
+  },
+  "scope": "Derived from the existing complete report without rerunning measurements. Raw models, complete certificates and accepted repair histories remain in the full local report.",
+  "results": [
+    {"mode":"guided","level":1,"seed":0,"status":"verified","structure":"f61566926b33807dac17bd86b2e85aef62b90756b6643d5ca81998a14dac3a7e","topology":"4ccd9e914e4021e508c48eeb210c5acf0f4eecab794adb1764c41bc2be395f20","rescued_by_repair":true,"last_repair_rescued_strategy":true,"work":{"budget":1000,"model_evaluations":347,"graph_evaluations":570,"restarts":87,"repairs_evaluated":260,"accepted_via":"repair"},"observed_graphs":{"baseline_graph_calls":242,"ablation_graph_calls":328,"distinct_evaluated_rules":242},"seconds":{"generation":1.335911,"replay":1.980441,"certification":0.651849,"independent_audit":0.07024},"accepted_repair_count":2,"minimum_action_penalty":1},
+    {"mode":"restart","level":1,"seed":0,"status":"verified","structure":"a6d4d4f01eb94c91e824618fd58172adda17280a2e230ab1658db558b72d6042","topology":"35fc8a3bda82bed33ffe9cb756fd9474163aceaec33e1e721d39b47b1dc3da89","rescued_by_repair":false,"last_repair_rescued_strategy":false,"work":{"budget":1000,"model_evaluations":669,"graph_evaluations":1019,"restarts":669,"repairs_evaluated":0,"accepted_via":"restart"},"observed_graphs":{"baseline_graph_calls":575,"ablation_graph_calls":444,"distinct_evaluated_rules":575},"seconds":{"generation":1.980641,"replay":2.280652,"certification":0.79193,"independent_audit":0.070292},"accepted_repair_count":0,"minimum_action_penalty":1},
+    {"mode":"restart","level":1,"seed":1,"status":"verified","structure":"8cf1098530a1228d056a37e806ff662aa468a3d5c09a7205a4e0816e87ca7e24","topology":"6f6d667f4d8d34b986e1c4cb85bdea98bfe5eea8be62ebd50713767c83d40e4b","rescued_by_repair":false,"last_repair_rescued_strategy":false,"work":{"budget":1000,"model_evaluations":124,"graph_evaluations":181,"restarts":124,"repairs_evaluated":0,"accepted_via":"restart"},"observed_graphs":{"baseline_graph_calls":105,"ablation_graph_calls":76,"distinct_evaluated_rules":105},"seconds":{"generation":0.409561,"replay":0.422946,"certification":0.711404,"independent_audit":0.085327},"accepted_repair_count":0,"minimum_action_penalty":1},
+    {"mode":"guided","level":1,"seed":1,"status":"verified","structure":"5c62a9bec6b3985883189fd62ef7fc23f64613c84ed978a8d6f163b3da34dc4d","topology":"6f6d667f4d8d34b986e1c4cb85bdea98bfe5eea8be62ebd50713767c83d40e4b","rescued_by_repair":true,"last_repair_rescued_strategy":true,"work":{"budget":1000,"model_evaluations":508,"graph_evaluations":758,"restarts":129,"repairs_evaluated":379,"accepted_via":"repair"},"observed_graphs":{"baseline_graph_calls":342,"ablation_graph_calls":416,"distinct_evaluated_rules":342},"seconds":{"generation":1.56407,"replay":1.656329,"certification":0.721065,"independent_audit":0.12384},"accepted_repair_count":1,"minimum_action_penalty":1},
+    {"mode":"guided","level":1,"seed":2,"status":"verified","structure":"d97fb7f9c0beb671d1bd9371245568652f56ea132c996bdfb4b50783346d047e","topology":"930d808a951b64407a273224400327b70373a05a589cc34aba9ed3a37a7980c7","rescued_by_repair":true,"last_repair_rescued_strategy":false,"work":{"budget":1000,"model_evaluations":10,"graph_evaluations":22,"restarts":3,"repairs_evaluated":7,"accepted_via":"repair"},"observed_graphs":{"baseline_graph_calls":10,"ablation_graph_calls":12,"distinct_evaluated_rules":10},"seconds":{"generation":0.049879,"replay":0.047065,"certification":0.624007,"independent_audit":0.115419},"accepted_repair_count":1,"minimum_action_penalty":1},
+    {"mode":"restart","level":1,"seed":2,"status":"verified","structure":"fd37666d437e6913dbda24045d1cd559b851144f87492bb9f5453fc99ed59e3b","topology":"35fc8a3bda82bed33ffe9cb756fd9474163aceaec33e1e721d39b47b1dc3da89","rescued_by_repair":false,"last_repair_rescued_strategy":false,"work":{"budget":1000,"model_evaluations":14,"graph_evaluations":34,"restarts":14,"repairs_evaluated":0,"accepted_via":"restart"},"observed_graphs":{"baseline_graph_calls":10,"ablation_graph_calls":24,"distinct_evaluated_rules":10},"seconds":{"generation":0.057484,"replay":0.072255,"certification":0.75533,"independent_audit":0.108468},"accepted_repair_count":0,"minimum_action_penalty":1},
+    {"mode":"restart","level":1,"seed":3,"status":"verified","structure":"fbf3106358d78202594bccadf53e3067108e949db8e317545544ba17b69eaf3f","topology":"6f6d667f4d8d34b986e1c4cb85bdea98bfe5eea8be62ebd50713767c83d40e4b","rescued_by_repair":false,"last_repair_rescued_strategy":false,"work":{"budget":1000,"model_evaluations":347,"graph_evaluations":528,"restarts":347,"repairs_evaluated":0,"accepted_via":"restart"},"observed_graphs":{"baseline_graph_calls":296,"ablation_graph_calls":232,"distinct_evaluated_rules":296},"seconds":{"generation":1.042457,"replay":1.31346,"certification":0.804004,"independent_audit":0.126396},"accepted_repair_count":0,"minimum_action_penalty":1},
+    {"mode":"guided","level":1,"seed":3,"status":"verified","structure":"3ea635501eb2a4abff35ad8620095a2efeb6153884504a1fe1512c9918f13ccc","topology":"6f6d667f4d8d34b986e1c4cb85bdea98bfe5eea8be62ebd50713767c83d40e4b","rescued_by_repair":true,"last_repair_rescued_strategy":false,"work":{"budget":1000,"model_evaluations":83,"graph_evaluations":124,"restarts":22,"repairs_evaluated":61,"accepted_via":"repair"},"observed_graphs":{"baseline_graph_calls":68,"ablation_graph_calls":56,"distinct_evaluated_rules":68},"seconds":{"generation":0.299494,"replay":0.301483,"certification":0.739758,"independent_audit":0.093375},"accepted_repair_count":1,"minimum_action_penalty":1},
+    {"mode":"guided","level":1,"seed":4,"status":"verified","structure":"6b404d0495e2f9f30c68db05bd370605310799c16354dec3a81e0030f5696be7","topology":"35fc8a3bda82bed33ffe9cb756fd9474163aceaec33e1e721d39b47b1dc3da89","rescued_by_repair":true,"last_repair_rescued_strategy":false,"work":{"budget":1000,"model_evaluations":503,"graph_evaluations":983,"restarts":126,"repairs_evaluated":377,"accepted_via":"repair"},"observed_graphs":{"baseline_graph_calls":379,"ablation_graph_calls":604,"distinct_evaluated_rules":379},"seconds":{"generation":2.164943,"replay":2.271006,"certification":0.777835,"independent_audit":0.108087},"accepted_repair_count":3,"minimum_action_penalty":1},
+    {"mode":"restart","level":1,"seed":4,"status":"verified","structure":"eb0a995df979f19856678702a3153fdfd1418190e95f14b28bfe86b4f6359d38","topology":"35fc8a3bda82bed33ffe9cb756fd9474163aceaec33e1e721d39b47b1dc3da89","rescued_by_repair":false,"last_repair_rescued_strategy":false,"work":{"budget":1000,"model_evaluations":85,"graph_evaluations":147,"restarts":85,"repairs_evaluated":0,"accepted_via":"restart"},"observed_graphs":{"baseline_graph_calls":75,"ablation_graph_calls":72,"distinct_evaluated_rules":75},"seconds":{"generation":0.285332,"replay":0.337086,"certification":0.699426,"independent_audit":0.061398},"accepted_repair_count":0,"minimum_action_penalty":1},
+    {"mode":"restart","level":1,"seed":5,"status":"verified","structure":"8f4f6f67af2dc9dbba79fb7e5f12b2aa17c208227ed6145e53241da70dad51cf","topology":"35fc8a3bda82bed33ffe9cb756fd9474163aceaec33e1e721d39b47b1dc3da89","rescued_by_repair":false,"last_repair_rescued_strategy":false,"work":{"budget":1000,"model_evaluations":855,"graph_evaluations":1159,"restarts":855,"repairs_evaluated":0,"accepted_via":"restart"},"observed_graphs":{"baseline_graph_calls":727,"ablation_graph_calls":432,"distinct_evaluated_rules":727},"seconds":{"generation":2.27049,"replay":2.934505,"certification":0.771681,"independent_audit":0.052174},"accepted_repair_count":0,"minimum_action_penalty":1},
+    {"mode":"guided","level":1,"seed":5,"status":"verified","structure":"9d7be7a24fdb66e7147b202eea09ca29706c5fbdb0f2ad92f5c6e8984b017a14","topology":"4ccd9e914e4021e508c48eeb210c5acf0f4eecab794adb1764c41bc2be395f20","rescued_by_repair":true,"last_repair_rescued_strategy":false,"work":{"budget":1000,"model_evaluations":207,"graph_evaluations":464,"restarts":52,"repairs_evaluated":155,"accepted_via":"repair"},"observed_graphs":{"baseline_graph_calls":188,"ablation_graph_calls":276,"distinct_evaluated_rules":188},"seconds":{"generation":1.009936,"replay":1.033184,"certification":0.674532,"independent_audit":0.102902},"accepted_repair_count":3,"minimum_action_penalty":1},
+    {"mode":"guided","level":1,"seed":6,"status":"verified","structure":"585a7dda1f2ebf7384bea9a6f3083ecb8864222fdc4e5a1e9996d60869279af7","topology":"6f6d667f4d8d34b986e1c4cb85bdea98bfe5eea8be62ebd50713767c83d40e4b","rescued_by_repair":false,"last_repair_rescued_strategy":false,"work":{"budget":1000,"model_evaluations":145,"graph_evaluations":282,"restarts":37,"repairs_evaluated":108,"accepted_via":"restart"},"observed_graphs":{"baseline_graph_calls":110,"ablation_graph_calls":172,"distinct_evaluated_rules":110},"seconds":{"generation":0.613878,"replay":0.656057,"certification":0.713347,"independent_audit":0.078894},"accepted_repair_count":0,"minimum_action_penalty":1},
+    {"mode":"restart","level":1,"seed":6,"status":"exhausted","work":{"budget":1000,"model_evaluations":1000,"graph_evaluations":1355,"restarts":1000,"repairs_evaluated":0,"accepted_via":null},"observed_graphs":{"baseline_graph_calls":835,"ablation_graph_calls":520,"distinct_evaluated_rules":835},"seconds":{"generation":2.90728,"replay":3.453785}},
+    {"mode":"restart","level":1,"seed":7,"status":"verified","structure":"cb8a8a173e93d841b71c7b3abb47fbac5df4e9bed3a1e02eede248037fc75aba","topology":"6f6d667f4d8d34b986e1c4cb85bdea98bfe5eea8be62ebd50713767c83d40e4b","rescued_by_repair":false,"last_repair_rescued_strategy":false,"work":{"budget":1000,"model_evaluations":234,"graph_evaluations":366,"restarts":234,"repairs_evaluated":0,"accepted_via":"restart"},"observed_graphs":{"baseline_graph_calls":210,"ablation_graph_calls":156,"distinct_evaluated_rules":210},"seconds":{"generation":0.674192,"replay":0.839852,"certification":0.642679,"independent_audit":0.061286},"accepted_repair_count":0,"minimum_action_penalty":1},
+    {"mode":"guided","level":1,"seed":7,"status":"verified","structure":"1f0d1a86540bf16346fc91a9d7773453998a49d197d2ac04a597c556c409a898","topology":"35fc8a3bda82bed33ffe9cb756fd9474163aceaec33e1e721d39b47b1dc3da89","rescued_by_repair":true,"last_repair_rescued_strategy":false,"work":{"budget":1000,"model_evaluations":232,"graph_evaluations":310,"restarts":58,"repairs_evaluated":174,"accepted_via":"repair"},"observed_graphs":{"baseline_graph_calls":166,"ablation_graph_calls":144,"distinct_evaluated_rules":166},"seconds":{"generation":0.580094,"replay":0.668874,"certification":0.714608,"independent_audit":0.059787},"accepted_repair_count":3,"minimum_action_penalty":2},
+    {"mode":"guided","level":1,"seed":8,"status":"verified","structure":"28a0b53a921db0615dd1dde9231ede50dce9581990f74f17785d5f7258da8c9c","topology":"35fc8a3bda82bed33ffe9cb756fd9474163aceaec33e1e721d39b47b1dc3da89","rescued_by_repair":true,"last_repair_rescued_strategy":false,"work":{"budget":1000,"model_evaluations":128,"graph_evaluations":179,"restarts":32,"repairs_evaluated":96,"accepted_via":"repair"},"observed_graphs":{"baseline_graph_calls":99,"ablation_graph_calls":80,"distinct_evaluated_rules":99},"seconds":{"generation":0.496125,"replay":0.521303,"certification":0.783882,"independent_audit":0.134332},"accepted_repair_count":1,"minimum_action_penalty":1},
+    {"mode":"restart","level":1,"seed":8,"status":"verified","structure":"e5758e0ff2fd26df833583a0d452b9b3c7a29ceec2cfc3fa8814ac93c7932b59","topology":"930d808a951b64407a273224400327b70373a05a589cc34aba9ed3a37a7980c7","rescued_by_repair":false,"last_repair_rescued_strategy":false,"work":{"budget":1000,"model_evaluations":340,"graph_evaluations":489,"restarts":340,"repairs_evaluated":0,"accepted_via":"restart"},"observed_graphs":{"baseline_graph_calls":301,"ablation_graph_calls":188,"distinct_evaluated_rules":301},"seconds":{"generation":1.067898,"replay":1.182075,"certification":0.578876,"independent_audit":0.058575},"accepted_repair_count":0,"minimum_action_penalty":1},
+    {"mode":"restart","level":1,"seed":9,"status":"verified","structure":"b2f65d9bd3f3de7cd348a724bce8a3b66e75df28bde8cb6d68242f1c10b693d5","topology":"6f6d667f4d8d34b986e1c4cb85bdea98bfe5eea8be62ebd50713767c83d40e4b","rescued_by_repair":false,"last_repair_rescued_strategy":false,"work":{"budget":1000,"model_evaluations":959,"graph_evaluations":1455,"restarts":959,"repairs_evaluated":0,"accepted_via":"restart"},"observed_graphs":{"baseline_graph_calls":807,"ablation_graph_calls":648,"distinct_evaluated_rules":807},"seconds":{"generation":2.736639,"replay":3.220289,"certification":0.679807,"independent_audit":0.0558},"accepted_repair_count":0,"minimum_action_penalty":1},
+    {"mode":"guided","level":1,"seed":9,"status":"verified","structure":"9a295efeaf8e6a5f9c984acc5e9cf74c00087206d6984f5997b5aed76dc8058c","topology":"35fc8a3bda82bed33ffe9cb756fd9474163aceaec33e1e721d39b47b1dc3da89","rescued_by_repair":true,"last_repair_rescued_strategy":true,"work":{"budget":1000,"model_evaluations":24,"graph_evaluations":32,"restarts":6,"repairs_evaluated":18,"accepted_via":"repair"},"observed_graphs":{"baseline_graph_calls":16,"ablation_graph_calls":16,"distinct_evaluated_rules":16},"seconds":{"generation":0.145345,"replay":0.136238,"certification":0.681163,"independent_audit":0.142813},"accepted_repair_count":4,"minimum_action_penalty":1},
+    {"mode":"guided","level":2,"seed":0,"status":"exhausted","work":{"budget":1000,"model_evaluations":1000,"graph_evaluations":2012,"restarts":250,"repairs_evaluated":750,"accepted_via":null},"observed_graphs":{"baseline_graph_calls":784,"ablation_graph_calls":1228,"distinct_evaluated_rules":784},"seconds":{"generation":3.422371,"replay":3.985151}},
+    {"mode":"restart","level":2,"seed":0,"status":"verified","structure":"79a8f1415bd3ff0fee27ec323a8be38a2aba8b268c117e2eb541d9b16d075d4d","topology":"26e9f8ee43db4e9b1aee4e17e44505926f0b34d2a9ae285fe42e5b202e08bfaf","rescued_by_repair":false,"last_repair_rescued_strategy":false,"work":{"budget":1000,"model_evaluations":525,"graph_evaluations":535,"restarts":525,"repairs_evaluated":0,"accepted_via":"restart"},"observed_graphs":{"baseline_graph_calls":495,"ablation_graph_calls":40,"distinct_evaluated_rules":495},"seconds":{"generation":1.420235,"replay":1.728959,"certification":0.807746,"independent_audit":0.074852},"accepted_repair_count":0,"minimum_action_penalty":1},
+    {"mode":"restart","level":2,"seed":1,"status":"verified","structure":"832a4f813989c3e550ece9ef592b901847d3866942a29b2256129544e7823e9f","topology":"aa19d59d3ebe9ba2e31f65d28a8b0dacd19e59d457e6d128521578087324b3e0","rescued_by_repair":false,"last_repair_rescued_strategy":false,"work":{"budget":1000,"model_evaluations":360,"graph_evaluations":349,"restarts":360,"repairs_evaluated":0,"accepted_via":"restart"},"observed_graphs":{"baseline_graph_calls":333,"ablation_graph_calls":16,"distinct_evaluated_rules":333},"seconds":{"generation":0.857376,"replay":1.107794,"certification":0.98218,"independent_audit":0.075382},"accepted_repair_count":0,"minimum_action_penalty":1},
+    {"mode":"guided","level":2,"seed":1,"status":"verified","structure":"9bd68b031e0e16ac1d79a6f33878edd39e4c88920f165bcd7e8ab425ae54fe6d","topology":"5aa4ba08fd35646a00cf90d1427f0e24e83e9e21e4964205f2a0c51f2ae2c435","rescued_by_repair":true,"last_repair_rescued_strategy":false,"work":{"budget":1000,"model_evaluations":4,"graph_evaluations":8,"restarts":1,"repairs_evaluated":3,"accepted_via":"repair"},"observed_graphs":{"baseline_graph_calls":4,"ablation_graph_calls":4,"distinct_evaluated_rules":4},"seconds":{"generation":0.032127,"replay":0.021512,"certification":0.844335,"independent_audit":0.089058},"accepted_repair_count":2,"minimum_action_penalty":1},
+    {"mode":"guided","level":2,"seed":2,"status":"verified","structure":"21c996e4e3f1f1e81e5bdb88a4b668a8458bfadac7ca1ca9ae22be02ce36d926","topology":"2184fda1b336e6d8d06d13485ee01a94d58c973dc44e263990aeeebae0887443","rescued_by_repair":true,"last_repair_rescued_strategy":false,"work":{"budget":1000,"model_evaluations":30,"graph_evaluations":58,"restarts":8,"repairs_evaluated":22,"accepted_via":"repair"},"observed_graphs":{"baseline_graph_calls":26,"ablation_graph_calls":32,"distinct_evaluated_rules":26},"seconds":{"generation":0.196943,"replay":0.241412,"certification":1.377674,"independent_audit":0.159479},"accepted_repair_count":3,"minimum_action_penalty":1},
+    {"mode":"restart","level":2,"seed":2,"status":"verified","structure":"5e3b5980b8c84d87be062375e7a9001f687a72f96650c4fbed1a99048e736b8b","topology":"a9270c1c63e18558b20d403f73cb619a6b6129b5d9ae28e9cfc5742536a86859","rescued_by_repair":false,"last_repair_rescued_strategy":false,"work":{"budget":1000,"model_evaluations":475,"graph_evaluations":492,"restarts":475,"repairs_evaluated":0,"accepted_via":"restart"},"observed_graphs":{"baseline_graph_calls":448,"ablation_graph_calls":44,"distinct_evaluated_rules":448},"seconds":{"generation":1.263616,"replay":1.537471,"certification":0.965534,"independent_audit":0.094555},"accepted_repair_count":0,"minimum_action_penalty":1},
+    {"mode":"restart","level":2,"seed":3,"status":"verified","structure":"4cc3ad7bdcb71f94748df970299ae9bb4b955c65f518307eaffb547a39ed40d1","topology":"0ae3a19244551202365ea31c186b2411cf2e238d7baf903a58a98e155180e2db","rescued_by_repair":false,"last_repair_rescued_strategy":false,"work":{"budget":1000,"model_evaluations":408,"graph_evaluations":420,"restarts":408,"repairs_evaluated":0,"accepted_via":"restart"},"observed_graphs":{"baseline_graph_calls":380,"ablation_graph_calls":40,"distinct_evaluated_rules":380},"seconds":{"generation":0.921272,"replay":1.270171,"certification":1.053327,"independent_audit":0.159347},"accepted_repair_count":0,"minimum_action_penalty":1},
+    {"mode":"guided","level":2,"seed":3,"status":"verified","structure":"18aee66f5a6ce72d0b65e3c5c2d57e309830e72b498d4509ab4add8554096770","topology":"92efaa9cf47a7fec97e190b02d7a034de4edd4dd2cdcb998ec8f90ed4de18f46","rescued_by_repair":true,"last_repair_rescued_strategy":true,"work":{"budget":1000,"model_evaluations":50,"graph_evaluations":103,"restarts":13,"repairs_evaluated":37,"accepted_via":"repair"},"observed_graphs":{"baseline_graph_calls":43,"ablation_graph_calls":60,"distinct_evaluated_rules":43},"seconds":{"generation":0.312733,"replay":0.308524,"certification":0.785582,"independent_audit":0.101687},"accepted_repair_count":3,"minimum_action_penalty":1},
+    {"mode":"guided","level":2,"seed":4,"status":"verified","structure":"57156157a2c0d54a10d1ca26a966453108355280943364ba3280c392917fba35","topology":"6de872c1e41a3346ebecb65ec66fb3acc5b6819b444508bc68f9343dc2ebd7d1","rescued_by_repair":true,"last_repair_rescued_strategy":false,"work":{"budget":1000,"model_evaluations":16,"graph_evaluations":19,"restarts":4,"repairs_evaluated":12,"accepted_via":"repair"},"observed_graphs":{"baseline_graph_calls":15,"ablation_graph_calls":4,"distinct_evaluated_rules":15},"seconds":{"generation":0.037235,"replay":0.050464,"certification":0.791811,"independent_audit":0.101939},"accepted_repair_count":1,"minimum_action_penalty":1},
+    {"mode":"restart","level":2,"seed":4,"status":"verified","structure":"0ff4a45cf28911b1c3651fde8a921db65ac7623b010f7ef70c365c1dd3c139ea","topology":"45362fb96b205e012376766f6383d0f2b22fbe99a3ccc0ba50870b2e92c9078d","rescued_by_repair":false,"last_repair_rescued_strategy":false,"work":{"budget":1000,"model_evaluations":119,"graph_evaluations":121,"restarts":119,"repairs_evaluated":0,"accepted_via":"restart"},"observed_graphs":{"baseline_graph_calls":109,"ablation_graph_calls":12,"distinct_evaluated_rules":109},"seconds":{"generation":0.265578,"replay":0.368953,"certification":0.905208,"independent_audit":0.078072},"accepted_repair_count":0,"minimum_action_penalty":1},
+    {"mode":"restart","level":2,"seed":5,"status":"verified","structure":"3d8ab44ef0f56b922755198273000f28225b55cbb6da3d9aade4f8a0e39f441e","topology":"6e9808e38948d3906c119683e6fb4793885edf9160fbb585d31e37d008a13cf7","rescued_by_repair":false,"last_repair_rescued_strategy":false,"work":{"budget":1000,"model_evaluations":295,"graph_evaluations":321,"restarts":295,"repairs_evaluated":0,"accepted_via":"restart"},"observed_graphs":{"baseline_graph_calls":285,"ablation_graph_calls":36,"distinct_evaluated_rules":285},"seconds":{"generation":0.738379,"replay":1.033068,"certification":0.79772,"independent_audit":0.112533},"accepted_repair_count":0,"minimum_action_penalty":1},
+    {"mode":"guided","level":2,"seed":5,"status":"verified","structure":"85c0d6af783182d26997915f84c57aae6eaaec55e67baf5d5f67fce5cece2bf5","topology":"2657e6467789f00017b5c9ac75364fbbc300367014a29a898503211238887ce5","rescued_by_repair":true,"last_repair_rescued_strategy":true,"work":{"budget":1000,"model_evaluations":158,"graph_evaluations":176,"restarts":40,"repairs_evaluated":118,"accepted_via":"repair"},"observed_graphs":{"baseline_graph_calls":148,"ablation_graph_calls":28,"distinct_evaluated_rules":148},"seconds":{"generation":0.466616,"replay":0.522745,"certification":0.729983,"independent_audit":0.078252},"accepted_repair_count":4,"minimum_action_penalty":1},
+    {"mode":"guided","level":2,"seed":6,"status":"verified","structure":"0f2b56c7814c5639e204af418c5892d1b39d2f9f903b8b4dc0b4509b68b1e2fe","topology":"96ebde4c43bcae6001378c49242211d7253721e8a8b8fd39eab7068da80580a3","rescued_by_repair":false,"last_repair_rescued_strategy":false,"work":{"budget":1000,"model_evaluations":1,"graph_evaluations":5,"restarts":1,"repairs_evaluated":0,"accepted_via":"restart"},"observed_graphs":{"baseline_graph_calls":1,"ablation_graph_calls":4,"distinct_evaluated_rules":1},"seconds":{"generation":0.018126,"replay":0.010912,"certification":1.067469,"independent_audit":0.109309},"accepted_repair_count":0,"minimum_action_penalty":1},
+    {"mode":"restart","level":2,"seed":6,"status":"verified","structure":"0f2b56c7814c5639e204af418c5892d1b39d2f9f903b8b4dc0b4509b68b1e2fe","topology":"96ebde4c43bcae6001378c49242211d7253721e8a8b8fd39eab7068da80580a3","rescued_by_repair":false,"last_repair_rescued_strategy":false,"work":{"budget":1000,"model_evaluations":1,"graph_evaluations":5,"restarts":1,"repairs_evaluated":0,"accepted_via":"restart"},"observed_graphs":{"baseline_graph_calls":1,"ablation_graph_calls":4,"distinct_evaluated_rules":1},"seconds":{"generation":0.016607,"replay":0.015907,"certification":1.098116,"independent_audit":0.124078},"accepted_repair_count":0,"minimum_action_penalty":1},
+    {"mode":"restart","level":2,"seed":7,"status":"verified","structure":"c67d0c7cc7f4d998f504b24b73c5d3a6374a0456d5b75e6dd46ea334185a593c","topology":"bced82f06237d4eb75281b44820d6b165d61f3c8ca46b10de3cc1dc4abedf6a1","rescued_by_repair":false,"last_repair_rescued_strategy":false,"work":{"budget":1000,"model_evaluations":330,"graph_evaluations":337,"restarts":330,"repairs_evaluated":0,"accepted_via":"restart"},"observed_graphs":{"baseline_graph_calls":309,"ablation_graph_calls":28,"distinct_evaluated_rules":309},"seconds":{"generation":0.89973,"replay":1.089502,"certification":0.900415,"independent_audit":0.061076},"accepted_repair_count":0,"minimum_action_penalty":1},
+    {"mode":"guided","level":2,"seed":7,"status":"verified","structure":"ef6c47a1835db51221f67aeede1a0ce4191d6ce6f5372f6f0bd0707a3f689d3a","topology":"108756e19f5512143458422606cc30ba5d9977129efa86b47b87c8650a69cbf6","rescued_by_repair":true,"last_repair_rescued_strategy":true,"work":{"budget":1000,"model_evaluations":26,"graph_evaluations":44,"restarts":7,"repairs_evaluated":19,"accepted_via":"repair"},"observed_graphs":{"baseline_graph_calls":24,"ablation_graph_calls":20,"distinct_evaluated_rules":24},"seconds":{"generation":0.147839,"replay":0.140227,"certification":0.959102,"independent_audit":0.181402},"accepted_repair_count":3,"minimum_action_penalty":1},
+    {"mode":"guided","level":2,"seed":8,"status":"verified","structure":"4b3cc970ca33f3f4be05d4edae5a0213adf1cce97e35685247028e1b0179261f","topology":"a8ecce6df5389308d734e11792f3955b315a538d80bac21e512afd43b650664c","rescued_by_repair":true,"last_repair_rescued_strategy":false,"work":{"budget":1000,"model_evaluations":170,"graph_evaluations":167,"restarts":43,"repairs_evaluated":127,"accepted_via":"repair"},"observed_graphs":{"baseline_graph_calls":159,"ablation_graph_calls":8,"distinct_evaluated_rules":159},"seconds":{"generation":0.483976,"replay":0.575746,"certification":1.071054,"independent_audit":0.137958},"accepted_repair_count":1,"minimum_action_penalty":2},
+    {"mode":"restart","level":2,"seed":8,"status":"verified","structure":"17032aea90a8bcef79e9762406c047f4318832b30f257611dc5a678adfefebf0","topology":"dccb55ef120e467bfe398502f45d5d88fd3bda46fd82c9d9220fdebde5e070fb","rescued_by_repair":false,"last_repair_rescued_strategy":false,"work":{"budget":1000,"model_evaluations":143,"graph_evaluations":143,"restarts":143,"repairs_evaluated":0,"accepted_via":"restart"},"observed_graphs":{"baseline_graph_calls":131,"ablation_graph_calls":12,"distinct_evaluated_rules":131},"seconds":{"generation":0.360516,"replay":0.436511,"certification":1.112739,"independent_audit":0.069882},"accepted_repair_count":0,"minimum_action_penalty":2},
+    {"mode":"restart","level":2,"seed":9,"status":"verified","structure":"ecb89898387f1886c72f6c30c013f6ad81dcddc738b000823efd5930c5ed6370","topology":"6367cb6caa290599012ece4c2228a7ff6230524d8ee00a18324f23412797c9b1","rescued_by_repair":false,"last_repair_rescued_strategy":false,"work":{"budget":1000,"model_evaluations":52,"graph_evaluations":54,"restarts":52,"repairs_evaluated":0,"accepted_via":"restart"},"observed_graphs":{"baseline_graph_calls":50,"ablation_graph_calls":4,"distinct_evaluated_rules":50},"seconds":{"generation":0.134767,"replay":0.179699,"certification":1.075927,"independent_audit":0.092558},"accepted_repair_count":0,"minimum_action_penalty":2},
+    {"mode":"guided","level":2,"seed":9,"status":"verified","structure":"2146659e7b989dc5fde52b9beeadd7456ece3824867e469160fab54eb6a927d3","topology":"0556578f86a17989d3c52c14814886747a21cf4c1fbf5e659f182ede0365bbef","rescued_by_repair":true,"last_repair_rescued_strategy":true,"work":{"budget":1000,"model_evaluations":138,"graph_evaluations":226,"restarts":36,"repairs_evaluated":102,"accepted_via":"repair"},"observed_graphs":{"baseline_graph_calls":122,"ablation_graph_calls":104,"distinct_evaluated_rules":122},"seconds":{"generation":0.483556,"replay":0.530654,"certification":0.854175,"independent_audit":0.131785},"accepted_repair_count":2,"minimum_action_penalty":2},
+    {"mode":"guided","level":3,"seed":0,"status":"verified","structure":"c11910fb6f5d3dbf9369f2daa9355538c4bb086fdbe4971dae0aa724d6f79b8b","topology":"9c22986c9d3e7e00748e7a1c1132e658a837399fdf67bff567fd1ce71ef429be","rescued_by_repair":true,"last_repair_rescued_strategy":false,"work":{"budget":1000,"model_evaluations":208,"graph_evaluations":316,"restarts":54,"repairs_evaluated":154,"accepted_via":"repair"},"observed_graphs":{"baseline_graph_calls":180,"ablation_graph_calls":136,"distinct_evaluated_rules":180},"seconds":{"generation":0.83673,"replay":0.911394,"certification":1.462984,"independent_audit":0.129839},"accepted_repair_count":3,"minimum_action_penalty":1},
+    {"mode":"restart","level":3,"seed":0,"status":"verified","structure":"6d82c18c06e4d94013543920da1442cb54a6736a7f39af744f18a8c16302d25d","topology":"2eac867acdbcd1f70bd83234c94c62dc6592e768db800af3f1e16b32e5d6b117","rescued_by_repair":false,"last_repair_rescued_strategy":false,"work":{"budget":1000,"model_evaluations":171,"graph_evaluations":169,"restarts":171,"repairs_evaluated":0,"accepted_via":"restart"},"observed_graphs":{"baseline_graph_calls":165,"ablation_graph_calls":4,"distinct_evaluated_rules":165},"seconds":{"generation":0.432597,"replay":0.564836,"certification":1.107628,"independent_audit":0.10634},"accepted_repair_count":0,"minimum_action_penalty":2},
+    {"mode":"restart","level":3,"seed":1,"status":"exhausted","work":{"budget":1000,"model_evaluations":1000,"graph_evaluations":948,"restarts":1000,"repairs_evaluated":0,"accepted_via":null},"observed_graphs":{"baseline_graph_calls":944,"ablation_graph_calls":4,"distinct_evaluated_rules":944},"seconds":{"generation":2.272534,"replay":2.992002}},
+    {"mode":"guided","level":3,"seed":1,"status":"exhausted","work":{"budget":1000,"model_evaluations":1000,"graph_evaluations":906,"restarts":250,"repairs_evaluated":750,"accepted_via":null},"observed_graphs":{"baseline_graph_calls":906,"ablation_graph_calls":0,"distinct_evaluated_rules":906},"seconds":{"generation":3.236743,"replay":3.622425}},
+    {"mode":"guided","level":3,"seed":2,"status":"verified","structure":"7f7c1c06c81182fd63c26a865071b9a6d2a020e2b620aab32ef3b948cc7eecc0","topology":"7ec0c7d16e6638090825fbb37ed1c37e79956e5aceec9359562f5768abf077c6","rescued_by_repair":true,"last_repair_rescued_strategy":false,"work":{"budget":1000,"model_evaluations":276,"graph_evaluations":263,"restarts":71,"repairs_evaluated":205,"accepted_via":"repair"},"observed_graphs":{"baseline_graph_calls":255,"ablation_graph_calls":8,"distinct_evaluated_rules":255},"seconds":{"generation":0.764192,"replay":1.004231,"certification":1.171377,"independent_audit":0.117883},"accepted_repair_count":1,"minimum_action_penalty":1},
+    {"mode":"restart","level":3,"seed":2,"status":"verified","structure":"ed2d7f65fe6bf00f5f8c2a24cf02dbc400b59e94a3cab1f39570ead623c64094","topology":"f3c8a4e2ca715acb2adec71563af49a232c69c4efbdfcb5572cb4444d94b9877","rescued_by_repair":false,"last_repair_rescued_strategy":false,"work":{"budget":1000,"model_evaluations":374,"graph_evaluations":368,"restarts":374,"repairs_evaluated":0,"accepted_via":"restart"},"observed_graphs":{"baseline_graph_calls":364,"ablation_graph_calls":4,"distinct_evaluated_rules":364},"seconds":{"generation":0.782005,"replay":1.121088,"certification":1.164226,"independent_audit":0.087635},"accepted_repair_count":0,"minimum_action_penalty":2},
+    {"mode":"restart","level":3,"seed":3,"status":"verified","structure":"498689daf811433300488b144fa7d2a73b0994df4f65f75dcc70997f30d996f2","topology":"4c0ccb012e9f2e7e16f1c3c6412b1b0b942a7a4f6abd7a8085122f15ffa7bd9e","rescued_by_repair":false,"last_repair_rescued_strategy":false,"work":{"budget":1000,"model_evaluations":111,"graph_evaluations":113,"restarts":111,"repairs_evaluated":0,"accepted_via":"restart"},"observed_graphs":{"baseline_graph_calls":109,"ablation_graph_calls":4,"distinct_evaluated_rules":109},"seconds":{"generation":0.311868,"replay":0.421786,"certification":0.971296,"independent_audit":0.081131},"accepted_repair_count":0,"minimum_action_penalty":2},
+    {"mode":"guided","level":3,"seed":3,"status":"verified","structure":"26d6b1c824a03fbbdb5fa64fe581e6650958878df7d4d52cb51a4b2d355fb9fc","topology":"6454c273937d1d32305198719a9b947f59aafa43669060177bb902eb80a94fd8","rescued_by_repair":true,"last_repair_rescued_strategy":false,"work":{"budget":1000,"model_evaluations":906,"graph_evaluations":833,"restarts":228,"repairs_evaluated":678,"accepted_via":"repair"},"observed_graphs":{"baseline_graph_calls":829,"ablation_graph_calls":4,"distinct_evaluated_rules":829},"seconds":{"generation":2.449025,"replay":2.893392,"certification":1.021073,"independent_audit":0.077588},"accepted_repair_count":1,"minimum_action_penalty":1},
+    {"mode":"guided","level":3,"seed":4,"status":"exhausted","work":{"budget":1000,"model_evaluations":1000,"graph_evaluations":889,"restarts":251,"repairs_evaluated":749,"accepted_via":null},"observed_graphs":{"baseline_graph_calls":889,"ablation_graph_calls":0,"distinct_evaluated_rules":889},"seconds":{"generation":2.7201,"replay":3.152332}},
+    {"mode":"restart","level":3,"seed":4,"status":"verified","structure":"c0adb14f8147a9dea0c8d590747eccf469c7812ac0246ec82567ade4c64953f8","topology":"dad5c65ccb706b506422250a171c631c254618e34a398b1480618fec77bf937c","rescued_by_repair":false,"last_repair_rescued_strategy":false,"work":{"budget":1000,"model_evaluations":40,"graph_evaluations":46,"restarts":40,"repairs_evaluated":0,"accepted_via":"restart"},"observed_graphs":{"baseline_graph_calls":38,"ablation_graph_calls":8,"distinct_evaluated_rules":38},"seconds":{"generation":0.107902,"replay":0.150364,"certification":0.982996,"independent_audit":0.054143},"accepted_repair_count":0,"minimum_action_penalty":2},
+    {"mode":"restart","level":3,"seed":5,"status":"exhausted","work":{"budget":1000,"model_evaluations":1000,"graph_evaluations":945,"restarts":1000,"repairs_evaluated":0,"accepted_via":null},"observed_graphs":{"baseline_graph_calls":933,"ablation_graph_calls":12,"distinct_evaluated_rules":933},"seconds":{"generation":2.191002,"replay":2.9299}},
+    {"mode":"guided","level":3,"seed":5,"status":"verified","structure":"815dd8a4db3d071ebd25c648757f0bc476ad31aeb034f2a3610d0348ab139715","topology":"e4f63f4bf3a92995e58af5fca8c3a80555f3c0980c1bd5684d784d0065908b7e","rescued_by_repair":true,"last_repair_rescued_strategy":true,"work":{"budget":1000,"model_evaluations":38,"graph_evaluations":46,"restarts":10,"repairs_evaluated":28,"accepted_via":"repair"},"observed_graphs":{"baseline_graph_calls":34,"ablation_graph_calls":12,"distinct_evaluated_rules":34},"seconds":{"generation":0.182261,"replay":0.181368,"certification":1.054337,"independent_audit":0.123801},"accepted_repair_count":3,"minimum_action_penalty":1},
+    {"mode":"guided","level":3,"seed":6,"status":"verified","structure":"ca8ff2a0788dc10d255e997d0d63276f7456fd52096b90a9e33787c5aafee371","topology":"1c32d6222a2027c687c2f594db948cf313a81acf92e9b1a1ea6195748ca48a2d","rescued_by_repair":true,"last_repair_rescued_strategy":true,"work":{"budget":1000,"model_evaluations":259,"graph_evaluations":260,"restarts":65,"repairs_evaluated":194,"accepted_via":"repair"},"observed_graphs":{"baseline_graph_calls":236,"ablation_graph_calls":24,"distinct_evaluated_rules":236},"seconds":{"generation":0.686524,"replay":0.927307,"certification":1.654305,"independent_audit":0.188512},"accepted_repair_count":2,"minimum_action_penalty":2},
+    {"mode":"restart","level":3,"seed":6,"status":"exhausted","work":{"budget":1000,"model_evaluations":1000,"graph_evaluations":939,"restarts":1000,"repairs_evaluated":0,"accepted_via":null},"observed_graphs":{"baseline_graph_calls":931,"ablation_graph_calls":8,"distinct_evaluated_rules":931},"seconds":{"generation":2.264692,"replay":3.049783}},
+    {"mode":"restart","level":3,"seed":7,"status":"exhausted","work":{"budget":1000,"model_evaluations":1000,"graph_evaluations":955,"restarts":1000,"repairs_evaluated":0,"accepted_via":null},"observed_graphs":{"baseline_graph_calls":947,"ablation_graph_calls":8,"distinct_evaluated_rules":947},"seconds":{"generation":2.234974,"replay":3.112579}},
+    {"mode":"guided","level":3,"seed":7,"status":"verified","structure":"cec834d8780edf2df6ba26e30a5077d031e5264b24e510b49a85b666d021810b","topology":"2ba15d1638d40e51a6f4f3f38c66e1d9adf33eefbb861bd029326e0a83095890","rescued_by_repair":true,"last_repair_rescued_strategy":false,"work":{"budget":1000,"model_evaluations":138,"graph_evaluations":134,"restarts":35,"repairs_evaluated":103,"accepted_via":"repair"},"observed_graphs":{"baseline_graph_calls":126,"ablation_graph_calls":8,"distinct_evaluated_rules":126},"seconds":{"generation":0.377262,"replay":0.479161,"certification":1.015493,"independent_audit":0.126103},"accepted_repair_count":3,"minimum_action_penalty":1},
+    {"mode":"guided","level":3,"seed":8,"status":"verified","structure":"87e587571395af60e0ec076c9419f88bf1a54b4ad5ddb800c5ef8b80d9c4652c","topology":"ab84dce43765bfdecff7d3ea31e7bf9abf8b56352b659ace3cb1df698ba4a502","rescued_by_repair":true,"last_repair_rescued_strategy":false,"work":{"budget":1000,"model_evaluations":184,"graph_evaluations":175,"restarts":46,"repairs_evaluated":138,"accepted_via":"repair"},"observed_graphs":{"baseline_graph_calls":171,"ablation_graph_calls":4,"distinct_evaluated_rules":171},"seconds":{"generation":0.565546,"replay":0.672738,"certification":0.996386,"independent_audit":0.085892},"accepted_repair_count":2,"minimum_action_penalty":2},
+    {"mode":"restart","level":3,"seed":8,"status":"verified","structure":"84da10901a75a5f47faffb56c4200fc1b5de96f267dac54492007de88e6896d9","topology":"8d04a8f55df748732d8c851cc92690cbee35d57b8669edc8644469b4eedc7821","rescued_by_repair":false,"last_repair_rescued_strategy":false,"work":{"budget":1000,"model_evaluations":943,"graph_evaluations":891,"restarts":943,"repairs_evaluated":0,"accepted_via":"restart"},"observed_graphs":{"baseline_graph_calls":883,"ablation_graph_calls":8,"distinct_evaluated_rules":883},"seconds":{"generation":0.871023,"replay":1.192312,"certification":0.352212,"independent_audit":0.035551},"accepted_repair_count":0,"minimum_action_penalty":1},
+    {"mode":"restart","level":3,"seed":9,"status":"verified","structure":"acdd465291c51dda19798036f301254c9ebf37f4b7e9a39c7e9fea15df7c7f96","topology":"dc0412dc4dbd942956826d0d711a043619909fe3e77c51f6ddf21e8deb3cc271","rescued_by_repair":false,"last_repair_rescued_strategy":false,"work":{"budget":1000,"model_evaluations":362,"graph_evaluations":351,"restarts":362,"repairs_evaluated":0,"accepted_via":"restart"},"observed_graphs":{"baseline_graph_calls":343,"ablation_graph_calls":8,"distinct_evaluated_rules":343},"seconds":{"generation":0.267459,"replay":0.425701,"certification":0.253761,"independent_audit":0.027181},"accepted_repair_count":0,"minimum_action_penalty":1},
+    {"mode":"guided","level":3,"seed":9,"status":"verified","structure":"9778151e584326c906b613084e05cbbe37de154044ba0d0c8d1d6bd5141976bb","topology":"8574afbf0eec5bf87769035c5a4a06958cc7548e64f74e9c50b6da6e05e0c6b9","rescued_by_repair":true,"last_repair_rescued_strategy":true,"work":{"budget":1000,"model_evaluations":184,"graph_evaluations":219,"restarts":48,"repairs_evaluated":136,"accepted_via":"repair"},"observed_graphs":{"baseline_graph_calls":171,"ablation_graph_calls":48,"distinct_evaluated_rules":171},"seconds":{"generation":0.216226,"replay":0.240314,"certification":0.288481,"independent_audit":0.038631},"accepted_repair_count":3,"minimum_action_penalty":1}
+  ]
+}

@@ -229,6 +229,26 @@ def _resource_plan(proof: dict, answer: str) -> tuple[bool, str] | None:
                    "Another feasible order finishes sooner. Compare the complete trips.")
 
 
+def _state_plan(proof: dict, answer: str) -> tuple[bool, str] | None:
+    labels = list(proof["option_results"])
+    index = _index(labels, answer)
+    if index is None:
+        return None
+    label = labels[index]
+    option = proof["option_results"][label]
+    if not option["legal"] or option["best_steps"] is None:
+        return False, f"{label}: {option['reason']}"
+    best = proof["quality"]["best_steps"]
+    cost = option["best_steps"]
+    if option["is_answer"]:
+        return True, (f"{label} allows a complete plan in {best} actions. "
+                      "Every other first action either fails or needs more actions, "
+                      "even with optimal later choices.")
+    return False, (f"{label} needs at least {cost} actions to reach the goal. "
+                   f"The best first action needs {best}, so this choice adds {cost - best} "
+                   "actions. Track energy and gate settings through the entire plan.")
+
+
 def _specific(proof: dict, answer: str, choices: list[str]) -> tuple[bool, str] | None:
     if proof.get("agree") is not True or not isinstance(proof.get("model"), dict):
         return None
@@ -237,6 +257,8 @@ def _specific(proof: dict, answer: str, choices: list[str]) -> tuple[bool, str] 
         return _grid(proof, answer, choices)
     if method == "subset-dp-and-independent-complete-trip-replay":
         return _resource_plan(proof, answer)
+    if method == "state-planning-core-ir-and-independent-bfs":
+        return _state_plan(proof, answer)
     handlers = {
         "dijkstra-and-exhaustive-route-replay": _route,
         "finite-rule-enumeration-and-z3": _pattern,
