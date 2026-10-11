@@ -5,10 +5,11 @@ name: Keep BrainBloom warm
 # 07:00-23:00 IST (= 01:30-17:30 UTC); outside it the service is left to spin
 # down, to conserve the free plan's shared 750 instance-hours/month.
 #
-# Notes: GitHub cron is UTC-only and best-effort (can fire a few minutes late or,
-# rarely, be skipped) - fine for keep-warm. On a public repo, Actions minutes are
-# free/unlimited. GitHub auto-disables scheduled workflows after 60 days with no
-# repo activity; re-enable from the Actions tab if that ever happens.
+# Notes: GitHub cron is UTC-only and best-effort: runs can be delayed or skipped,
+# so use an external scheduler when dependable timing is needed. On a public
+# repo, Actions minutes are free/unlimited. GitHub auto-disables scheduled
+# workflows after 60 days with no repo activity; re-enable from the Actions tab
+# if that ever happens.
 
 on:
   schedule:
@@ -31,12 +32,21 @@ jobs:
       - name: Hit /healthz
         run: |
           url="https://brainbloom-workshop.onrender.com/healthz"
+          body=$(mktemp)
+          trap 'rm -f "$body"' EXIT
           # First hit after a sleep triggers a ~1 min cold start, so allow a
-          # generous timeout and a couple of retries.
+          # generous timeout and a couple of retries. Check the application's
+          # health JSON too, so an intermediary's response cannot confirm ready.
           for attempt in 1 2 3; do
-            code=$(curl -s -o /dev/null -w '%{http_code}' --max-time 100 "$url" || echo 000)
+            code=$(curl --silent --show-error --output "$body" --write-out '%{http_code}' \
+              --header 'Accept: application/json' --connect-timeout 15 --max-time 100 "$url") || code="000"
             echo "attempt $attempt -> HTTP $code"
-            [ "$code" = "200" ] && { echo "warm"; exit 0; }
-            sleep 10
+            if [ "$code" = "200" ] && python3 -c \
+              'import json, sys; sys.exit(json.load(sys.stdin) != {"status": "ok"})' < "$body" 2>/dev/null; then
+              echo "warm (application health confirmed)"
+              exit 0
+            fi
+            if [ "$attempt" -lt 3 ]; then sleep 10; fi
           done
-          echo "::warning::keepalive could not confirm 200 from $url (will retry next tick)"
+          echo "::error::keepalive could not confirm healthy application JSON from $url after 3 attempts"
+          exit 1

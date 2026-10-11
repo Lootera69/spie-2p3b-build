@@ -74,12 +74,32 @@ curl -s -H "Origin: https://YOUR-SERVICE.onrender.com" \
 
 A cross-origin request must come back `403`, and more than 60 requests a minute `429`.
 
-For a cron-job.org keep-warm job, use **HEAD** with
-`https://YOUR-SERVICE.onrender.com/healthz` to receive no application response body.
+For a cron-job.org keep-warm job, use **GET** with
+`https://YOUR-SERVICE.onrender.com/healthz` and an `Accept: application/json` header.
+The application returns only 16 bytes. Preserve the five-minute daytime schedule and
+save responses in the job history so failures can be distinguished from application
+responses. The header requests JSON; it does not guarantee how Render's startup proxy
+will respond.
+
 Render can answer before the application is ready during a cold start. Its upstream
-response can still exceed cron-job.org's 64 KB limit through its reported content length,
-and the first request can time out while the service starts. Check a later run after the
-service is ready; HEAD alone does not guarantee successful cold-start probes.
+response can exceed cron-job.org's 64 KB limit, and startup can take longer than the
+scheduler's 30-second request limit. A successful check while already warm does not
+verify recovery from an idle service. HEAD remains supported by the application, but
+it did not recover this scheduler's overnight outage on 11 October 2026: 26 consecutive
+upstream HTTP 502 responses from 07:00 through 09:05 IST caused automatic deactivation.
+The supplied application logs show the next startup at 09:13 IST, after deactivation;
+they do not establish the underlying cause of those upstream errors.
+
+If the job becomes inactive, inspect its history, test the request, and re-enable it
+after recovery. cron-job.org disables ordinary jobs after more than 25 consecutive
+failures. See its [FAQ](https://cron-job.org/en/faq/) and Render's
+[idle-service documentation](https://render.com/docs/free#spinning-down-on-idle).
+
+The GitHub Actions workflow is a backup: scheduled runs can be delayed or skipped.
+It retries GET requests with a longer timeout and requires both HTTP 200 and the exact
+health JSON, rather than accepting a platform loading page as a healthy application.
+After three unsuccessful attempts the workflow fails visibly. It does not replace a
+regular scheduler or guarantee continuous availability on the free service.
 
 ## Build it locally first
 
