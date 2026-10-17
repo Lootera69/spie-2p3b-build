@@ -154,6 +154,8 @@ def main(argv: list[str] | None = None) -> int:
         engine = Generator(
             bank, verifier, wordnet, history, oewn=oewn, coverage=not args.no_coverage
         )
+        # Crossword auto-discovery must respect the caller's source switch too.
+        engine.dictionary.crossword_allow_oewn = not args.no_oewn
         if args.command == "dictionary-info":
             print(json.dumps(engine.dictionary.configuration(), indent=2))
             return 0

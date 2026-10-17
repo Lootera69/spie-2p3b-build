@@ -36,7 +36,8 @@ def test_every_supported_combination_generates_and_replays(topic, category, kind
         else "brainbloom-autopilot-v7" if topic == "autopilot"
         else "brainbloom-logic-grid-v6" if topic == "logic-grid"
         else "brainbloom-reasoning-v4" if topic == "reasoning"
-        else "brainbloom-dictionary-v3" if topic == "dictionary" else "brainbloom-symbolic-v2"
+        else "brainbloom-dictionary-v3" if topic in ("dictionary", "crossword")
+        else "brainbloom-symbolic-v2"
     )
     assert not result["provenance"]["learned_model_used"]
     assert not result["intendedImport"]["published"]

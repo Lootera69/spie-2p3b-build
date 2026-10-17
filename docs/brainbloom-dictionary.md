@@ -19,7 +19,12 @@ All supplied topics contribute to the puzzle. Every topic retains its own
 selected meaning in the export. Explicit overrides survive edits to other topics;
 automatic choices can be ranked again when the surrounding topics change.
 Every word bank, card model and crossword must contain a representative of each
-topic; a directly available input word is retained. Wonders combine one word from
+topic; a directly available input word is retained in legacy crosswords and other
+word activities. New crosswords use [learning vocabulary](brainbloom-crossword-vocabulary.md)
+discovered from the installed corpus at every level, with definition clues and a
+recap after revealing the answers. Revision 17 crosswords bypass authored answer banks.
+Broad topics need a suitable representative rather than the literal topic word.
+Wonders combine one word from
 each topic in their calculation. This is lexical topic combination, not unrestricted
 understanding of prose or invented factual connections between unrelated subjects.
 See [the connected workflow](brainbloom-workshop-flow.md).
@@ -52,15 +57,17 @@ not a trained model. No NLTK package, API key or GPU is required.
 
 The launcher and CLI automatically load that file when present. `--wordnet PATH`
 (or launcher `-WordNet PATH`) selects another location for the same pinned corpus.
-Python integrations explicitly use `Generator(wordnet=Path(...))`; `Generator()`
-uses authored packs only. Neither generation nor replay downloads anything.
+Python integrations can explicitly use `Generator(wordnet=Path(...))`.
+`Generator()` uses authored packs for other activities; revision 17 crosswords
+auto-detect a local corpus and explain how to install one if neither is present.
+Neither generation nor replay downloads anything.
 
 The installed index contains **151,384 terms including inflections and compounds**
 and **117,659 senses**. These numbers are lookup coverage, not a promise that every
-word can produce every puzzle. Existing authored topic packs take precedence over
-WordNet senses for their topic names and aliases.
+word can produce every puzzle. Outside revision 17 crosswords, authored topic
+packs take precedence over WordNet senses for their topic names and aliases.
 
-For a selected WordNet meaning the engine collects synonyms, kinds, instances,
+For other word activities, a selected WordNet meaning supplies synonyms, kinds, instances,
 members, substances and parts, through at most two relationship steps. Direct
 broader kinds are included, but their unrelated sibling branches are not expanded.
 Every selected entry records its sense and relationship path. Word banks contain at
@@ -77,7 +84,7 @@ constraints, not the universal truth or suitability of a dictionary definition.
 
 | Format | Construction and check |
 | --- | --- |
-| Multiple Choice | Four options; exactly one satisfies the explicit letter or ordering rule |
+| Multiple Choice | Three or four options; exactly one satisfies the explicit letter or ordering rule |
 | True / False | A proposed answer is checked against the same exact rule |
 | Type Answer | A unique word from the displayed bank, with accepted answer wrappers |
 | Riddle | A constrained word riddle with dictionary clue, displayed bank and two hints |
@@ -90,6 +97,10 @@ anagrams, an explicit starting prefix disambiguates them. Missing-letter masks a
 extended until exactly one bank word fits. Ordering positions use A–Z order.
 The independent checks enumerate the actual bank, so false alternatives are not
 based on guessing that two dictionary definitions cannot overlap.
+Revision 9 requires at least three same-length bank words for anagrams and missing-letter
+puzzles, and uses only same-length answer alternatives. A small vocabulary that cannot
+meet that condition produces an explicit unavailable result. Saved older puzzles retain
+their original bank and choices during replay.
 
 The workshop suggests an activity based on category, answer format and topic capacity.
 Crosswords and Wonders have their own rules, so they do not expose a separate variation

@@ -40,6 +40,13 @@ class Generator:
         excluded = self.history.keys() if self.history is not None else set()
         build = workshop.generate if isinstance(request, WorkshopRequest) else generate
         if (isinstance(request, WorkshopRequest)
+                and request.qtype == "crossword" and request.engine_revision >= 17):
+            from .crossword_corpus import canonical_request, resolve
+
+            request = canonical_request(request)
+            context = resolve(request, self.dictionary)
+            result = workshop.generate(request, self.existing, context, excluded=excluded)
+        elif (isinstance(request, WorkshopRequest)
                 and request.topic in ("dictionary", "reasoning", "autopilot", "activities")):
             context = (resolve_many(self.dictionary, request.subject, request.meanings,
                                     request.category) if request.topic_mode == "combined"
@@ -130,6 +137,14 @@ def verify_bundle(bundle: object) -> int:
         raise ValueError("Discovery activities require version 8")
     if version in (3, 4, 5, 7, 8):
         context = validate_context(bundle.get("dictionary"))
+        if request.qtype == "crossword" and request.engine_revision >= 17:
+            from .crossword_corpus import validate_learning
+
+            validate_learning(context, seed=request.seed)
+        elif request.qtype == "crossword" and request.engine_revision == 16:
+            from .crossword_vocabulary import validate_learning
+
+            validate_learning(context)
         expected_topics = ("activities",) if version == 8 else (
             ("autopilot",) if version == 7 else (
             ("dictionary", "reasoning") if version == 5 else (

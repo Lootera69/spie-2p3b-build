@@ -11,6 +11,7 @@ import pytest
 
 from spie.questions.brainbloom import coverage_sources
 from spie.questions.brainbloom.catalog import TYPES, Request
+from spie.questions.brainbloom.crossword_vocabulary import eligible
 from spie.questions.brainbloom.lexicon import DEFAULT_WORDNET, Dictionary
 from spie.questions.brainbloom.service import Generator, verify_bundle
 from spie.questions.brainbloom.topics import lookup_many
@@ -27,7 +28,8 @@ def test_new_topics_generate_checked_offline_bundles(pack, kind, monkeypatch):
     monkeypatch.setattr(subprocess, "run", forbidden)
     result = Generator().build(Request("dictionary", kind, subject=pack["topic"],
                                        meanings={pack["topic"]: pack["id"]},
-                                       topic_mode="combined", seed=31))
+                                       topic_mode="combined", seed=31,
+                                       engine_revision=16 if kind == "crossword" else 17))
     assert result["summary"]["complete"]
     assert verify_bundle(json.loads(json.dumps(result))) == 1
     context = result["dictionary"]
@@ -38,14 +40,21 @@ def test_new_topics_generate_checked_offline_bundles(pack, kind, monkeypatch):
     else:
         # Reviewed v2 packs may expand the original pack capacity.
         assert len(pack["entries"]) >= 12
-    assert len(context["entries"]) == len(pack["entries"])
     source = context["sources"][0]
+    if kind == "crossword":
+        assert context["crossword_learning"]["version"] == 1
+        assert all(eligible(e["word"], e["definition"]) for e in context["entries"])
+        assert any(e["path"][0].startswith("learning-v1:") for e in context["entries"])
+        source = source["original_source"]
+    else:
+        assert len(context["entries"]) == len(pack["entries"])
+        assert all(e["path"][1].startswith("editorial-topic-member:")
+                   for e in context["entries"])
     assert source["upstream_sha256"] == coverage_sources.OEWN_SHA256
     assert "WordNet 3.0 Copyright" in source["license"]
     assert "Creative Commons Attribution 4.0" in source["license"]
     assert source["review"]["human_review"] is False
     assert len(source["entry_sources"]) == len(pack["entries"])
-    assert all(e["path"][1].startswith("editorial-topic-member:") for e in context["entries"])
     proof, item = result["proofs"][0], result["items"][0]
     if kind not in ("crossword", "wonder"):
         rule = proof["constraints"]

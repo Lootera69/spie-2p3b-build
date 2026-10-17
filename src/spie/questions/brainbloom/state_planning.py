@@ -420,12 +420,42 @@ def check(model):
     puzzle, result = _crosscheck(model)
     strategy = None
     if "design_version" in model or "strategy" in model:
-        from . import planning_invention, planning_strategy
+        from . import planning_invention, planning_strategy, state_planning_variety
 
-        if (model.get("design_version") != planning_invention.VERSION
-                or model.get("strategy") != planning_invention.STRATEGY):
+        if model.get("design_version") == state_planning_variety.VERSION:
+            strategy = state_planning_variety.certify(model)
+        elif (model.get("design_version") == planning_invention.VERSION
+                and model.get("strategy") == planning_invention.STRATEGY):
+            strategy = planning_strategy.certify(model, model["strategy"])
+        else:
             raise ValueError("Unsupported planning invention version or strategy")
-        strategy = planning_strategy.certify(model, model["strategy"])
+    experience = None
+    episode = None
+    if "experience_version" in model or "experience_search" in model:
+        from . import (
+            planning_episode,
+            planning_experience,
+            planning_experience_v2,
+            planning_experience_v3,
+        )
+
+        if model.get("experience_version") == planning_experience.VERSION:
+            experience = planning_experience.certify(model)
+        elif model.get("experience_version") == planning_experience_v2.VERSION:
+            experience = planning_experience_v2.certify(model)
+        elif model.get("experience_version") == planning_experience_v3.VERSION:
+            experience = planning_experience_v3.certify(model)
+        elif model.get("experience_version") == "planning-experience-v4":
+            from . import planning_experience_v4
+
+            experience = planning_experience_v4.certify(model)
+        elif model.get("experience_version") == "planning-experience-v5":
+            from . import planning_experience_v5
+
+            experience = planning_experience_v5.certify(model)
+        else:
+            raise ValueError("Unsupported planning experience version")
+        episode = planning_episode.create(model)
     best = result["best_steps"]
     if (best is None or not MIN_STEPS[model["level"] - 1] <= best <= MAX_STEPS
             or len(result["optimal_first_actions"]) != 1):
@@ -484,6 +514,7 @@ def check(model):
                  f"minimum of {best} actions. Several later optimal plans may share it.")
     return {"method": "state-planning-core-ir-and-independent-bfs", "model": model,
             **({"strategy": strategy} if strategy is not None else {}),
+            **({"experience": experience, "episode": episode} if experience is not None else {}),
             "scope": "the stated fully observable rules; minimum action count, unique first action",
             "agree": True, "core_ir": puzzle_to_json(puzzle), "smt": smt,
             "quality": {**result, "mechanics": list(MECHANICS), "ablations": ablations,
@@ -516,10 +547,23 @@ def render(model):
             "only when below capacity. Revisits allowed.\n"
             "Which first action gives the fewest total actions, with optimal later choices?")
     answer = action_label(model, model["answer_action"])
+    explanation = " ".join(proof["steps"])
+    if model.get("design_version") == "state-planning-variety-v1":
+        explanation = (
+            f"{answer} starts a shortest plan of {model['best_steps']} actions. "
+            + proof["strategy"]["explanation"]
+        )
+    if model.get("experience_version") == "planning-experience-v5":
+        from .planning_experience_v5 import quiz_stem
+
+        stem = quiz_stem(model)
+    elif "episode" in proof:
+        scenario = proof["episode"]
+        stem = scenario["introduction"] + "\n" + scenario["objective"] + "\n" + stem
     return {"stem": stem, "answer": answer,
             "distractors": [action_label(model, action) for action in model["options"]
                             if action != model["answer_action"]],
-            "explanation": " ".join(proof["steps"]), "proof": proof,
+            "explanation": explanation, "proof": proof,
             "hints": ["Track energy and both gate settings after every action.",
                       "Recharging restores energy once; switching may close a needed route.",
                       "Compare complete plans; moving immediately may not be the best first step."]}

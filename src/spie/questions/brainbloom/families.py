@@ -5,13 +5,14 @@ from __future__ import annotations
 import math
 import random
 from fractions import Fraction
-from itertools import permutations
+from itertools import combinations, permutations
 
 import z3
 
 from .. import prover
 from .catalog import DIFFICULTIES, Request
-from .content import REVERSALS
+from .content import LEXICONS, REVERSALS
+from .state_planning import ProposalExhausted
 
 
 def number(value: int | Fraction) -> str:
@@ -263,6 +264,8 @@ def ordering(request: Request, rng: random.Random) -> dict:
     return {
         "stem": stem,
         "value": target + 1,
+        **({"distractor_values": [p for p in range(1, count + 1) if p != target + 1]}
+           if request.engine_revision >= 9 else {}),
         "unit": "",
         "lesson": "ordering",
         "explanation": " ".join(steps),
@@ -278,6 +281,8 @@ def ordering(request: Request, rng: random.Random) -> dict:
 
 
 def mystery(request: Request, rng: random.Random) -> dict:
+    if request.engine_revision >= 9:
+        return _supported_mystery(request, rng)
     level = DIFFICULTIES[request.difficulty]
     width = (20, 70, 200)[level - 1]
     for _ in range(200):
@@ -349,6 +354,101 @@ def mystery(request: Request, rng: random.Random) -> dict:
     }
 
 
+def _supported_mystery(request: Request, rng: random.Random) -> dict:
+    """Select necessary clues and near-solutions before rendering the question.
+
+    Each selected clue has a rival that satisfies every other clue. Consequently
+    removing that clue leaves at least two full-domain and displayed candidates.
+    """
+    level = DIFFICULTIES[request.difficulty]
+    width, required = (20, 70, 200)[level - 1], (2, 2, 3)[level - 1]
+    for _ in range(600):
+        lower = rng.randint(1, 60)
+        upper = lower + width
+        value = rng.randint(lower, upper)
+        modulus = rng.choice((3, 4, 7, 8, 9))
+        second = rng.choice((5, 7, 11, 13))
+        digit_sum = sum(map(int, str(value)))
+        specs = [("remainder", modulus, value % modulus), ("digit-sum", digit_sum)]
+        if level >= 2:
+            specs.append(("parity", value % 2))
+        if level >= 3:
+            specs.append(("remainder", second, value % second))
+
+        def fits(n, spec):
+            if spec[0] == "remainder":
+                return n % spec[1] == spec[2]
+            if spec[0] == "digit-sum":
+                return sum(map(int, str(n))) == spec[1]
+            return n % 2 == spec[1]
+
+        subsets = list(combinations(specs, required))
+        rng.shuffle(subsets)
+        for chosen in subsets:
+            domain = list(range(lower, upper + 1))
+            matches = {n: tuple(fits(n, spec) for spec in chosen) for n in domain}
+            if [n for n, row in matches.items() if all(row)] != [value]:
+                continue
+            rivals = [[n for n, row in matches.items()
+                       if not row[i] and all(v for j, v in enumerate(row) if i != j)]
+                      for i in range(required)]
+            if any(not pool for pool in rivals):
+                continue
+            wrongs = [rng.choice(pool) for pool in rivals]
+            near = [n for n, row in matches.items()
+                    if n not in wrongs and n != value and sum(row) == required - 1]
+            if len(wrongs) < 3:
+                if not near:
+                    continue
+                wrongs.extend(rng.sample(near, 3 - len(wrongs)))
+            x = z3.Int("hidden_number")
+            constraints = [x >= lower, x <= upper]
+            clauses = [f"I am a whole number from {lower} to {upper}, inclusive."]
+            for spec in chosen:
+                if spec[0] == "remainder":
+                    clauses.append(f"Dividing me by {spec[1]} leaves remainder {spec[2]}.")
+                    constraints.append(x % spec[1] == spec[2])
+                elif spec[0] == "digit-sum":
+                    clauses.append(f"My decimal digits add to {spec[1]}.")
+                    constraints.append(x / 100 + (x / 10) % 10 + x % 10 == spec[1])
+                else:
+                    clauses.append(f"I am {'odd' if spec[1] else 'even'}.")
+                    constraints.append(x % 2 == spec[1])
+            premises = z3.And(*constraints)
+            sat, _ = prover.satisfiable(premises)
+            valid, _ = prover.decide(z3.Implies(premises, x == value))
+            if not sat or not valid:
+                raise RuntimeError("Z3/number enumeration disagreement")
+            steps = []
+            remaining = domain
+            for index, spec in enumerate(chosen):
+                remaining = [n for n in remaining if fits(n, spec)]
+                shown = ", ".join(map(str, remaining)) if len(remaining) <= 12 else (
+                    f"{len(remaining)} candidates")
+                steps.append(f"After clue {index + 1} ({clauses[index + 1]}), {shown} remain.")
+            steps.append(f"Only {value} satisfies every clue.")
+            return {
+                "stem": " ".join([*clauses, "What number am I?"]),
+                "value": value, "unit": "", "lesson": "number-riddles",
+                "distractor_values": wrongs, "explanation": " ".join(steps),
+                "proof": {
+                    "method": "z3-and-finite-integer-enumeration", "agree": True,
+                    "z3_version": prover.z3_version(), "range": [lower, upper],
+                    "survivors": [value], "scope": "unique integer satisfying all stated clues",
+                    "steps": steps, "clues": [list(spec) for spec in chosen],
+                    "minimum_required_clues": required,
+                    "distractor_values": wrongs,
+                    "clue_removal_witnesses": [pool[0] for pool in rivals],
+                    **({"choice_minimum_required_clues": required}
+                       if request.qtype == "multiple-choice" else {}),
+                    "support_scope": ("full integer range and multiple-choice options; "
+                                      "a false single-number claim can be refuted "
+                                      "by one failed clue"),
+                },
+            }
+    raise ProposalExhausted("No number mystery met the clue-support and near-solution checks")
+
+
 def word_riddle(request: Request, rng: random.Random) -> dict:
     source, answer = rng.choice(REVERSALS[request.difficulty])
     if (
@@ -356,12 +456,20 @@ def word_riddle(request: Request, rng: random.Random) -> dict:
         or "".join(source[i] for i in range(len(source) - 1, -1, -1)) != answer
     ):
         raise RuntimeError("Reversal dictionary is inconsistent")
+    distractors = [b.lower() for pairs in REVERSALS.values() for _, b in pairs if b != answer]
+    if request.engine_revision >= 9:
+        vocabulary = {word for pairs in REVERSALS.values() for pair in pairs for word in pair}
+        vocabulary.update(word for entries in LEXICONS.values() for word, _ in entries)
+        distractors = sorted(word.lower() for word in vocabulary
+                             if len(word) == len(answer) and word != answer)
+        if request.qtype == "multiple-choice" and len(distractors) < 2:
+            raise ProposalExhausted("This reversal has fewer than two same-length alternatives")
     return {
         "stem": f"Read {source} from right to left without adding or removing letters. "
         f"I am the resulting {len(answer)}-letter English word. What am I?",
         "answer": answer.lower(),
         "lesson": "word-riddles",
-        "distractors": [b.lower() for pairs in REVERSALS.values() for _, b in pairs if b != answer],
+        "distractors": distractors,
         "aliases": [answer.lower(), f"the word {answer.lower()}", f"answer: {answer.lower()}"],
         "explanation": (
             f"Reversing the letter order of {source} gives {answer}. "

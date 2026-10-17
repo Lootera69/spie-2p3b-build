@@ -8,10 +8,12 @@ widens the Host allowlist and turns on the per-client request cap.
 
 from __future__ import annotations
 
+import hashlib
 import json
 import subprocess
 import time
 import webbrowser
+from collections import OrderedDict
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from pathlib import Path
 from urllib.parse import urlsplit
@@ -28,7 +30,7 @@ MAX_BODY = 8192
 # Keep the larger allowance confined to these routes; generation stays small.
 MAX_SAVED_BODY = 2 * 1024 * 1024
 MAX_ANSWER = 2000
-SAVED_PATHS = ("/api/verify-saved", "/api/check-answer", "/api/check-grid")
+SAVED_PATHS = ("/api/verify-saved", "/api/check-answer", "/api/check-grid", "/api/play-episode")
 # A deployed instance is unauthenticated and answers serially, so one caller must
 # not be able to monopolise it. Loopback runs stay uncapped (limit 0 disables).
 PUBLIC_RATE_LIMIT = 60
@@ -87,6 +89,29 @@ def handler_for(
 ) -> type[BaseHTTPRequestHandler]:
     public = parse_public_origin(public_origin) if public_origin else None
     limiter = RateLimiter(rate_limit)
+    verified: OrderedDict[str, tuple[float, int]] = OrderedDict()
+
+    def verified_count(bundle):
+        # Every byte of parsed bundle content contributes to this key. Only a
+        # successful independent regeneration can populate this bounded cache.
+        # Play still reconstructs and crosschecks the transcript on every call.
+        encoded = json.dumps(bundle, sort_keys=True, separators=(",", ":"),
+                             allow_nan=False).encode("utf-8")
+        key = hashlib.sha256(encoded).hexdigest()
+        now = time.monotonic()
+        previous = verified.get(key)
+        if previous is not None and now - previous[0] < 300:
+            verified.move_to_end(key)
+            return previous[1]
+        try:
+            count = verify_bundle(bundle)
+        except (KeyError, IndexError) as exc:
+            raise ValueError("Invalid saved bundle structure") from exc
+        verified[key] = (now, count)
+        verified.move_to_end(key)
+        while len(verified) > 16:
+            verified.popitem(last=False)
+        return count
 
     class Handler(BaseHTTPRequestHandler):
         def log_message(self, fmt: str, *args) -> None:
@@ -173,6 +198,7 @@ def handler_for(
                 "/app.js": ("app.js", "text/javascript; charset=utf-8"),
                 "/library.js": ("library.js", "text/javascript; charset=utf-8"),
                 "/player.js": ("player.js", "text/javascript; charset=utf-8"),
+                "/episode.js": ("episode.js", "text/javascript; charset=utf-8"),
                 "/workspace.js": ("workspace.js", "text/javascript; charset=utf-8"),
                 "/style.css": ("style.css", "text/css; charset=utf-8"),
                 "/favicon.svg": ("favicon.svg", "image/svg+xml"),
@@ -236,11 +262,14 @@ def handler_for(
                 if self.path in SAVED_PATHS:
                     checking = self.path == "/api/check-answer"
                     grid_check = self.path == "/api/check-grid"
+                    playing = self.path == "/api/play-episode"
                     fields = ({"bundle", "index", "answer"} if checking else
-                              {"bundle", "index", "entries"} if grid_check else {"bundle"})
+                              {"bundle", "index", "entries"} if grid_check else
+                              {"bundle", "index", "actions", "hint_level"} if playing else
+                              {"bundle"})
                     if set(data) != fields:
                         raise ValueError("Expected " + ", ".join(sorted(fields)) + " only")
-                    if checking or grid_check:
+                    if checking or grid_check or playing:
                         if type(data["index"]) is not int or data["index"] < 0:
                             raise ValueError("Index must be an integer within the saved bundle")
                     if grid_check:
@@ -254,17 +283,34 @@ def handler_for(
                         if (not isinstance(answer, str) or not answer.strip()
                                 or len(answer) > MAX_ANSWER):
                             raise ValueError(f"Answer must be text of 1-{MAX_ANSWER} characters")
-                    # Freshly reproduce every retained item and proof before any
-                    # client-supplied proof is used for answer coaching.
+                    if playing:
+                        from . import planning_episode
+
+                        actions, hint_level = data["actions"], data["hint_level"]
+                        if (not isinstance(actions, list)
+                                or len(actions) > planning_episode.MAX_ACTIONS
+                                or any(not isinstance(action, str) or len(action) > 40
+                                       for action in actions)):
+                            raise ValueError(
+                                "Episode actions must be a list of at most 128 short action IDs")
+                        if type(hint_level) is not int or not 0 <= hint_level <= 3:
+                            raise ValueError("Hint level must be an integer from 0 to 3")
+                    # Reproduce the complete bundle, or reuse an exact recent
+                    # content match already reproduced by this server instance.
                     bundle = data["bundle"]
-                    try:
-                        count = verify_bundle(bundle)
-                    except (KeyError, IndexError) as exc:
-                        raise ValueError("Invalid saved bundle structure") from exc
-                    if checking or grid_check:
+                    count = verified_count(bundle)
+                    if checking or grid_check or playing:
                         index = data["index"]
                         if index >= count:
                             raise ValueError("Index must be an integer within the saved bundle")
+                        if playing:
+                            proof = bundle["proofs"][index]
+                            if "episode" not in proof:
+                                raise ValueError(
+                                    "This saved puzzle does not contain a playable episode")
+                            self.send_json(200, planning_episode.replay(
+                                proof["model"], proof["episode"], actions, hint_level=hint_level))
+                            return
                         self.send_json(200, grid_feedback(bundle["proofs"][index], entries)
                                        if grid_check else feedback_for(
                                            bundle["items"][index], bundle["proofs"][index], answer))

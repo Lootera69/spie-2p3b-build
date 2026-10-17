@@ -8,6 +8,7 @@
   <link rel="stylesheet" href="style.css">
   <script src="library.js" defer></script>
   <script src="player.js" defer></script>
+  <script src="episode.js" defer></script>
   <script src="workspace.js" defer></script>
   <script src="app.js" defer></script>
 </head>
@@ -75,15 +76,27 @@
           <label for="topic">What should players do?</label>
           <select id="topic" name="activity" disabled><option value="auto">Choose for me</option></select>
           <p class="hint" id="activity-help">We will suggest an activity that fits all your choices.</p>
+          <p class="hint" id="collection-notice" role="status">Core puzzles: combine clues or connect words.</p>
+          <details id="activity-collections">
+            <summary>Practice, experiments and explorations</summary>
+            <label for="collection">Activity collection</label>
+            <select id="collection" name="collection" disabled>
+              <option value="core">Core puzzles</option>
+              <option value="practice">Practice</option>
+              <option value="experimental">Experimental</option>
+              <option value="explore">Explore — unscored</option>
+            </select>
+            <p class="hint">Practice focuses on a named skill. Experimental activities are still
+              being improved. Explore contains unscored demonstrations.</p>
+          </details>
           <p class="hint" id="autopilot-help">Easy: order three labels. Medium: match two groups.
             Hard: connect three groups. These levels describe puzzle structure, not measured player skill.</p>
           <details id="activity-guide">
             <summary>What do these activities mean?</summary>
-            <dl><dt>Discover a number rule</dt><dd>See examples, infer the operation and predict the next value.</dd>
-              <dt>Find the impossible clue</dt><dd>Use a chain of clues to find the one statement that cannot fit.</dd>
-              <dt>Choose the most likely explanation</dt><dd>Compare evidence with several fictional explanations.</dd>
-              <dt>Plan the best next move</dt><dd>Compare complete routes on a weighted map and choose the cheapest first move.</dd>
-              <dt>Design a clue puzzle for me</dt><dd>BrainBloom chooses the labels, invents the clues and checks the answer.</dd></dl>
+            <dl><dt>Solve a set of clues</dt><dd>Combine constraints to arrange labelled cards.</dd>
+              <dt>Design a clue puzzle for me</dt><dd>BrainBloom chooses the groups, invents the clues and checks the answer.</dd>
+              <dt>Create a custom logic grid</dt><dd>Provide groups and rules, then check or complete your puzzle.</dd>
+              <dt>Connect words in a crossword</dt><dd>Use the Crossword answer format to build a connected word grid.</dd></dl>
             <p class="hint">All activities use bounded symbolic rules. Topic words are labels in the puzzle;
               the engine does not invent real-world facts about them.</p>
           </details>

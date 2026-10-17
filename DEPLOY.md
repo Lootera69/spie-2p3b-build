@@ -15,8 +15,16 @@ Measured on this machine, peak resident set for the whole stack:
 | Configuration | Peak RSS | Fits 512 MB |
 | --- | --- | --- |
 | Solvers only, no dictionary | 71 MB | yes |
-| WordNet 3.0 + the 8 coverage packs (**what ships**) | 249 MB | yes, ~260 MB spare |
+| WordNet 3.0 + coverage packs + revision-17 crossword discovery (**what ships**) | 347 MiB | yes |
 | WordNet + optional OEWN 2024 | 771 MB | **no — would be killed** |
+
+The revision-17 measurement is from the installed release wheel on Windows/Python
+3.12, generating and replaying 54 crosswords across 18 supported topics/general
+English at all three levels on 2026-10-17. It includes the frequency table, lexical
+indexes, saved-bundle checks and the local HTTP test client. Startup peaked at
+269 MiB; after the vocabulary checks the process held 339 MiB. These are local
+process measurements, not Render container telemetry. The other rows are earlier
+baseline measurements. Recheck memory if either corpus or retrieval caches grow.
 
 That last row is why the container passes `--no-oewn` explicitly instead of letting the
 corpus auto-detect. If you ever bake OEWN into the image, you must also move off the free

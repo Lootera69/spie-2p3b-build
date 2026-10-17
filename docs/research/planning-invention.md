@@ -5,8 +5,10 @@ to save actions later**. It uses the existing fully observable energy/gates/swit
 family, with the same physical rules and necessity requirements. The original
 `state_planning.propose` remains available for saved-model replay.
 
-New workshop requests use engine revision 8 and this strategy-aware search for the
+Saved workshop requests at engine revisions 8–9 use this strategy-aware search for the
 energy/switch activity. Revision 7 retains its original proposer and seeded output.
+Revision-10 requests use [four varied strategy profiles](state-planning.md#revision-10-strategy-synthesis-preserved);
+the comparisons on this page describe the earlier investment-only generator.
 The normal guided-search allowance is 2,000 attempts; the comparison below deliberately
 gives both modes the same smaller 1,000-attempt cap.
 

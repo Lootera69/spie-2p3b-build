@@ -122,10 +122,15 @@ def test_literal_input_words_are_used_in_the_actual_puzzle(activity):
     kind = ("crossword" if activity == "crossword"
             else "wonder" if activity == "word-wonder" else "riddle")
     meanings = {"bank": "fixture:bank:money", "crane": "fixture:crane:bird"}
-    plan = prepare(Brief(subject="bank, crane", meanings=meanings, activity=activity, qtype=kind),
-                   dictionary)
-    assert plan["ready"]
-    bundle = engine.build(Request(**plan["request"]))
+    if kind == "crossword":
+        # Explicit common-word anchors retain their exact legacy behavior.
+        bundle = engine.build(Request("dictionary", "crossword", subject="bank, crane",
+                                      meanings=meanings, topic_mode="combined", engine_revision=15))
+    else:
+        plan = prepare(Brief(subject="bank, crane", meanings=meanings,
+                             activity=activity, qtype=kind), dictionary)
+        assert plan["ready"]
+        bundle = engine.build(Request(**plan["request"]))
     for row in bundle["proofs"][0]["topic_coverage"]:
         assert row["term"].upper() in row["used_words"]
     assert bundle["request"]["meanings"] == meanings

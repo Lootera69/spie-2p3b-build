@@ -9,7 +9,6 @@ import pytest
 
 from spie.forge.corpus import digest
 from spie.questions.brainbloom import Request, state_planning, web
-from spie.questions.brainbloom.brief import Brief, prepare
 from spie.questions.brainbloom.service import Generator, verify_bundle
 from spie.questions.brainbloom.workshop import candidate
 
@@ -49,15 +48,12 @@ def test_revision_seven_keeps_exact_item_and_proof_digests_and_saved_replay(kind
 @pytest.fixture(scope="module")
 def invented_bundle():
     engine = Generator()
-    report = prepare(Brief(activity="state-planning", subject="space, ocean",
-                           difficulty="hard", qtype="multiple-choice", seed=7),
-                     engine.dictionary)
-    assert report["ready"], report["message"]
-    assert report["request"]["engine_revision"] == 8
-    return engine.build(Request(**report["request"]))
+    return engine.build(Request("activities", variation="state-planning", subject="space, ocean",
+                                difficulty="hard", qtype="multiple-choice", seed=7,
+                                engine_revision=9))
 
 
-def test_creator_default_generates_a_certified_strategy_and_replays_it(invented_bundle):
+def test_revision_nine_retains_its_certified_investment_strategy(invented_bundle):
     assert invented_bundle["summary"]["complete"]
     proof = invented_bundle["proofs"][0]
     assert proof["model"]["version"] == "state-planning-v1"
@@ -81,10 +77,40 @@ def test_saved_strategy_claims_and_revision_cannot_be_forged(invented_bundle, fi
         verify_bundle(changed)
 
 
-def test_exhausted_invention_search_cannot_export_a_partial_batch(monkeypatch):
-    from spie.questions.brainbloom import planning_invention
+@pytest.fixture(scope="module")
+def varied_bundle():
+    return Generator().build(Request("activities", variation="state-planning", seed=137,
+                                     difficulty="easy", subject="space, ocean", engine_revision=10))
 
-    original = planning_invention.propose
+
+@pytest.mark.parametrize("field", ["strategy", "policy_checks", "explanation", "revision"])
+def test_saved_variety_certificate_and_revision_are_recomputed(varied_bundle, field):
+    changed = copy.deepcopy(varied_bundle)
+    if field == "revision":
+        changed["request"]["engine_revision"] = 9
+    elif field == "strategy":
+        changed["proofs"][0]["model"]["strategy"] = "invest-energy"
+    else:
+        changed["proofs"][0]["strategy"][field] = [] if field == "policy_checks" else "forged"
+    with pytest.raises(ValueError):
+        verify_bundle(changed)
+
+
+@pytest.mark.parametrize("revision", [9, 10, 11, 12, 13, 14])
+def test_exhausted_invention_search_cannot_export_a_partial_batch(monkeypatch, revision):
+    from spie.questions.brainbloom import (
+        planning_experience,
+        planning_experience_v2,
+        planning_experience_v3,
+        planning_experience_v4,
+        planning_invention,
+        state_planning_variety,
+    )
+
+    inventor = {9: planning_invention, 10: state_planning_variety,
+                11: planning_experience, 12: planning_experience_v2,
+                13: planning_experience_v3, 14: planning_experience_v4}[revision]
+    original = inventor.propose
     attempts = []
 
     def one_then_exhausted(*args, **kwargs):
@@ -93,14 +119,18 @@ def test_exhausted_invention_search_cannot_export_a_partial_batch(monkeypatch):
             return original(*args, **kwargs)
         return original(*args, **{**kwargs, "budget": 0})
 
-    monkeypatch.setattr(planning_invention, "propose", one_then_exhausted)
+    monkeypatch.setattr(inventor, "propose", one_then_exhausted)
     with pytest.raises(ValueError, match="59 candidate searches.*No partial batch exported"):
         Generator().build(Request("activities", variation="state-planning", seed=7, count=2,
-                                 difficulty="hard", subject="space, ocean"))
+                                 difficulty="hard", subject="space, ocean",
+                                 engine_revision=revision))
     assert len(attempts) == 60
 
 
-def test_invention_verification_failure_aborts_instead_of_spending_another_budget(monkeypatch):
+@pytest.mark.parametrize("revision", [9, 10, 11, 12, 13, 14])
+def test_invention_verification_failure_aborts_instead_of_spending_another_budget(
+    monkeypatch, revision,
+):
     attempts = []
 
     def disagree(*args):
@@ -110,7 +140,8 @@ def test_invention_verification_failure_aborts_instead_of_spending_another_budge
     monkeypatch.setattr(state_planning, "_smt_check", disagree)
     with pytest.raises(RuntimeError, match="Independent solvers disagreed"):
         Generator().build(Request("activities", variation="state-planning", seed=7,
-                                 difficulty="hard", subject="space, ocean"))
+                                 difficulty="hard", subject="space, ocean",
+                                 engine_revision=revision))
     assert len(attempts) == 1
 
 
@@ -138,15 +169,17 @@ def post(server, path, payload):
 
 
 def test_api_prepares_generates_replays_and_coaches_the_new_strategy(api_server):
+    from spie.questions.brainbloom import state_planning_variety
+
     status, report = post(api_server, "/api/prepare", {
         "activity": "state-planning", "subject": "animals, space", "difficulty": "easy",
         "qtype": "multiple-choice", "seed": 7,
     })
     assert status == 200 and report["ready"]
-    assert report["request"]["engine_revision"] == 8
+    assert report["request"]["engine_revision"] == 17
     status, bundle = post(api_server, "/api/generate", report["request"])
     assert status == 200 and bundle["summary"]["complete"]
-    assert bundle["proofs"][0]["model"]["strategy"] == "invest-energy"
+    assert bundle["proofs"][0]["model"]["design_version"] == state_planning_variety.VERSION
     assert bundle["proofs"][0]["strategy"]
     status, report = post(api_server, "/api/verify-saved", {"bundle": bundle})
     assert status == 200 and report == {"ok": True, "count": 1}

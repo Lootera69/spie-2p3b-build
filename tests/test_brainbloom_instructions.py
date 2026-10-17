@@ -6,6 +6,7 @@ from dataclasses import replace
 import pytest
 
 from spie.questions.brainbloom import Request
+from spie.questions.brainbloom.activity_policy import PATTERN_TRUE_FALSE_UNAVAILABLE
 from spie.questions.brainbloom.brief import ACTIVITIES, Brief, prepare
 from spie.questions.brainbloom.instructions import EXAMPLES, combined_subject, interpret
 from spie.questions.brainbloom.lexicon import Dictionary
@@ -161,6 +162,19 @@ def test_raw_generation_cannot_bypass_instruction_checks(kwargs):
 def test_hidden_preset_instructions_cannot_be_silently_ignored():
     with pytest.raises(ValueError, match="Describe it"):
         Brief(activity="auto", instructions="Unscramble words.")
+
+
+@pytest.mark.parametrize("qtype", ["multiple-choice", "true-false", "crossword"])
+def test_written_number_rule_true_false_stops_before_applying_unavailable_settings(qtype):
+    report = prepare(Brief(activity="custom", qtype=qtype,
+                           crossword_size=7 if qtype == "crossword" else None,
+                           instructions="Discover a number rule. Use true or false."),
+                     Dictionary())
+    assert not report["ready"] and report["request"] is None
+    assert report["message"] == PATTERN_TRUE_FALSE_UNAVAILABLE
+    assert report["instruction"]["resolved_activity"] == "pattern"
+    assert report["instruction"]["resolved_collection"] == "experimental"
+    assert report["instruction"]["status"] != "apply"
 
 
 @pytest.mark.parametrize("value", [None, [], "x" * 1001])

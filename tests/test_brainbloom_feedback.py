@@ -170,7 +170,7 @@ def test_generated_verified_models_support_each_choice(topic, variation):
 
 def test_default_animal_puzzle_coaches_every_option_including_none_of_these():
     bundle = Generator().build(Request("autopilot", "multiple-choice", "easy",
-                                       subject="animals", count=1, seed=7))
+                                       subject="animals", count=1, seed=7, engine_revision=8))
     assert verify_bundle(bundle) == 1
     item, proof = bundle["items"][0], bundle["proofs"][0]
     assert item["choices"][0] == "None of these"

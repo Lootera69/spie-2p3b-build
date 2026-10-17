@@ -138,10 +138,19 @@ def test_more_search_never_reduces_the_structural_objective(style):
     assert thorough["budget"] == 80 and quick["budget"] == 12
 
 
-def test_auto_batch_rotates_skills_and_has_distinct_structures():
-    result = Generator().build(Request("reasoning", subject="space", count=3, seed=6))
+def test_legacy_auto_batch_rotates_skills_and_has_distinct_structures():
+    result = Generator().build(Request("reasoning", subject="space", count=3, seed=6,
+                                       engine_revision=8))
     assert [p["reasoning_style"] for p in result["proofs"]] == list(STYLES)
     assert len({p["structural_key"] for p in result["proofs"]}) == 3
+    assert verify_bundle(result) == 3
+
+
+def test_new_auto_batch_stays_with_core_deduction_and_varies_the_structure():
+    result = Generator().build(Request("reasoning", subject="space", count=3, seed=6))
+    assert {proof["reasoning_style"] for proof in result["proofs"]} == {"deduction"}
+    assert len({proof["structural_key"] for proof in result["proofs"]}) == 3
+    assert all("player_task" in proof for proof in result["proofs"])
     assert verify_bundle(result) == 3
 
 

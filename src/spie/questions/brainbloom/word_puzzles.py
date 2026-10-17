@@ -10,6 +10,7 @@ from ...forge.corpus import digest
 from .catalog import DIFFICULTIES, Request, lesson_group
 from .crossword import construct
 from .lexicon import validate_context
+from .state_planning import ProposalExhausted
 from .topics import representatives, sample_words
 
 LESSON = "\n".join((
@@ -21,8 +22,41 @@ LESSON = "\n".join((
 ))
 
 
+def _letter_bank(context: dict, level: int, rng) -> tuple[list[str], dict]:
+    """Find a level-band target with at least two same-length bank rivals.
+
+    Keep topic coverage and the bank-size limit. Insufficient vocabulary is an
+    explicit failure, never a reason to show a length-only answer as a puzzle.
+    """
+    entries = context["entries"]
+    lengths = Counter(len(entry["word"]) for entry in entries)
+    if not any(count >= 3 for count in lengths.values()):
+        raise ValueError("Letter puzzles need at least three same-length words; add another topic")
+    count = min(len(entries), 4 + 2 * level)
+    for _ in range(80):
+        bank = (sample_words(context, count, rng) if "topics" in context
+                else rng.sample([entry["word"] for entry in entries], count))
+        ordered = sorted((entry for entry in entries if entry["word"] in bank),
+                         key=lambda entry: (len(entry["word"]), entry["word"]))
+        band = ordered[(level - 1) * len(ordered) // 3:level * len(ordered) // 3]
+        targets = [entry for entry in band
+                   if sum(len(word) == len(entry["word"]) for word in bank) >= 3]
+        if targets:
+            return bank, rng.choice(targets)
+    raise ProposalExhausted("No letter puzzle had two same-length rivals at this level")
+
+
 def candidate(request: Request, rng, context: dict) -> tuple[dict, dict]:
     validate_context(context)
+    learning = request.qtype == "crossword" and request.engine_revision >= 16
+    if learning and request.engine_revision >= 17:
+        from .crossword_corpus import add_learning, validate_learning
+
+        validate_learning(context, seed=request.seed)
+    elif learning:
+        from .crossword_vocabulary import add_learning, prepare_context
+
+        context = prepare_context(context)
     level = DIFFICULTIES[request.difficulty]
     entries = context["entries"]
     item = {
@@ -33,6 +67,8 @@ def candidate(request: Request, rng, context: dict) -> tuple[dict, dict]:
     }
     prefix = (f"Topic: {context['label']}. "
               "For compound entries, spaces and hyphens are omitted.\n")
+    if request.qtype == "crossword" and request.engine_revision >= 17:
+        prefix = f"Topic: {context['label']}.\n"
     proof = {
         "dictionary_sha256": digest(context), "selected_sense": context["sense"],
         "source": context["source"]["name"],
@@ -44,7 +80,9 @@ def candidate(request: Request, rng, context: dict) -> tuple[dict, dict]:
         data, checks = construct(request.category, 2 * level + 1, rng,
                                  [(e["word"], e["definition"]) for e in entries],
                                  [t["words"] for t in topics],
-                                 [t["anchor"] for t in topics if t["anchor"]],
+                                 ([t["anchor"] for t in topics if t["anchor"]]
+                                  + ([context["crossword_anchor"]]
+                                     if learning and context.get("crossword_anchor") else [])),
                                  board_size=request.crossword_size)
         item.update({
             "question": (prefix + "Use the dictionary clues to fill this "
@@ -63,6 +101,8 @@ def candidate(request: Request, rng, context: dict) -> tuple[dict, dict]:
                                 "come from the cited dictionary"),
                        "steps": [f"{c['number']} {c['direction']}: {c['answer']} — {c['clue']}"
                                  for c in data["clues"]]})
+        if learning:
+            add_learning(item, proof)
         return item, proof
 
     if request.qtype == "wonder" and "topics" in context:
@@ -103,14 +143,22 @@ def candidate(request: Request, rng, context: dict) -> tuple[dict, dict]:
                       "steps": [*steps, insight]})
         return item, proof
 
+    variation = request.variation
+    if request.engine_revision >= 9 and request.qtype != "wonder" and variation == "auto":
+        variation = ("word-order" if request.category == "logic"
+                     else rng.choice(("anagram", "missing-letters")))
     # Length bands are structural difficulty controls, not learned player scores.
-    bank = None
-    if "topics" in context:
-        bank = sample_words(context, min(len(entries), 4 + 2 * level), rng)
-    ordered = sorted((e for e in entries if bank is None or e["word"] in bank),
-                     key=lambda e: (len(e["word"]), e["word"]))
-    band = ordered[(level - 1) * len(ordered) // 3:level * len(ordered) // 3]
-    target = rng.choice(band)
+    if (request.engine_revision >= 9 and request.qtype != "wonder"
+            and variation in ("anagram", "missing-letters")):
+        bank, target = _letter_bank(context, level, rng)
+    else:
+        bank = None
+        if "topics" in context:
+            bank = sample_words(context, min(len(entries), 4 + 2 * level), rng)
+        ordered = sorted((e for e in entries if bank is None or e["word"] in bank),
+                         key=lambda e: (len(e["word"]), e["word"]))
+        band = ordered[(level - 1) * len(ordered) // 3:level * len(ordered) // 3]
+        target = rng.choice(band)
     answer = target["word"]
     if request.qtype == "wonder":
         counts = Counter(answer)
@@ -150,7 +198,8 @@ def candidate(request: Request, rng, context: dict) -> tuple[dict, dict]:
     if bank is None:
         bank = [answer, *rng.sample(others, min(len(others), 3 + 2 * level))]
         rng.shuffle(bank)
-    variation = request.variation
+    if request.engine_revision < 9:
+        variation = request.variation
     if variation == "auto":
         variation = (
             "word-order" if request.category == "logic"
@@ -209,8 +258,17 @@ def candidate(request: Request, rng, context: dict) -> tuple[dict, dict]:
                  "incorrectExplanation": "Check the complete rule. " + explanation})
     # Similar lengths/letter sets make plausible alternatives, but every alternative
     # has already been excluded by the exact rule, rather than assumed semantically false.
-    wrongs = sorted((w for w in bank if w != answer),
+    wrongs = sorted((w for w in bank if w != answer
+                     and (request.engine_revision < 9
+                          or variation not in ("anagram", "missing-letters")
+                          or len(w) == len(answer))),
                     key=lambda w: (abs(len(w) - len(answer)), -len(set(w) & set(answer)), w))[:3]
+    if request.engine_revision >= 9 and variation in ("anagram", "missing-letters"):
+        proof["length_check"] = {
+            "same_length_bank_candidates": sum(len(word) == len(answer) for word in bank),
+            "same_length_answer_options": 1 + len(wrongs),
+            "scope": "length alone does not isolate the answer; dictionary clues remain assistance",
+        }
     if request.qtype == "multiple-choice":
         choices = [answer, *wrongs]
         rng.shuffle(choices)

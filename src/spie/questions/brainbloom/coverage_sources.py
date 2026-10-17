@@ -86,6 +86,7 @@ def load_oewn(path: Path) -> tuple[dict, dict, dict]:
         raise ValueError("OEWN expanded data exceeds the size limit")
     # Only hash-verified XML reaches the standard parser; no DTD is fetched.
     synsets, index, members = {}, defaultdict(list), defaultdict(list)
+    sense_synsets, lexical_relations = {}, []
     lemmas, forms, associations = set(), set(), 0
     for _, element in ET.iterparse(io.BytesIO(xml), events=("end",)):
         if element.tag == "LexicalEntry":
@@ -95,6 +96,12 @@ def load_oewn(path: Path) -> tuple[dict, dict, dict]:
             forms.update(f.casefold() for f in variants)
             for sense in element.findall("Sense"):
                 sid = "oewn2024:" + sense.get("synset")
+                sense_synsets[sense.get("id")] = sid
+                lexical_relations.extend(
+                    (sid, relation.get("relType"), relation.get("target"))
+                    for relation in sense.findall("SenseRelation")
+                    if relation.get("relType") in ("derivation", "pertainym")
+                )
                 associations += 1
                 if lemma not in members[sid]:
                     members[sid].append(lemma)
@@ -110,8 +117,18 @@ def load_oewn(path: Path) -> tuple[dict, dict, dict]:
                 for r in element.findall("SynsetRelation")
                 if r.get("relType") in RELATIONS
             ]
-            synsets[sid] = {"definition": element.findtext("Definition"), "links": links}
+            synsets[sid] = {
+                "definition": element.findtext("Definition"), "links": links,
+                "crossword_links": [("domain-member", "oewn2024:" + r.get("target"))
+                                    for r in element.findall("SynsetRelation")
+                                    if r.get("relType") == "has_domain_topic"],
+            }
             element.clear()
+    for sid, relation, target_sense in lexical_relations:
+        target = sense_synsets.get(target_sense)
+        if target in synsets:
+            origin, related = (target, sid) if relation == "pertainym" else (sid, target)
+            synsets[origin]["crossword_links"].append(("related-form", related))
     for sid, node in synsets.items():
         node["words"] = [w.replace(" ", "_") for w in members[sid]]
         if any(target not in synsets for _, target in node["links"]):

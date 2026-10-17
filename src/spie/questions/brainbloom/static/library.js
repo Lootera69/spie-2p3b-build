@@ -86,6 +86,13 @@
       if ("fields" in state && !strings(state.fields)) invalid();
       if ("hints" in state && (!Number.isSafeInteger(state.hints) || state.hints < 0)) invalid();
       if ("revealed" in state && typeof state.revealed !== "boolean") invalid();
+      if ("episode" in state) {
+        const episode = state.episode;
+        if (!object(episode) || typeof episode.started !== "boolean" ||
+            !strings(episode.actions) || episode.actions.length > 128 ||
+            episode.actions.some(action => !action || action.length > 40) ||
+            !Number.isInteger(episode.hint_level) || episode.hint_level < 0 || episode.hint_level > 3) invalid();
+      }
       for (const name of ["grid", "crossword"]) {
         if (name in state && !Array.isArray(state[name]) && !object(state[name])) invalid();
       }

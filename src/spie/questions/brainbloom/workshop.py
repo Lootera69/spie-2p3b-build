@@ -36,6 +36,12 @@ def structure_key(proof: dict) -> str | None:
 
 
 def candidate(request: Request, seed: int, context: dict | None = None) -> tuple[dict, dict]:
+    if request.qtype == "crossword" and request.engine_revision >= 17:
+        from .crossword_corpus import canonical_request, resolve, validate_learning
+
+        request = canonical_request(request)
+        context = resolve(request) if context is None else context
+        validate_learning(context, seed=request.seed)
     interpretation = None
     if request.instructions:
         from .instructions import validate_request
@@ -63,6 +69,10 @@ def candidate(request: Request, seed: int, context: dict | None = None) -> tuple
                 Dictionary(), request.subject, request.meanings, request.category)
                        if request.topic_mode == "combined" else Dictionary().resolve(
                            request.subject, request.sense, request.category))
+        if request.qtype == "crossword" and request.engine_revision == 16:
+            from .crossword_vocabulary import prepare_context
+
+            context = prepare_context(context)
         if request.topic == "autopilot":
             from .autopilot import candidate as design
 
@@ -118,8 +128,14 @@ def candidate(request: Request, seed: int, context: dict | None = None) -> tuple
             "xpReward": XP[request.difficulty],
         }
         if request.qtype == "crossword":
+            learning_words = None
+            if request.engine_revision == 16:
+                from .crossword_vocabulary import builtin_vocabulary
+
+                learning_words = builtin_vocabulary(request.category)
             data, checks = construct(
                 request.category, 2 * DIFFICULTIES[request.difficulty] + 1, rng,
+                **({"vocabulary": learning_words} if learning_words is not None else {}),
                 board_size=request.crossword_size,
             )
             item.update(
@@ -173,6 +189,10 @@ def candidate(request: Request, seed: int, context: dict | None = None) -> tuple
             draft = factory(request, rng)
             proof = draft["proof"]
             _quiz(item, draft, request, rng)
+    if request.qtype == "crossword" and request.engine_revision == 16 and not dictionary:
+        from .crossword_vocabulary import add_learning
+
+        add_learning(item, proof)
     if request.topic_mode == "combined":
         if request.topic in ("reasoning", "autopilot"):
             used = proof["model"]["names"]
@@ -243,8 +263,11 @@ def _quiz(item: dict, draft: dict, request: Request, rng) -> None:
             return families.number(v) + (f" {unit}" if unit else "")
 
         answer = render(value)
-        offsets = rng.sample([i for i in range(-9, 10) if i and value + i > 0], 3)
-        wrong_values = [value + i for i in offsets]
+        if request.engine_revision >= 9 and "distractor_values" in draft:
+            wrong_values = rng.sample(draft["distractor_values"], 3)
+        else:
+            offsets = rng.sample([i for i in range(-9, 10) if i and value + i > 0], 3)
+            wrong_values = [value + i for i in offsets]
         wrongs = [render(v) for v in wrong_values]
         aliases = [answer, families.number(value), "answer: " + answer]
         if not unit and value.denominator == 1:
@@ -259,7 +282,9 @@ def _quiz(item: dict, draft: dict, request: Request, rng) -> None:
             aliases.append("the answer is " + answer)
     else:
         answer = draft["answer"]
-        wrongs = rng.sample(draft["distractors"], 3)
+        wrongs = rng.sample(draft["distractors"],
+                            min(3, len(draft["distractors"]))
+                            if request.engine_revision >= 9 else 3)
         aliases = draft["aliases"]
     item.update(
         {
@@ -302,6 +327,12 @@ def generate(
     *, excluded: set[str] | None = None,
 ) -> dict:
     from .history import fingerprint
+    if request.qtype == "crossword" and request.engine_revision >= 17:
+        from .crossword_corpus import canonical_request, resolve, validate_learning
+
+        request = canonical_request(request)
+        context = resolve(request) if context is None else context
+        validate_learning(context, seed=request.seed)
     dictionary = request.topic in ("dictionary", "reasoning", "autopilot", "activities")
     if dictionary:
         if context is None:
@@ -310,6 +341,10 @@ def generate(
                        if request.topic_mode == "combined" else Dictionary().resolve(
                            request.subject, request.sense, request.category))
         context = validate_context(context)
+        if request.qtype == "crossword" and request.engine_revision == 16:
+            from .crossword_vocabulary import prepare_context
+
+            context = prepare_context(context)
         if (request.topic_mode == "combined") != ("topics" in context):
             raise ValueError("The topic selection does not match this request")
         if request.topic_mode == "combined":

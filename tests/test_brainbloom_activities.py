@@ -19,11 +19,16 @@ from spie.questions.brainbloom.service import Generator, verify_bundle
 def test_beginner_activity_has_plain_language_route_and_replay(activity, variation, phrase):
     report = prepare(Brief(activity=activity, subject="animals, space"), Dictionary())
     assert report["ready"], report["message"]
-    assert report["request"]["topic"] == "activities"
-    assert report["request"]["variation"] == variation
+    assert report["request"]["topic"] == (
+        "reasoning" if activity == "most-likely" else "activities"
+    )
+    assert report["request"]["variation"] == (
+        "bayesian" if activity == "most-likely" else variation
+    )
     result = Generator().build(Request(**report["request"]))
-    assert result["version"] == 8
-    assert result["proofs"][0]["word_bank"]
+    assert result["version"] == (5 if activity == "most-likely" else 8)
+    proof = result["proofs"][0]
+    assert proof["model"]["names"] if activity == "most-likely" else proof["word_bank"]
     assert verify_bundle(json.loads(json.dumps(result))) == 1
 
 

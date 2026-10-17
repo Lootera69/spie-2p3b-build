@@ -18,9 +18,10 @@ VERIFIER = Path(__file__).resolve().parents[3] / "BrainBloom/lib/forge/verify.ts
 @pytest.mark.parametrize("style", ("deduction", "bayesian", "planning", "contradiction"))
 @pytest.mark.parametrize("qtype", FORMATS)
 def test_concise_rendering_retains_logical_model_answers_and_revision_three_replay(style, qtype):
+    # Isolate the earlier wording repair from revision 9's answer-choice changes.
     request = Request("activities" if style == "contradiction" else "reasoning", qtype,
                       "hard", subject="machine learning, renewable energy, robotics",
-                      topic_mode="combined", variation=style, seed=7)
+                      topic_mode="combined", variation=style, seed=7, engine_revision=8)
     engine = Generator()
     old = engine.build(replace(request, engine_revision=3))
     current = engine.build(request)
@@ -60,10 +61,26 @@ def test_default_hard_drafts_pass_actual_studio_editorial_checks(category, qtype
 @pytest.mark.parametrize("style", ("bayesian", "contradiction", "pattern", "best-move"))
 @pytest.mark.parametrize("qtype", FORMATS)
 def test_explicit_hard_activities_pass_actual_studio_editorial_checks(style, qtype):
+    if style == "pattern" and qtype == "true-false":
+        with pytest.raises(ValueError, match="Number-rule true/false is unavailable"):
+            Request("activities", qtype, "hard", variation=style)
+        return
     engine = Generator(verifier=VERIFIER)
     request = Request("reasoning" if style == "bayesian" else "activities", qtype,
                       "hard", subject="space, ocean", topic_mode="combined",
                       variation=style, seed=7)
     bundle = engine.build(request)
+    assert bundle["summary"]["complete"], bundle["rejected"]
+    assert verify_bundle(bundle) == 1
+
+
+@pytest.mark.skipif(not VERIFIER.is_file() or not shutil.which("node"),
+                    reason="Optional sibling Studio verifier and Node are not installed")
+@pytest.mark.parametrize("difficulty", ("easy", "medium", "hard"))
+@pytest.mark.parametrize("qtype", FORMATS)
+def test_revision15_planning_passes_actual_studio_ceiling(difficulty, qtype):
+    bundle = Generator(verifier=VERIFIER).build(Request(
+        "activities", qtype, difficulty, variation="state-planning",
+        subject="space, ocean", seed=1505, engine_revision=15))
     assert bundle["summary"]["complete"], bundle["rejected"]
     assert verify_bundle(bundle) == 1

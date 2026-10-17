@@ -13,6 +13,7 @@ opens the new results automatically.
 | How will players answer? | Multiple Choice, True / False, Type Answer, Crossword, Riddle or Wonder | Only compatible activities are offered |
 | Topics or keywords | Up to six English topics, separated by commas | Every supplied topic must be represented; blank uses an explicit built-in/default scenario |
 | Meaning for each topic | Automatically selected from authored packs or ranked lexical senses | Visible choice with an optional override; selected meanings are saved for replay |
+| Collection | Core puzzles, Practice, Experimental or Explore — unscored | Scored automatic selection stays in core; practice and experimental activities require deliberate selection |
 | What should players do? | A plain-language activity, or Choose for me | Suggestions account for category, format, topic count, vocabulary and challenge level |
 | Describe it in my own words… | A text alternative to the presets | Supported phrases compile to settings; changes require Apply and unknown details block generation |
 | Challenge level | The structural complexity of this activity | Levels that cannot fit all topics are disabled with an explanation |
@@ -20,7 +21,14 @@ opens the new results automatically.
 | More options → Time spent exploring ideas | Quick, Standard or More exploration | Shown for reasoning activities; controls proposal budget, not difficulty |
 | More options → Variation number | Reproduce the same settings and puzzle | The main Make another version button changes it automatically |
 
-Examples of user-facing activities:
+The core collection contains deduction, generated clue puzzles, custom logic grids and
+crosswords. Practice contains word, number, science and rule exercises. Experimental
+contains contradiction, number-rule discovery, planning and evidence activities; their
+challenge and variety are still being evaluated. Explore contains unscored activities.
+The old “Choose the most likely explanation” name maps to “Weigh the evidence”. Saved
+requests keep their original activity identifiers and replay behaviour.
+
+Examples of user-facing activities across these collections:
 
 - **Design a clue puzzle for me** → Autopilot chooses labels and groups from your topics,
   invents and prunes clues, selects a question that needs at least two clues together, and
@@ -33,19 +41,27 @@ Examples of user-facing activities:
   “Tiger is before Lion” or “Tiger is paired with Red”. The engine reports ambiguity,
   identifies contradictory rules, and can add labelled clues until the full grid has one
   solution.
-- **Discover a number rule** → infer an arithmetic operation from examples and predict the next value.
-- **Find the impossible clue** → use a finite ordering chain to identify the one incompatible statement.
-- **Choose the most likely explanation** → calculate exact posterior probabilities from stated evidence.
+- **Discover a number rule** → compare four stated rules using jointly necessary examples
+  and predict the next value. New true/false questions are unavailable because the current
+  design can reveal the verdict without combining the observations.
+- **Find the impossible clue** → combine interacting position clues to test new statements;
+  copied clues and single-clue solutions are rejected.
 - **Plan the best next move** → compare complete costs of routes on a weighted map.
 - **Plan with energy and switches** → choose a first action by planning through energy
   costs, gate changes and one recharge. Competing successful plans and mechanic necessity
   are checked; the optimal first action is unique, although later optimal paths may tie.
+  Revision 10 varies switch-first, recharge, remote-switch and energy-conserving strategies.
+  The chosen strategy is explained after the answer is revealed; it is not a setup control.
 - **Unscramble a word**, **Find the missing letters**, **Put words in order**.
 - **Connect words in a crossword**, **Explore patterns in words**.
 - Without custom topics, compatible built-in number and science calculations.
 
 Format or category changes preserve the chosen activity when it still fits.
 Switching to a fundamentally different format falls back to Choose for me.
+The selected collection follows the compatible format, so returning to Crossword from
+Experimental restores the core crossword route. Practice and Experimental do not offer
+an automatic scored fallback. Written instructions show the collection of the explicitly
+requested activity before generation.
 Entering custom topics while on a built-in preset selects a topic-aware suggestion;
 the server also rejects any request that would silently discard those topics.
 

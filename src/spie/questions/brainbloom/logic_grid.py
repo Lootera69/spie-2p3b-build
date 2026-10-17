@@ -378,7 +378,7 @@ def _candidate_once(request, rng: random.Random) -> tuple[dict, dict]:
                 "Combine clues across groups to eliminate impossible arrangements.",
                 "Check all clues against the completed table.",
                 "Share this: explain which combination of clues fixed the answer."))}
-    if len(options) == 3:
+    if len(options) == 3 and request.engine_revision < 9:
         options.append("None of these")
     proof = {"method": "custom-grid-z3-and-exhaustive-permutations",
              "scope": ("the stated fictional groups and rules; complete-grid uniqueness "

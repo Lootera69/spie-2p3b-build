@@ -37,7 +37,7 @@ function load(saved, options = {}) {
     if (delayed.has(url)) await new Promise(resolve => { pending.set(url, resolve); });
     return response;
   };
-  for (const file of ["library.js", "player.js", "workspace.js", "app.js"]) w.eval(fs.readFileSync(path.join(assets, file), "utf8"));
+  for (const file of ["library.js", "player.js", "episode.js", "workspace.js", "app.js"]) w.eval(fs.readFileSync(path.join(assets, file), "utf8"));
   const el = id => d.getElementById(id);
   const storage = () => w.localStorage.getItem("brainbloom-library-v1");
   return {w,d,el,errors,generated,requests,responses,storage,
@@ -271,6 +271,14 @@ async function main() {
     row.querySelector("button").click();
     await until(() => b.el("status").textContent.startsWith(entry.title) && !b.el("save-puzzles").disabled, "typed/crossword restore");
     assert.equal(b.d.querySelector(".card input").value, qtype === "crossword" ? "Z" : "my unfinished answer");
+    if (qtype === "crossword") {
+      assert.equal(b.d.querySelector(".vocabulary-recap"), null);
+      b.d.querySelector(".card .reveal").click();
+      const recap = b.d.querySelector(".vocabulary-recap").textContent;
+      for (const clue of bundle.items[0].crosswordData.clues) {
+        assert.ok(recap.includes(`${clue.answer} — ${clue.clue}`));
+      }
+    }
   }
   b.el("open-library").click();
   const count = b.d.querySelectorAll(".library-entry").length;

@@ -3,14 +3,18 @@
 The workshop activity **Plan with energy and switches** generates a small, fully
 observable planning world. An action changes what the player can do next: movement
 uses energy, switches persistently flip gates, and the battery can be recharged once.
-The player chooses the first action of a shortest complete plan.
+Revision 11 introduced complete authored scenarios alongside the first-move quiz.
+Revision 12 added concise stories and a dependency check on every shortest route;
+revision 13 develops broader candidate proposals within the same quality bounds.
+See the [current experience contract and validation status](planning-experience-v13.md)
+and the [original episode contract](planning-experience.md).
 
 This is a finite family of generated state machines. It extends the creator with
 branching choices; it does not replace the older concept compiler with an arbitrary
 mechanic-composition language. Topic words label fictional locations and do not supply
 unstated facts or causal rules.
 
-## Rules and proposal search
+## Rules
 
 The complete state is `(location, energy, gate A, gate B, recharge used)`. Easy, medium
 and hard use four, five and six rooms. Only listed directed routes are legal; each route
@@ -23,7 +27,73 @@ it is not the quantity being minimized. The answer minimizes the total action co
 assuming optimal choices after the first action. Three start routes and the start
 switch provide the four answer options. An option can initially be unavailable.
 
-Proposals vary the directed map, route costs and gate requirements, starting energy
+## Revision-10 strategy synthesis (preserved)
+
+New requests select one of four profiles uniformly before synthesis. Each uses the
+same physical rules and all the necessity, branching and solver checks below.
+
+| Profile | Independently checked claim |
+| --- | --- |
+| Switch first | The start switch is the unique best opening and beats a move with a committed successful continuation |
+| Recharge first | The best opening moves to the charger; every shortest plan recharges before leaving it, possibly after using its switch |
+| Remote switch first | The best opening visits a noncharger switch; every shortest plan uses that switch before recharging |
+| Conserve energy | The best opening move uses less energy than a committed viable rival move that becomes optimal when energy is ignored |
+
+The remote-switch profile is an ordering prerequisite, not a claim that the route is
+longer than an alternative route. The conserve profile compares movement alternatives;
+it does not claim the winning move costs less than a free start switch. Profiles can
+overlap: conserve and recharge can both begin with a move to the charger. Validation
+therefore reports physical opening roles and simple-policy outcomes separately.
+
+Generation starts from a finite bank of feasible physical layouts. A bounded walk
+changes route topology, costs, gate requirements, initial state and switch effects,
+accepting an edit only when it retains the chosen profile and every existing quality
+gate. The default budget is 48 candidate evaluations, including the foundation.
+Room and gate relabeling happens separately and is excluded from diversity counts.
+This extends a finite family; it does not generate arbitrary new mechanics.
+
+The versioned strategy certificate re-explores the compiled complete graph with
+forward BFS and checks action ordering in a product graph. It does not trust saved
+answers, canonical witnesses or proposal diagnostics. A counterexample search rejects
+an ordering claim if any violating plan is as short as the optimum. The ordinary
+checker independently retains direct/core graph agreement, Z3 optimality and all four
+mechanic interventions. Saved engine revisions 1–9 retain their previous replay paths;
+state plans use the original generator at revision 7 and the investment generator at
+revisions 8–9.
+
+The creator keeps this activity in Experimental. Selected strategy details appear in
+the proof and revealed explanation, without a profile selector or answer hint in the
+unrevealed title or rules. [The work tracker](../creator-quality-work-tracker.md)
+records current validation and sample evidence.
+
+## Revision-10 validation
+
+The final independent audit passes 150 unseen models (50 seeds per level), 36 creator
+format items and 60 items in three count-20 batches. All 96 rendered answer surfaces
+agree with the raw-domain oracle. Exact saved replay passes 1,719 prechange bundles
+containing 1,839 items across engine revisions 1–9.
+
+The unseen corpus contains 150 physical structures and 113 unlabeled route topologies:
+15 easy, 48 medium and 50 hard. Actual openings are 78 charger moves, 45 other moves
+and 27 start-switch actions. Identical raw seeds select identical profile draws across
+levels; these are 150 models but 50 independent profile draws.
+
+Two arbitrary visible cues found during review were countered with physical variation
+and verified opposing examples. Predictive priors remain: the shortest raw route toward
+the charger uniquely selects the answer in 100/150 unseen cases. Three of nine sampled
+true/false claims name an initially unavailable action and can be rejected immediately.
+Neither universal shortcut resistance nor equal reasoning demands across formats is
+claimed.
+
+[Full validation](../../artifacts/state-planning-variety/2026-10-13/validation.md),
+[independent results and source hashes](../../artifacts/state-planning-variety/2026-10-13/independent-validation.md)
+and [15 reviewable samples](../../artifacts/state-planning-variety/2026-10-13/sample-gallery.html)
+record the exact denominators, runtimes, finite synthesis limits and separate 300-model
+visible-cue review. The historical results below describe the revision-7 sampler.
+
+## Original revision-7 proposal search
+
+The original proposals vary the directed map, route costs and gate requirements, starting energy
 and gate settings, charger position, and switch effects/costs. The sampler deliberately
 focuses on reachable charging and initially unaffordable direct exits where present;
 it does not sample every legal state machine uniformly or fix one solution template.
@@ -99,7 +169,7 @@ paths, recharge persistence and undo-only alternatives. Any unexpected generatio
 solver or audit failure aborts the benchmark; only `ProposalExhausted` is an expected
 request rejection.
 
-## Reproduce the fixed-seed audit
+## Reproduce the original revision-7 fixed-seed audit
 
 Run from the `engine` directory with the repository environment:
 
@@ -118,7 +188,7 @@ names, while retaining costs and mechanics. Topology fingerprints additionally d
 all route costs, gate requirements, charging and switch information. The latter checks
 whether diversity includes different maps rather than only renamed or repriced copies.
 
-## Fixed-seed results
+## Original revision-7 fixed-seed results
 
 The [tracked 30-request results](state-planning-results.json) cover seeds 0–9 at each
 level and include the full report's SHA-256. The complete local report remains at
@@ -202,7 +272,7 @@ Timing includes normal local runtime variation and has no hardware-independent o
 human-difficulty meaning. Hidden information, delayed effects, arbitrary new mechanics,
 and a player study remain outside this family.
 
-## Completion checks
+## Original revision-7 completion checks
 
 The focused runs passed 58 state-planning tests, 46 creator-integration tests and
 64 answer-feedback tests (168 total). These cover independent transitions and goals,

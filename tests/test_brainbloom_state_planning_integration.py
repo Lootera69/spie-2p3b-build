@@ -5,6 +5,7 @@ import json
 
 import pytest
 
+from spie.forge.corpus import digest
 from spie.questions.brainbloom import Request
 from spie.questions.brainbloom.brief import Brief, configuration, prepare
 from spie.questions.brainbloom.catalog import configuration as catalog_configuration
@@ -25,7 +26,18 @@ def test_state_planning_is_an_explicit_activity_for_all_four_answer_formats():
     assert activity["types"] == FORMATS
     assert catalog_configuration()["variations"]["activities"]["state-planning"] == activity[
         "label"]
-    assert Request().engine_revision == 8
+    assert Request().engine_revision == 17
+
+
+@pytest.mark.parametrize("revision", range(1, 18))
+def test_all_saved_engine_revisions_remain_supported(revision):
+    assert Request(engine_revision=revision).engine_revision == revision
+
+
+@pytest.mark.parametrize("revision", [0, 18, True, 17.0, "17"])
+def test_engine_revision_must_be_a_supported_integer(revision):
+    with pytest.raises(ValueError, match="Unsupported engine revision"):
+        Request(engine_revision=revision)
 
 
 @pytest.mark.parametrize("revision", range(1, 7))
@@ -49,7 +61,7 @@ def test_written_activity_label_routes_to_the_same_state_planning_request():
     assert report["ready"], report["message"]
     request = Request(**report["request"])
     assert request.topic == "activities" and request.variation == "state-planning"
-    assert request.engine_revision == 8
+    assert request.engine_revision == 17
     assert request.qtype == "multiple-choice" and request.difficulty == "hard"
 
 
@@ -70,9 +82,9 @@ def test_topic_capacity_matches_four_five_and_six_location_plans():
 
 @pytest.mark.parametrize("category,expected", [
     ("logic", "deduction"), ("riddles", "deduction"), ("science", "deduction"),
-    ("puzzles", "planning"), ("wonders", "planning"),
+    ("puzzles", "deduction"), ("wonders", "deduction"),
 ])
-def test_new_activity_does_not_change_automatic_family_selection(category, expected):
+def test_experimental_state_planning_stays_out_of_automatic_core_selection(category, expected):
     report = prepare(Brief(category=category, subject="space, ocean"), Dictionary())
     assert report["ready"], report["message"]
     assert report["selected_activity"] == expected
@@ -110,7 +122,10 @@ def test_generated_state_plans_preserve_topics_answer_formats_and_exact_saved_re
     request = Request(**report["request"])
     bundle = engine.build(request)
     assert bundle["version"] == 8 and bundle["generator"] == "brainbloom-activities-v8"
-    assert bundle["request"]["engine_revision"] == 8 and bundle["summary"]["complete"]
+    assert bundle["request"]["engine_revision"] == 17 and bundle["summary"]["complete"]
+    assert bundle["proofs"][0]["model"]["experience_version"] == "planning-experience-v5"
+    assert bundle["proofs"][0]["experience"]["version"] == "planning-experience-core-bfs-v5"
+    assert bundle["proofs"][0]["episode"]["version"] == "planning-episode-v4"
     item, proof = bundle["items"][0], bundle["proofs"][0]
     assert issues(item) == []
     assert len(proof["word_bank"]) == LEVELS[difficulty]
@@ -139,6 +154,35 @@ def test_generated_state_plans_preserve_topics_answer_formats_and_exact_saved_re
             answer == item["correctAnswer"] or answer in item.get("acceptedAnswers", []))
         assert "1. " not in feedback["message"]  # Coach without dumping the plan.
     assert feedback_for(item, proof, "invented action")["supported"] is False
+    assert verify_bundle(json.loads(json.dumps(bundle))) == 1
+
+
+@pytest.mark.parametrize("kind", FORMATS)
+def test_explicit_revision12_keeps_its_generator_certificate_and_saved_replay(kind):
+    request = Request("activities", kind, "easy", variation="state-planning",
+                      subject="space, ocean", seed=1701, engine_revision=12)
+    bundle = Generator().build(request)
+    assert bundle["request"]["engine_revision"] == 12 and bundle["summary"]["complete"]
+    proof = bundle["proofs"][0]
+    assert proof["model"]["experience_version"] == "planning-experience-v2"
+    assert proof["experience"]["version"] == "planning-experience-core-bfs-v2"
+    assert proof["episode"]["version"] == "planning-episode-v2"
+    assert issues(bundle["items"][0]) == []
+    assert verify_bundle(json.loads(json.dumps(bundle))) == 1
+
+
+# Captured using the frozen revision-14 baseline source before integration.
+@pytest.mark.parametrize("kind,fingerprint", [
+    ("multiple-choice", "05a8c8ac9bd00d9bb33c48258ab07f87fdc976b3e7c1a1d82c38be8a639c2d12"),
+    ("true-false", "10b021e4e0f3ef846eb8a3692b5fddaee8016f7929d5dff9f279e59519a8fa60"),
+    ("type-answer", "e46b057f0c9c1aa88bd3d31a87755512791c1b765f290dd83cca92ab75e9c508"),
+    ("riddle", "6c86b0daaffca094298755a1989899f12b5ecf22916a788e1efebd7d461315ae"),
+])
+def test_explicit_revision13_preserves_frozen_bundles_and_exact_saved_replay(kind, fingerprint):
+    request = Request("activities", kind, "easy", variation="state-planning",
+                      subject="space, ocean", seed=1701, engine_revision=13)
+    bundle = Generator().build(request)
+    assert digest(bundle) == fingerprint
     assert verify_bundle(json.loads(json.dumps(bundle))) == 1
 
 

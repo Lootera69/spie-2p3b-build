@@ -92,7 +92,7 @@ def test_topic_name_cannot_give_away_answer_and_revision_two_replay_is_preserved
                       meanings={"plate tectonics": "coverage-v2:plate-tectonics"})
     engine = Generator()
     old = engine.build(replace(request, engine_revision=2))
-    current = engine.build(request)
+    current = engine.build(replace(request, engine_revision=8))
     old_item, item = old["items"][0], current["items"][0]
     assert old_item["correctAnswer"] == item["correctAnswer"] == "PLATE"
     assert " plate " in f" {normalized(old_item['title'])} "
@@ -101,6 +101,11 @@ def test_topic_name_cannot_give_away_answer_and_revision_two_replay_is_preserved
         key: value for key, value in item.items() if key != "title"
     }
     assert verify_bundle(old) == verify_bundle(current) == 1
+    latest = engine.build(request)
+    latest_item = latest["items"][0]
+    answer = normalized(latest_item["correctAnswer"])
+    assert f" {answer} " not in f" {normalized(latest_item['title'])} "
+    assert verify_bundle(latest) == 1
 
 
 def test_changing_revision_of_a_title_repaired_bundle_cannot_bypass_replay():

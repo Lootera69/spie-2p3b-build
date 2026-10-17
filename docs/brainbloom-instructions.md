@@ -26,6 +26,10 @@ If the text changes topics, answer format, count or level, generation waits for
 **Apply these settings**. Applying updates the visible form. The system then checks
 topic meanings, capacity and activity compatibility as usual. Editing a form field
 that conflicts with an explicit written instruction requires resolving that conflict.
+The report also shows the activity's collection. An explicit practice or experimental
+instruction can select that collection; an automatic scored request stays in core.
+“Choose the most likely explanation” now resolves to **Weigh the evidence** for new
+creator requests. Older exported instructions replay with their saved engine revision.
 
 `About ...` or `Topics: ...` specifies a topic list. `Include topics: ...`,
 `Include words: ...` or `Use keywords: ...` adds to existing topics. Topic clauses

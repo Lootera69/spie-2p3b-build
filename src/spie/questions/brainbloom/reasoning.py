@@ -2,9 +2,10 @@
 
 from __future__ import annotations
 
-from ...forge.contract import XP
+from ...forge.contract import XP, normalized
 from ...forge.corpus import digest
-from . import deduction, probabilistic
+from . import deduction, deduction_task, probabilistic
+from .activity_policy import metadata
 from .catalog import DIFFICULTIES, Request, lesson_group
 from .lexicon import validate_context
 from .topics import sample_words
@@ -28,6 +29,52 @@ LESSON = "\n".join((
     "For planning, consider both possible answers and the questions needed afterwards.",
     "Share this: explain why the closest alternative fails or costs more.",
 ))
+TEACHING = {
+    "deduction": (
+        "Translate every clue into a restriction on the arrangement.",
+        "List the positions still available to each card.",
+        "Combine relationships that mention a shared label.",
+        "Check both orientations of an adjacent pair unless its direction is fixed.",
+        "Reject any ordering that breaks even one stated condition.",
+        "A single consistent completion is stronger evidence than a guess.",
+        "Use elimination to explain why a competing answer fails.",
+        "Keep intermediate conclusions separate from starting assumptions.",
+    ),
+    "bayesian": (
+        "Begin with the prior weights before considering observations.",
+        "Multiply each starting weight by the likelihood of the observed readouts.",
+        "For a negative result, subtract its positive probability from one.",
+        "Compare unnormalized products when only a ranking is needed.",
+        "Conditional independence permits multiplication within each hypothesis.",
+        "The most likely explanation need not be certain.",
+        "Distinguish the probability of evidence from the probability of its cause.",
+        "Normalize by the total weight when reporting a posterior probability.",
+    ),
+    "planning": (
+        "Consider both possible responses to every permitted question.",
+        "Count the cost of identifying what remains after each response.",
+        "Weight future work by its branch probability.",
+        "Include the initial question in the total cost.",
+        "Stop only when one possible identity remains.",
+        "Compare complete adaptive strategies before selecting an opening.",
+        "A balanced split is a useful candidate, not a guarantee of optimality.",
+        "Check whether later observations distinguish every remaining pair.",
+    ),
+}
+
+
+def _lesson(style: str, answer: str) -> str:
+    """Teach the selected skill without accidentally naming its winning label."""
+    needle = f" {normalized(answer)} "
+    lines = [line for line in TEACHING[style] if needle not in f" {normalized(line)} "]
+    shares = [line for line in (
+        "Share this: explain how the restrictions work together.",
+        "Share this: describe why an attractive alternative fails.",
+        "Share this: compare your approach with another valid method.",
+    ) if needle not in f" {normalized(line)} "]
+    if len(lines) < 4 or not shares:
+        raise ValueError("No lesson can describe this skill without repeating the answer label")
+    return "\n".join([*lines[:4], shares[0]])
 
 
 def _render(style: str, model: dict, *, concise: bool = False
@@ -128,11 +175,14 @@ def _render(style: str, model: dict, *, concise: bool = False
 def candidate(request: Request, rng, context: dict, seed: int) -> tuple[dict, dict]:
     validate_context(context)
     level = DIFFICULTIES[request.difficulty]
-    # Auto rotates skills across consecutive candidate seeds, rather than allowing
-    # a single numerical score to favour one unrelated skill over the others.
-    style = STYLES[seed % len(STYLES)] if request.variation == "auto" else request.variation
+    # Legacy auto rotates skills; new requests use only policy-approved automatic
+    # activities rather than silently selecting an experimental family.
+    automatic_styles = (tuple(style for style in STYLES if metadata(style)["automatic"])
+                        if request.engine_revision >= 9 else STYLES)
+    style = (automatic_styles[seed % len(automatic_styles)] if request.variation == "auto"
+             else request.variation)
     if request.variation == "auto" and "topics" in context:
-        eligible = [s for s in STYLES
+        eligible = [s for s in automatic_styles
                     if len(context["topics"]) <= (4 if s == "bayesian" else level + 3)
                     <= len(context["entries"])]
         if not eligible:
@@ -147,6 +197,8 @@ def candidate(request: Request, rng, context: dict, seed: int) -> tuple[dict, di
     }[style]
     pool = [entry["word"] for entry in context["entries"]]
     models, rejected = [], 0
+    presentations = {}
+    certify_player_task = request.engine_revision >= 9 and style == "deduction"
     for attempt in range(BUDGETS[request.search_effort]):
         names = (sample_words(context, size, rng) if "topics" in context
                  else rng.sample(pool, size))
@@ -155,6 +207,12 @@ def candidate(request: Request, rng, context: dict, seed: int) -> tuple[dict, di
             rejected += 1
             continue
         model["attempt"] = attempt
+        if certify_player_task:
+            choices = deduction_task.candidates(model, request.qtype, level + 1)
+            if not choices:
+                rejected += 1
+                continue
+            presentations[attempt] = choices
         models.append(model)
     if not models:
         raise ValueError(
@@ -169,6 +227,23 @@ def candidate(request: Request, rng, context: dict, seed: int) -> tuple[dict, di
     proof = checker(model)
     concise = request.engine_revision >= 4
     stem, answer, candidates, explanation, hint = _render(style, model, concise=concise)
+    task = None
+    if certify_player_task:
+        options = presentations[model["attempt"]]
+        if request.qtype == "true-false":
+            truth = bool(rng.randrange(2))
+            options = [option for option in options if option["truth"] == truth]
+        presentation = rng.choice(options)
+        task = deduction_task.certify(model, request.qtype, presentation, level + 1)
+        order = sorted(range(len(model["names"])), key=lambda i: model["solution"][i])
+        task_label = "claim" if request.qtype == "true-false" else "question"
+        explanation = ("The clues force the order "
+                       + ", ".join(model["names"][i] for i in order) + ". "
+                       + f"{answer} occupies position {model['position'] + 1}. "
+                       + f"This displayed {task_label} "
+                       + f"requires at least {task['minimum_supporting_clues']} clues; "
+                       + "one smallest sufficient set is "
+                       + ", ".join(map(str, task["supporting_clues"])) + ".")
     stem = (("Fictional card labels.\n" if concise else
              f"Topic: {context['label']}. This is an invented card puzzle; "
              "the labels do not imply real-world properties.\n") + stem)
@@ -179,20 +254,26 @@ def candidate(request: Request, rng, context: dict, seed: int) -> tuple[dict, di
         "choices": [], "correctAnswer": answer, "correctExplanation": explanation,
         "incorrectExplanation": "Recheck the stated assumptions. " + explanation,
         "lessonGroup": lesson_group(request.category, "reasoning"),
-        "xpReward": XP[request.difficulty], "lessonContent": LESSON,
+        "xpReward": XP[request.difficulty],
+        "lessonContent": _lesson(style, answer) if request.engine_revision >= 9 else LESSON,
     }
     wrongs = [value for value in candidates if value != answer]
     if request.qtype == "multiple-choice":
-        choices = [answer, *rng.sample(wrongs, 3)]
+        choices = (list(task["answer_domain"]) if task else [answer, *rng.sample(wrongs, 3)])
         rng.shuffle(choices)
         item["choices"] = choices
     elif request.qtype == "true-false":
-        truth = bool(rng.randrange(2))
-        claimed = answer if truth else rng.choice(wrongs)
+        truth = task["claim_holds"] if task else bool(rng.randrange(2))
+        claimed = task["claim"] if task else answer if truth else rng.choice(wrongs)
         item.update({"choices": ["True", "False"], "correctAnswer": str(truth),
                      "question": stem + f"\nTrue or False: the answer above is {claimed}.",
                      "correctExplanation": f"The claim is {str(truth).lower()}. " + explanation})
         proof.update({"claim": claimed, "claim_holds": claimed == answer})
+        if task:
+            prompt = f"Which card must occupy position {model['position'] + 1}?"
+            item["question"] = stem.replace(prompt, (
+                f"True or False: {claimed} occupies position {model['position'] + 1}."
+            ))
     else:
         item["acceptedAnswers"] = [answer, "the answer is " + answer, "answer: " + answer]
         if request.qtype == "riddle":
@@ -210,4 +291,20 @@ def candidate(request: Request, rng, context: dict, seed: int) -> tuple[dict, di
             "independent_check": "selected candidate checked before release",
         },
     })
+    if task:
+        proof["player_task"] = task
+        proof["quality"] = {**proof["quality"],
+                            "displayed_supporting_clues": task["minimum_supporting_clues"]}
+        # The checker also measures the underlying open question. Keep that
+        # analysis, but do not describe it as the support for an easier displayed
+        # claim or an answer domain narrowed by the offered choices.
+        proof["steps"][-1] = (
+            f"The underlying open question requires at least {model['minimum_support']} clues, "
+            "before restricting the task to answer choices or a single true/false claim."
+        )
+        proof["steps"].append(
+            f"The displayed {task_label} requires at least "
+            f"{task['minimum_supporting_clues']} clues; one smallest sufficient set is "
+            + ", ".join(map(str, task["supporting_clues"])) + "."
+        )
     return item, proof

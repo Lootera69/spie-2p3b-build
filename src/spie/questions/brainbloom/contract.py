@@ -7,7 +7,14 @@ from .crossword import validate_grid
 
 def issues(item: object) -> list[str]:
     if not isinstance(item, dict) or item.get("type") not in ("crossword", "wonder"):
-        return quiz_issues(item)
+        errors = quiz_issues(item)
+        # Native workshop questions may have three genuine alternatives. Studio's
+        # separate forge contract still requires four; never pad a native puzzle
+        # with an impossible answer merely to satisfy that export shape.
+        if (isinstance(item, dict) and item.get("type") == "multiple-choice"
+                and isinstance(item.get("choices"), list) and len(item["choices"]) == 3):
+            errors = [error for error in errors if error != "choice-count"]
+        return errors
     kind = item["type"]
     expected = COMMON | ({"crosswordData"} if kind == "crossword" else {"sharePrompt"})
     errors = []

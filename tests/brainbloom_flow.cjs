@@ -41,6 +41,7 @@ window.fetch = async (url, options) => {
 };
 window.eval(fs.readFileSync(path.join(assets, "library.js"), "utf8"));
 window.eval(fs.readFileSync(path.join(assets, "player.js"), "utf8"));
+window.eval(fs.readFileSync(path.join(assets, "episode.js"), "utf8"));
 window.eval(fs.readFileSync(path.join(assets, "workspace.js"), "utf8"));
 window.eval(fs.readFileSync(path.join(assets, "app.js"), "utf8"));
 const el = id => document.getElementById(id);
@@ -92,12 +93,23 @@ async function main() {
   assert.match(el("activity-help").textContent, /Solve a set of clues/);
   assert.match(el("setup").textContent, /20 authored topics across 28 pack versions/);
   assert.ok(el("designer-guide").open);
-  assert.ok(![...el("topic").options].some(o => o.value === "logic-grid"));
+  assert.ok([...el("topic").options].some(o => o.value === "logic-grid"));
+  assert.equal(el("collection").value, "core");
+  assert.equal(el("activity-collections").open, false);
+  assert.deepEqual([...el("topic").options].map(o => o.value).filter(id => !["auto", "custom"].includes(id)).sort(), ["autopilot", "deduction", "logic-grid"]);
   assert.match(el("topic-status").textContent, /All 2 topics/);
   assert.equal(el("sense"), null);
   assert.equal(el("variation-rule"), null);
   assert.equal(el("advanced").open, false);
   assert.ok([...el("topic").options].every(o => !/Bayesian|generator|reasoning lab/i.test(o.textContent)));
+
+  change("collection", "practice");
+  await until(() => !el("generate").disabled && el("collection-notice").textContent.includes("Practice"), "Practice collection ready");
+  assert.ok(![...el("topic").options].some(o => o.value === "auto"));
+  change("design-mode", "manual");
+  change("design-mode", "automatic");
+  assert.equal(el("topic").value, "auto", "Rapid manual/automatic changes preserve a valid activity");
+  await until(() => !el("generate").disabled && el("collection").value === "core", "Returned to automatic core selection");
 
   change("subject", "bank, crane", "input");
   await until(() => meaning("bank") && meaning("crane"), "Both ambiguous topics displayed");
@@ -110,6 +122,32 @@ async function main() {
   const crane = await chooseMeaning("crane", "wading");
   await until(() => !el("generate").disabled, "Both meanings ready");
   assert.equal(meaning("bank").value, bank);
+  change("collection", "experimental");
+  await until(() => !el("generate").disabled && el("collection-notice").textContent.includes("Experimental") && [...el("topic").options].some(o => o.value === "planning"), "Experimental collection offered");
+  assert.match(el("collection-notice").textContent, /Experimental/);
+  assert.ok(![...el("topic").options].some(o => o.value === "most-likely"));
+  assert.ok([...el("topic").options].some(o => o.value === "bayesian"));
+  change("topic", "custom");
+  change("instructions", "Discover a number rule. Use true or false.", "input");
+  await until(() => el("topic-status").textContent.includes("Number-rule true/false is unavailable"), "Unavailable written number-rule format explained");
+  assert.ok(el("generate").disabled && el("apply-instructions").hidden);
+  assert.match(el("topic-status").textContent, /Choose multiple choice, typed answer or riddle/);
+  assert.equal(el("qtype").value, "multiple-choice", "Unavailable instructions do not change the form");
+  change("topic", "pattern");
+  await until(() => !el("generate").disabled, "Number-rule multiple choice remains available");
+  change("qtype", "true-false");
+  await until(() => !el("topic-status").textContent.startsWith("Checking"), "True/false activity choices refreshed");
+  assert.ok(![...el("topic").options].some(o => o.value === "pattern"));
+  assert.ok(el("generate").disabled, "Withheld format does not silently choose an experiment");
+  change("qtype", "type-answer");
+  await until(() => [...el("topic").options].some(o => o.value === "pattern"), "Typed number-rule choice restored");
+  change("topic", "pattern");
+  await until(() => !el("generate").disabled, "Typed number-rule activity ready");
+  change("qtype", "riddle");
+  await until(() => !el("generate").disabled, "Number-rule riddle activity ready");
+  assert.equal(el("topic").value, "pattern");
+  change("qtype", "multiple-choice");
+  await until(() => !el("generate").disabled, "Number-rule choice format restored");
   change("topic", "planning");
   await until(() => !el("generate").disabled, "Planning ready");
   change("qtype", "type-answer");
@@ -186,7 +224,7 @@ async function main() {
   assert.match(el("crossword-size-tiles").textContent, /Recommended/);
   assert.equal(el("crossword-size-tiles").querySelectorAll(".size-tile").length, 11);
   assert.equal(el("crossword-size-tiles").querySelector(".size-featured").getAttribute("aria-pressed"), "true");
-  change("subject", "space, ocean", "input");
+  change("subject", "music, geology", "input");
   change("difficulty", "easy");
   for (const size of [5, 15]) {
     [...el("crossword-size-tiles").querySelectorAll(".size-tile")].find(b => b.textContent === `${size} × ${size}`).click();
@@ -198,13 +236,32 @@ async function main() {
     assert.equal(generated.at(-1).items[0].crosswordData.size, size);
     assert.equal(el("results").querySelectorAll(".crossword-cell").length, size * size);
     assert.equal(el("crossword-size").value, String(size));
+    const crosswordCard = el("results").querySelector(".card");
+    assert.equal(crosswordCard.querySelector(".vocabulary-recap"), null);
+    crosswordCard.querySelector(".reveal").click();
+    const recap = crosswordCard.querySelector(".vocabulary-recap").textContent;
+    assert.match(recap, /Vocabulary recap:/);
+    for (const clue of generated.at(-1).items[0].crosswordData.clues) {
+      assert.ok(recap.includes(`${clue.answer} — ${clue.clue}`));
+    }
   }
+
+  change("subject", "", "input");
+  await until(() => !el("generate").disabled && el("topic-status").textContent.includes("uncommon English vocabulary"), "Unthemed corpus vocabulary ready");
+  const unthemedBefore = generated.length;
+  el("generate").click();
+  await until(() => generated.length > unthemedBefore && !el("download").disabled, "Unthemed crossword generated");
+  assert.equal(generated.at(-1).dictionary.topics[0].sense, "corpus:english");
+  assert.equal(generated.at(-1).dictionary.label, "English vocabulary");
+  assert.equal(generated.at(-1).dictionary.crossword_learning.version, 2);
 
   change("subject", "clock, mirror", "input");
   change("qtype", "wonder");
   await chooseMeaning("clock", "timepiece");
   await chooseMeaning("mirror", "surface");
   await until(() => !el("generate").disabled, "Reflection ready");
+  assert.equal(el("collection").value, "explore");
+  assert.match(el("collection-notice").textContent, /unscored/i);
   assert.ok(el("crossword-controls").hidden);
   assert.ok(el("difficulty-controls").hidden);
   assert.equal(el("count").max, "1");
@@ -250,6 +307,8 @@ async function main() {
   assert.equal(el("difficulty").value, "easy");
   assert.equal(el("qtype").value, "type-answer");
   assert.match(el("instruction-feedback").textContent, /Unscramble a word/);
+  assert.match(el("instruction-feedback").textContent, /Collection: Practice/);
+  assert.equal(el("collection").value, "practice");
   el("setup-scroll").scrollTop = 420;
   el("results").scrollTop = 250;
   const before = generated.length;
@@ -357,6 +416,8 @@ async function main() {
   assert.ok(!el("results").textContent.includes(auto.proofs[0].quality.hints[0]));
   hint.click();
   assert.ok(el("results").textContent.includes(auto.proofs[0].quality.hints[0]));
+  change("collection", "experimental");
+  await until(() => !el("generate").disabled && el("collection-notice").textContent.includes("Experimental"), "Experimental planning collection ready");
   change("topic", "resource-plan");
   await until(() => !el("generate").disabled, "Delivery planning ready");
   assert.equal(el("reasoning-controls").hidden, true);
@@ -367,8 +428,67 @@ async function main() {
   assert.equal(plan.request.variation, "resource-plan");
   assert.equal(plan.request.reasoning_mode, "auto", "Hidden grid requirements do not apply to delivery plans");
   assert.equal(plan.proofs[0].quality.optimal_routes, 1);
+
+  // Varied state plans stay experimental and reveal strategy only after solving.
+  change("topic", "state-planning");
+  change("qtype", "multiple-choice");
+  await until(() => !el("generate").disabled, "Energy planning ready");
+  const beforeStatePlan = generated.length;
+  el("generate").click();
+  await until(() => generated.length > beforeStatePlan && !el("download").disabled, "Energy planning generated");
+  const statePlan = generated.at(-1), stateItem = statePlan.items[0];
+  assert.equal(el("collection").value, "experimental");
+  assert.equal(statePlan.request.engine_revision, 17);
+  assert.equal(statePlan.proofs[0].model.experience_version, "planning-experience-v5");
+  assert.equal(statePlan.proofs[0].model.design_version, "state-planning-variety-v1");
+  const stateCard = el("results").querySelector(".card");
+  const strategyExplanation = statePlan.proofs[0].strategy.explanation;
+  assert.ok(!stateCard.textContent.includes(strategyExplanation));
+  const episode = stateCard.querySelector(".episode-player");
+  assert.ok(episode && !stateCard.querySelector(".episode-quiz").open);
+  episode.querySelector("button").click();
+  await until(() => episode.querySelector(".episode-state"), "Scenario initial state replayed");
+  assert.match(episode.querySelector(".episode-location").textContent, /action 0/);
+  episode.querySelector(`[data-action="${statePlan.proofs[0].model.solution[0]}"]`).click();
+  await until(() => episode.querySelector(".episode-location").textContent.includes("action 1"), "Scenario action replayed");
+  el("save-puzzles").click();
+  window.dispatchEvent(new window.Event("pagehide"));
+  const episodeSave = JSON.parse(window.localStorage.getItem("brainbloom-library-v1")).entries.find(entry => entry.bundle.proofs[0].episode);
+  assert.deepEqual(episodeSave.progress[0].episode.actions, [statePlan.proofs[0].model.solution[0]]);
+  assert.equal(episodeSave.progress[0].episode.hint_level, 0);
+  assert.deepEqual(episodeSave.bundle, statePlan);
+  const answerIndex = stateItem.choices.indexOf(stateItem.correctAnswer);
+  stateCard.querySelectorAll(".option")[answerIndex].click();
+  stateCard.querySelector(".check-answer").click();
+  await until(() => stateCard.querySelector(".answer-feedback").dataset.result === "correct", "Energy plan coached");
+  stateCard.querySelector(".reveal").click();
+  assert.ok(stateCard.textContent.includes(strategyExplanation));
+  const replayResponse = await fetch(new URL("/api/verify-saved", base), {
+    method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({bundle:statePlan}),
+  });
+  assert.deepEqual(await replayResponse.json(), {ok:true, count:1});
+
+  // The displayed true/false claim can need fewer clues than naming the card.
+  change("collection", "core");
+  change("qtype", "true-false");
+  change("difficulty", "hard");
+  change("subject", "space", "input");
+  change("seed", "7", "input");
+  await until(() => !el("generate").disabled, "Certified deduction claim ready");
+  const beforeClaim = generated.length;
+  el("generate").click();
+  await until(() => generated.length > beforeClaim && !el("download").disabled, "Certified deduction claim generated");
+  const claimTask = generated.at(-1).proofs[0].player_task;
+  assert.ok(claimTask.minimum_supporting_clues < claimTask.open_answer_supporting_clues,
+    "Fixture distinguishes the displayed claim from the open question");
+  el("results").querySelector(".reveal").click();
+  const checkedText = [...el("results").querySelectorAll("details")].find(detail =>
+    detail.querySelector("summary")?.textContent === "What was checked").textContent;
+  assert.ok(checkedText.includes(`Displayed claim requires at least ${claimTask.minimum_supporting_clues} supporting clues.`));
+  assert.ok(checkedText.includes(`Identifying the card without answer choices requires at least ${claimTask.open_answer_supporting_clues} clues.`));
+  assert.ok(!checkedText.includes(`Answer requires at least ${claimTask.open_answer_supporting_clues}`));
   assert.equal(errors.length, 0, errors.join("\n"));
-  process.stdout.write("Workshop DOM flow passed: automatic meanings, optional overrides, strict input, hard reasoning defaults, instructions, custom grids, grading, JSON export, responsive panels and preserved state.\n");
+  process.stdout.write("Workshop DOM flow passed: core/practice/experimental/explore collections, safe transitions, automatic meanings, strict input, instructions, custom grids, grading, JSON export, responsive panels and preserved state.\n");
 }
 main().then(() => window.close()).catch(error => {
   window.close();

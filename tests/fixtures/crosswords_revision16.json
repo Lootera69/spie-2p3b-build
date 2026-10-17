@@ -1,0 +1,662 @@
+[
+  {
+    "request": {
+      "topic": "crossword",
+      "qtype": "crossword",
+      "difficulty": "easy",
+      "count": 1,
+      "seed": 0,
+      "category": "logic",
+      "subject": "",
+      "sense": "",
+      "variation": "auto",
+      "search_effort": "balanced",
+      "topic_mode": "single",
+      "meanings": {},
+      "instructions": "",
+      "grid": null,
+      "crossword_size": null,
+      "engine_revision": 16,
+      "reasoning_mode": "auto",
+      "min_supporting_clues": "auto"
+    },
+    "sha256": "6380219e20cacd990ff560893000bf805ce290f96c75a34721ee03305727d392"
+  },
+  {
+    "request": {
+      "topic": "crossword",
+      "qtype": "crossword",
+      "difficulty": "medium",
+      "count": 1,
+      "seed": 0,
+      "category": "logic",
+      "subject": "",
+      "sense": "",
+      "variation": "auto",
+      "search_effort": "balanced",
+      "topic_mode": "single",
+      "meanings": {},
+      "instructions": "",
+      "grid": null,
+      "crossword_size": null,
+      "engine_revision": 16,
+      "reasoning_mode": "auto",
+      "min_supporting_clues": "auto"
+    },
+    "sha256": "f6f4039d1ac3c4f004f0d7d251f4f77760fea27c6acce2b9ae10892b9af45874"
+  },
+  {
+    "request": {
+      "topic": "crossword",
+      "qtype": "crossword",
+      "difficulty": "hard",
+      "count": 1,
+      "seed": 0,
+      "category": "logic",
+      "subject": "",
+      "sense": "",
+      "variation": "auto",
+      "search_effort": "balanced",
+      "topic_mode": "single",
+      "meanings": {},
+      "instructions": "",
+      "grid": null,
+      "crossword_size": null,
+      "engine_revision": 16,
+      "reasoning_mode": "auto",
+      "min_supporting_clues": "auto"
+    },
+    "sha256": "e28260d1f654eed815fd49d3543f445e8e1bcdad8f96787be8df77653911dbc9"
+  },
+  {
+    "request": {
+      "topic": "crossword",
+      "qtype": "crossword",
+      "difficulty": "easy",
+      "count": 1,
+      "seed": 0,
+      "category": "science",
+      "subject": "",
+      "sense": "",
+      "variation": "auto",
+      "search_effort": "balanced",
+      "topic_mode": "single",
+      "meanings": {},
+      "instructions": "",
+      "grid": null,
+      "crossword_size": null,
+      "engine_revision": 16,
+      "reasoning_mode": "auto",
+      "min_supporting_clues": "auto"
+    },
+    "sha256": "18aa485788c06449d21aabb5ad51e84b12880f486de7f79d4d497ea5e46379c0"
+  },
+  {
+    "request": {
+      "topic": "crossword",
+      "qtype": "crossword",
+      "difficulty": "medium",
+      "count": 1,
+      "seed": 0,
+      "category": "science",
+      "subject": "",
+      "sense": "",
+      "variation": "auto",
+      "search_effort": "balanced",
+      "topic_mode": "single",
+      "meanings": {},
+      "instructions": "",
+      "grid": null,
+      "crossword_size": null,
+      "engine_revision": 16,
+      "reasoning_mode": "auto",
+      "min_supporting_clues": "auto"
+    },
+    "sha256": "a6335fac013792c15274293750f5ebf98fba1777bd316e616af5d8fde90381ef"
+  },
+  {
+    "request": {
+      "topic": "crossword",
+      "qtype": "crossword",
+      "difficulty": "hard",
+      "count": 1,
+      "seed": 0,
+      "category": "science",
+      "subject": "",
+      "sense": "",
+      "variation": "auto",
+      "search_effort": "balanced",
+      "topic_mode": "single",
+      "meanings": {},
+      "instructions": "",
+      "grid": null,
+      "crossword_size": null,
+      "engine_revision": 16,
+      "reasoning_mode": "auto",
+      "min_supporting_clues": "auto"
+    },
+    "sha256": "865a2f15cad293db4ead5cc0a188e0ece9cefebcc1a95a07ef87e7a46a4945ca"
+  },
+  {
+    "request": {
+      "topic": "crossword",
+      "qtype": "crossword",
+      "difficulty": "easy",
+      "count": 1,
+      "seed": 0,
+      "category": "puzzles",
+      "subject": "",
+      "sense": "",
+      "variation": "auto",
+      "search_effort": "balanced",
+      "topic_mode": "single",
+      "meanings": {},
+      "instructions": "",
+      "grid": null,
+      "crossword_size": null,
+      "engine_revision": 16,
+      "reasoning_mode": "auto",
+      "min_supporting_clues": "auto"
+    },
+    "sha256": "9d37efbfb75c1100fa5e9c5c77c7d5af694aa5cb98fcdc9c9a0092673a3ca76d"
+  },
+  {
+    "request": {
+      "topic": "crossword",
+      "qtype": "crossword",
+      "difficulty": "medium",
+      "count": 1,
+      "seed": 0,
+      "category": "puzzles",
+      "subject": "",
+      "sense": "",
+      "variation": "auto",
+      "search_effort": "balanced",
+      "topic_mode": "single",
+      "meanings": {},
+      "instructions": "",
+      "grid": null,
+      "crossword_size": null,
+      "engine_revision": 16,
+      "reasoning_mode": "auto",
+      "min_supporting_clues": "auto"
+    },
+    "sha256": "1e7dd02a4343934019c830535f870190f2956d58730d80c1c806106128531bd3"
+  },
+  {
+    "request": {
+      "topic": "crossword",
+      "qtype": "crossword",
+      "difficulty": "hard",
+      "count": 1,
+      "seed": 0,
+      "category": "puzzles",
+      "subject": "",
+      "sense": "",
+      "variation": "auto",
+      "search_effort": "balanced",
+      "topic_mode": "single",
+      "meanings": {},
+      "instructions": "",
+      "grid": null,
+      "crossword_size": null,
+      "engine_revision": 16,
+      "reasoning_mode": "auto",
+      "min_supporting_clues": "auto"
+    },
+    "sha256": "b113cad568ea3148bb9cca593d03313dc35747f46d9ae8ed720744375bdd0f48"
+  },
+  {
+    "request": {
+      "topic": "crossword",
+      "qtype": "crossword",
+      "difficulty": "easy",
+      "count": 1,
+      "seed": 0,
+      "category": "riddles",
+      "subject": "",
+      "sense": "",
+      "variation": "auto",
+      "search_effort": "balanced",
+      "topic_mode": "single",
+      "meanings": {},
+      "instructions": "",
+      "grid": null,
+      "crossword_size": null,
+      "engine_revision": 16,
+      "reasoning_mode": "auto",
+      "min_supporting_clues": "auto"
+    },
+    "sha256": "b0c8edafe8ea5e5523a2a91ed8f8467807d7c8c4c542c3d1715dee287a3b2bfd"
+  },
+  {
+    "request": {
+      "topic": "crossword",
+      "qtype": "crossword",
+      "difficulty": "medium",
+      "count": 1,
+      "seed": 0,
+      "category": "riddles",
+      "subject": "",
+      "sense": "",
+      "variation": "auto",
+      "search_effort": "balanced",
+      "topic_mode": "single",
+      "meanings": {},
+      "instructions": "",
+      "grid": null,
+      "crossword_size": null,
+      "engine_revision": 16,
+      "reasoning_mode": "auto",
+      "min_supporting_clues": "auto"
+    },
+    "sha256": "23adb01b0a603f552c81916203a5e53fcc2f628d4e8de79c6017c8f2a528bed9"
+  },
+  {
+    "request": {
+      "topic": "crossword",
+      "qtype": "crossword",
+      "difficulty": "hard",
+      "count": 1,
+      "seed": 0,
+      "category": "riddles",
+      "subject": "",
+      "sense": "",
+      "variation": "auto",
+      "search_effort": "balanced",
+      "topic_mode": "single",
+      "meanings": {},
+      "instructions": "",
+      "grid": null,
+      "crossword_size": null,
+      "engine_revision": 16,
+      "reasoning_mode": "auto",
+      "min_supporting_clues": "auto"
+    },
+    "sha256": "e6301e62075c8f762feeaa46b0f84f39ae60794f7b9b9efa4547d5233cf6a2a3"
+  },
+  {
+    "request": {
+      "topic": "dictionary",
+      "qtype": "crossword",
+      "difficulty": "hard",
+      "count": 1,
+      "seed": 0,
+      "category": "logic",
+      "subject": "space",
+      "sense": "",
+      "variation": "auto",
+      "search_effort": "balanced",
+      "topic_mode": "single",
+      "meanings": {},
+      "instructions": "",
+      "grid": null,
+      "crossword_size": null,
+      "engine_revision": 16,
+      "reasoning_mode": "auto",
+      "min_supporting_clues": "auto"
+    },
+    "sha256": "d9442f2ee1938df06e3513658791188d9aa1ef56ae948fff6bf8b90c26a70dce"
+  },
+  {
+    "request": {
+      "topic": "dictionary",
+      "qtype": "crossword",
+      "difficulty": "hard",
+      "count": 1,
+      "seed": 0,
+      "category": "logic",
+      "subject": "space",
+      "sense": "",
+      "variation": "auto",
+      "search_effort": "balanced",
+      "topic_mode": "combined",
+      "meanings": {
+        "space": "pack:space"
+      },
+      "instructions": "",
+      "grid": null,
+      "crossword_size": null,
+      "engine_revision": 16,
+      "reasoning_mode": "auto",
+      "min_supporting_clues": "auto"
+    },
+    "sha256": "23d093c2f725c2346e514a2c24c4f80fdfa031b4f055361f5bf060338a1e7ae4"
+  },
+  {
+    "request": {
+      "topic": "dictionary",
+      "qtype": "crossword",
+      "difficulty": "hard",
+      "count": 1,
+      "seed": 0,
+      "category": "logic",
+      "subject": "ocean",
+      "sense": "",
+      "variation": "auto",
+      "search_effort": "balanced",
+      "topic_mode": "single",
+      "meanings": {},
+      "instructions": "",
+      "grid": null,
+      "crossword_size": null,
+      "engine_revision": 16,
+      "reasoning_mode": "auto",
+      "min_supporting_clues": "auto"
+    },
+    "sha256": "6eaf1a988fb5396911b3f52dd2f1d8a36fad46bf1dd4bc9aea3cfd0c58163e58"
+  },
+  {
+    "request": {
+      "topic": "dictionary",
+      "qtype": "crossword",
+      "difficulty": "hard",
+      "count": 1,
+      "seed": 0,
+      "category": "logic",
+      "subject": "ocean",
+      "sense": "",
+      "variation": "auto",
+      "search_effort": "balanced",
+      "topic_mode": "combined",
+      "meanings": {
+        "ocean": "pack:ocean"
+      },
+      "instructions": "",
+      "grid": null,
+      "crossword_size": null,
+      "engine_revision": 16,
+      "reasoning_mode": "auto",
+      "min_supporting_clues": "auto"
+    },
+    "sha256": "04b72bbb612965b63782add2e1004845a8222c27178b9c8a5b93d4d38fd039b2"
+  },
+  {
+    "request": {
+      "topic": "dictionary",
+      "qtype": "crossword",
+      "difficulty": "hard",
+      "count": 1,
+      "seed": 0,
+      "category": "logic",
+      "subject": "animals",
+      "sense": "",
+      "variation": "auto",
+      "search_effort": "balanced",
+      "topic_mode": "single",
+      "meanings": {},
+      "instructions": "",
+      "grid": null,
+      "crossword_size": null,
+      "engine_revision": 16,
+      "reasoning_mode": "auto",
+      "min_supporting_clues": "auto"
+    },
+    "sha256": "766c0bacd2602ec9ad03c3c2f41f8c14ebd427eaaff1e427ca5da2d3dc63298c"
+  },
+  {
+    "request": {
+      "topic": "dictionary",
+      "qtype": "crossword",
+      "difficulty": "hard",
+      "count": 1,
+      "seed": 0,
+      "category": "logic",
+      "subject": "animals",
+      "sense": "",
+      "variation": "auto",
+      "search_effort": "balanced",
+      "topic_mode": "combined",
+      "meanings": {
+        "animals": "pack:animals"
+      },
+      "instructions": "",
+      "grid": null,
+      "crossword_size": null,
+      "engine_revision": 16,
+      "reasoning_mode": "auto",
+      "min_supporting_clues": "auto"
+    },
+    "sha256": "2f27fd1cb47018efd4f74345c955a846d28a2f5726aaa03d6e526779a0f7803d"
+  },
+  {
+    "request": {
+      "topic": "dictionary",
+      "qtype": "crossword",
+      "difficulty": "hard",
+      "count": 1,
+      "seed": 0,
+      "category": "logic",
+      "subject": "plants",
+      "sense": "",
+      "variation": "auto",
+      "search_effort": "balanced",
+      "topic_mode": "single",
+      "meanings": {},
+      "instructions": "",
+      "grid": null,
+      "crossword_size": null,
+      "engine_revision": 16,
+      "reasoning_mode": "auto",
+      "min_supporting_clues": "auto"
+    },
+    "sha256": "3509f7aa09c5f6f816e2d41c1cd873f7765cfa44d47f3ad5d9ee827e78cb622e"
+  },
+  {
+    "request": {
+      "topic": "dictionary",
+      "qtype": "crossword",
+      "difficulty": "hard",
+      "count": 1,
+      "seed": 0,
+      "category": "logic",
+      "subject": "plants",
+      "sense": "",
+      "variation": "auto",
+      "search_effort": "balanced",
+      "topic_mode": "combined",
+      "meanings": {
+        "plants": "pack:plants"
+      },
+      "instructions": "",
+      "grid": null,
+      "crossword_size": null,
+      "engine_revision": 16,
+      "reasoning_mode": "auto",
+      "min_supporting_clues": "auto"
+    },
+    "sha256": "da53a32e94e9718574f9e29840ed361134e83c1bb53a1dbeed4d67a0e4d64a11"
+  },
+  {
+    "request": {
+      "topic": "dictionary",
+      "qtype": "crossword",
+      "difficulty": "hard",
+      "count": 1,
+      "seed": 0,
+      "category": "logic",
+      "subject": "science",
+      "sense": "",
+      "variation": "auto",
+      "search_effort": "balanced",
+      "topic_mode": "single",
+      "meanings": {},
+      "instructions": "",
+      "grid": null,
+      "crossword_size": null,
+      "engine_revision": 16,
+      "reasoning_mode": "auto",
+      "min_supporting_clues": "auto"
+    },
+    "sha256": "34fb86ae9874219585e9f24bf61cf9a6c030d6fb42b481aa95258cf0fcd72380"
+  },
+  {
+    "request": {
+      "topic": "dictionary",
+      "qtype": "crossword",
+      "difficulty": "hard",
+      "count": 1,
+      "seed": 0,
+      "category": "logic",
+      "subject": "science",
+      "sense": "",
+      "variation": "auto",
+      "search_effort": "balanced",
+      "topic_mode": "combined",
+      "meanings": {
+        "science": "pack:science"
+      },
+      "instructions": "",
+      "grid": null,
+      "crossword_size": null,
+      "engine_revision": 16,
+      "reasoning_mode": "auto",
+      "min_supporting_clues": "auto"
+    },
+    "sha256": "6bb128e0083fd52e9353f8092d462d6611880a461f46d0af8a64fc017bc18332"
+  },
+  {
+    "request": {
+      "topic": "dictionary",
+      "qtype": "crossword",
+      "difficulty": "hard",
+      "count": 1,
+      "seed": 0,
+      "category": "logic",
+      "subject": "logic",
+      "sense": "",
+      "variation": "auto",
+      "search_effort": "balanced",
+      "topic_mode": "single",
+      "meanings": {},
+      "instructions": "",
+      "grid": null,
+      "crossword_size": null,
+      "engine_revision": 16,
+      "reasoning_mode": "auto",
+      "min_supporting_clues": "auto"
+    },
+    "sha256": "8fa66cdf11439fba660f300a4b2a58e9431c16dd2e55879ae21523527d73235a"
+  },
+  {
+    "request": {
+      "topic": "dictionary",
+      "qtype": "crossword",
+      "difficulty": "hard",
+      "count": 1,
+      "seed": 0,
+      "category": "logic",
+      "subject": "logic",
+      "sense": "",
+      "variation": "auto",
+      "search_effort": "balanced",
+      "topic_mode": "combined",
+      "meanings": {
+        "logic": "pack:logic"
+      },
+      "instructions": "",
+      "grid": null,
+      "crossword_size": null,
+      "engine_revision": 16,
+      "reasoning_mode": "auto",
+      "min_supporting_clues": "auto"
+    },
+    "sha256": "5498a9d72fc12074f989258fa1798bdb0e77e51ef7b7851d4bd83567b55afae5"
+  },
+  {
+    "request": {
+      "topic": "dictionary",
+      "qtype": "crossword",
+      "difficulty": "hard",
+      "count": 1,
+      "seed": 0,
+      "category": "logic",
+      "subject": "machine learning",
+      "sense": "",
+      "variation": "auto",
+      "search_effort": "balanced",
+      "topic_mode": "single",
+      "meanings": {},
+      "instructions": "",
+      "grid": null,
+      "crossword_size": null,
+      "engine_revision": 16,
+      "reasoning_mode": "auto",
+      "min_supporting_clues": "auto"
+    },
+    "sha256": "6afdfef23ece72cf6f45ca791667ccdf07fe722c67ee7eba1758a7f477af0d2a"
+  },
+  {
+    "request": {
+      "topic": "dictionary",
+      "qtype": "crossword",
+      "difficulty": "hard",
+      "count": 1,
+      "seed": 0,
+      "category": "logic",
+      "subject": "machine learning",
+      "sense": "",
+      "variation": "auto",
+      "search_effort": "balanced",
+      "topic_mode": "combined",
+      "meanings": {
+        "machine learning": "coverage-v2:machine-learning"
+      },
+      "instructions": "",
+      "grid": null,
+      "crossword_size": null,
+      "engine_revision": 16,
+      "reasoning_mode": "auto",
+      "min_supporting_clues": "auto"
+    },
+    "sha256": "032ea16b38c12eb4df711eb8de63bc34fdd82b59b1207b75632a813f44953dce"
+  },
+  {
+    "request": {
+      "topic": "dictionary",
+      "qtype": "crossword",
+      "difficulty": "hard",
+      "count": 1,
+      "seed": 0,
+      "category": "logic",
+      "subject": "cricket",
+      "sense": "",
+      "variation": "auto",
+      "search_effort": "balanced",
+      "topic_mode": "single",
+      "meanings": {},
+      "instructions": "",
+      "grid": null,
+      "crossword_size": null,
+      "engine_revision": 16,
+      "reasoning_mode": "auto",
+      "min_supporting_clues": "auto"
+    },
+    "sha256": "b24d1d065a3a79de999b18fb797f51c3ff679a1cb9859783934cc2da6dcc6779"
+  },
+  {
+    "request": {
+      "topic": "dictionary",
+      "qtype": "crossword",
+      "difficulty": "hard",
+      "count": 1,
+      "seed": 0,
+      "category": "logic",
+      "subject": "cricket",
+      "sense": "",
+      "variation": "auto",
+      "search_effort": "balanced",
+      "topic_mode": "combined",
+      "meanings": {
+        "cricket": "coverage-v2:cricket"
+      },
+      "instructions": "",
+      "grid": null,
+      "crossword_size": null,
+      "engine_revision": 16,
+      "reasoning_mode": "auto",
+      "min_supporting_clues": "auto"
+    },
+    "sha256": "cc9128e60ab913734d716408c25cfee4d63f0dc2ca7e8ed0f164b0e5e05d750e"
+  }
+]

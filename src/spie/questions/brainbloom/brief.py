@@ -5,6 +5,14 @@ from __future__ import annotations
 import math
 from dataclasses import asdict, dataclass, field, replace
 
+from .activity_policy import (
+    COLLECTIONS,
+    PATTERN_TRUE_FALSE_UNAVAILABLE,
+    automatic_activities,
+    canonical_activity,
+    metadata,
+    selection,
+)
 from .catalog import CATEGORIES, DIFFICULTIES, QUIZ, TOPICS, Request
 from .instructions import EXAMPLES, MAX_LENGTH, combined_subject, interpret, validate_request
 from .lexicon import Dictionary
@@ -45,12 +53,12 @@ ACTIVITIES = {
     ),
     "state-planning": Activity(
         "Plan with energy and switches", "activities", "state-planning",
-        "Choose the best first action when movement spends energy and switches "
-        "change which routes are available.",
+        "Play a complete story by planning routes, managing energy and changing gates. "
+        "Try ideas, inspect consequences and ask for hints as you go.",
     ),
     "pattern": Activity("Discover a number rule", "activities", "pattern",
-                        "Use input/output examples to find the only matching rule among "
-                        "four stated possibilities."),
+                        "Compare four stated rules with input/output observations, then "
+                        "predict the next output.", ("multiple-choice", "type-answer", "riddle")),
     "logic-grid": Activity("Create a custom logic grid", "logic-grid", "auto",
                            "Define your own groups and rules; verify or complete a unique puzzle."),
     "deduction": Activity("Solve a set of clues", "reasoning", "deduction",
@@ -66,7 +74,8 @@ ACTIVITIES = {
     "word-order": Activity("Put words in order", "dictionary", "word-order",
                            "Arrange words from all your topics in alphabetical order."),
     "crossword": Activity("Connect words in a crossword", "dictionary", "auto",
-                          "Fill a connected grid with at least one entry from every topic.",
+                          "Learn less familiar words from definition clues, "
+                          "with an entry from every topic.",
                           ("crossword",)),
     "word-wonder": Activity("Explore patterns in words", "dictionary", "auto",
                             "Explore letter arrangements using one word from each topic; unscored.",
@@ -109,8 +118,11 @@ class Brief:
     crossword_size: int | None = None
     reasoning_mode: str = "auto"
     min_supporting_clues: str | int = "auto"
+    collection: str = "core"
 
     def __post_init__(self):
+        if not isinstance(self.collection, str) or self.collection not in COLLECTIONS:
+            raise ValueError("Choose Core puzzles, Practice, Experimental or Explore")
         validate(self.reasoning_mode, self.min_supporting_clues)
         validate_meanings(self.meanings)
         if (not isinstance(self.activity, str)
@@ -141,8 +153,9 @@ def configuration() -> dict:
     return {
         "activities": {key: {"label": a.label, "description": a.description,
                              "categories": TOPICS[a.family].categories, "types": a.types,
-                             "uses_topics": a.uses_topics}
+                             "uses_topics": a.uses_topics, **metadata(key)}
                        for key, a in ACTIVITIES.items()},
+        "collections": COLLECTIONS,
         "category_help": "Where the puzzle will appear on your platform.",
         "format_help": "How the player answers. This controls the available activities.",
         "max_topics": 6,
@@ -191,10 +204,8 @@ def _difficulty_help(activity: Activity, difficulty: str) -> str:
                 "BrainBloom writes all clues and checks that the answer needs multiple clues.")
     if activity.family == "activities":
         return {
-            "pattern": (f"{level + 3} examples; " +
-                        ("one arithmetic operation." if level == 1 else
-                         "two arithmetic operations." if level == 2 else
-                         "quadratic and linear rules.")),
+            "pattern": (f"{level} {'observation' if level == 1 else 'observations'}; "
+                        "combine every observation to test four stated rules."),
             "contradiction": f"{level + 3} cards; combine at least {level + 1} ordering clues.",
             "most-likely": f"4 hidden-card hypotheses and {level} noisy readouts.",
             "best-move": f"{level + 4} map locations; compare full routes, not just first steps.",
@@ -212,7 +223,8 @@ def _difficulty_help(activity: Activity, difficulty: str) -> str:
             "planning": f"Choose a strategy for identifying one of {level + 3} hidden cards.",
         }[activity.variation]
     if activity.types == ("crossword",):
-        return f"{2 * level + 1} connected entries, including every topic."
+        return (f"{2 * level + 1} connected entries, including every topic. "
+                "Every level uses learning vocabulary with definition clues.")
     if activity.family == "dictionary":
         return (f"Compare up to {4 + 2 * level} words. Higher levels use longer words "
                 "or fewer visible letters.")
@@ -232,10 +244,24 @@ def _difficulty_help(activity: Activity, difficulty: str) -> str:
 
 
 def _prepare(brief: Brief, dictionary: Dictionary) -> dict:
+    brief = replace(brief, activity=canonical_activity(brief.activity))
     if brief.activity == "logic-grid":
         return _prepare_grid(brief)
     category = "wonders" if brief.category == "wonder" else brief.category
-    lookup = lookup_many(dictionary, brief.subject, brief.meanings, category)
+    learning_error = ""
+    if brief.qtype == "crossword":
+        from .crossword_corpus import lookup as crossword_lookup
+
+        try:
+            lookup = crossword_lookup(dictionary, brief.subject, brief.meanings, category,
+                                      seed=brief.seed)
+        except ValueError as exc:
+            learning_error = str(exc)
+            lookup = {"groups": [], "meanings": {}, "unknown_terms": [], "suggestions": {},
+                      "using_category": not bool(brief.subject.strip()), "status": "limited",
+                      "message": learning_error}
+    else:
+        lookup = lookup_many(dictionary, brief.subject, brief.meanings, category)
     context = lookup.get("context")
     count = len(lookup["groups"])
     options = []
@@ -247,21 +273,10 @@ def _prepare(brief: Brief, dictionary: Dictionary) -> dict:
                   _fits(activity, brief.difficulty, context, count))
         options.append({"id": key, "label": activity.label, "description": activity.description,
                         "available": not bool(reason), "reason": reason,
-                        "uses_topics": activity.uses_topics})
+                        "uses_topics": activity.uses_topics, **metadata(key)})
     selected = brief.activity
     if selected == "auto":
-        # Automatic scored drafts should require combining constraints or looking
-        # ahead. Letter sorting, anagrams and one-step exercises remain explicit
-        # choices; do not quietly downgrade to them when a topic pool is too small.
-        preferred = {
-            "logic": ["deduction", "planning", "contradiction", "best-move"],
-            "riddles": ["deduction", "planning", "contradiction", "best-move"],
-            "science": ["deduction", "planning", "best-move", "contradiction"],
-            "puzzles": ["planning", "deduction", "best-move", "contradiction"],
-            "wonders": ["planning", "deduction", "best-move", "contradiction"],
-        }[category]
-        if brief.qtype in ("crossword", "wonder"):
-            preferred = ["crossword"] if brief.qtype == "crossword" else ["word-wonder", "growth"]
+        preferred = automatic_activities(brief.qtype, brief.collection)
         available = {a["id"] for a in options if a["available"]}
         selected = next((key for key in preferred if key in available), "")
     choice = next((a for a in options if a["id"] == selected), None)
@@ -269,7 +284,13 @@ def _prepare(brief: Brief, dictionary: Dictionary) -> dict:
               "ready": False, "message": "", "request": None, "max_count": 20,
               "difficulty_options": [], "difficulty_relevant": True, "search_relevant": False,
               "reasoning_relevant": selected in ("autopilot", "logic-grid"),
-              "reasoning_controls": settings(brief)}
+              "reasoning_controls": settings(brief),
+              **selection(selected, brief.collection, brief.qtype)}
+    if learning_error:
+        report["message"] = learning_error
+        for option in options:
+            option.update(available=False, reason=learning_error)
+        return report
     if active(brief) and not report["reasoning_relevant"]:
         report["message"] = "Reasoning controls apply only to Autopilot and custom logic grids."
         return report
@@ -278,6 +299,11 @@ def _prepare(brief: Brief, dictionary: Dictionary) -> dict:
             "No activity fits these settings. Add a related topic, change the challenge level "
             "or choose another activity."
         )
+        if brief.activity == "auto" and not preferred:
+            report["message"] = (
+                f"Choose an activity in {report['collection_label']}, "
+                "or return to Core puzzles for an automatic suggestion."
+            )
         report["difficulty_options"] = [
             {"id": level, "available": any(not _fits(ACTIVITIES[a["id"]], level, context, count)
                                              for a in options
@@ -293,8 +319,12 @@ def _prepare(brief: Brief, dictionary: Dictionary) -> dict:
                                      + ", ".join(CATEGORIES[c] for c in categories)
                                      + " category. Change the category or choose another activity.")
             elif brief.qtype not in missing.types:
-                report["message"] = (f"'{missing.label}' needs another answer format: "
-                                     + ", ".join(missing.types) + ".")
+                report["message"] = (
+                    PATTERN_TRUE_FALSE_UNAVAILABLE
+                    if selected == "pattern" and brief.qtype == "true-false" else
+                    f"'{missing.label}' needs another answer format: "
+                    + ", ".join(missing.types) + "."
+                )
         return report
     activity = ACTIVITIES[selected]
     report.update({
@@ -368,7 +398,8 @@ def _prepare_grid(brief: Brief) -> dict:
         "lookup": {"groups": [], "meanings": {}, "unknown_terms": [], "suggestions": {},
                    "using_category": False},
         "activities": [{"id": key, "label": a.label, "description": a.description,
-                        "available": True, "uses_topics": a.uses_topics, "reason": ""}
+                        "available": True, "uses_topics": a.uses_topics, "reason": "",
+                        **metadata(key)}
                        for key, a in ACTIVITIES.items()
                        if category in TOPICS[a.family].categories and brief.qtype in a.types],
         "selected_activity": "logic-grid", "description": ACTIVITIES["logic-grid"].description,
@@ -376,6 +407,7 @@ def _prepare_grid(brief: Brief) -> dict:
         "difficulty_relevant": False, "difficulty_options": [], "search_relevant": False,
         "max_count": 20, "message": "", "grid_analysis": None,
         "reasoning_relevant": True, "reasoning_controls": settings(brief),
+        **selection("logic-grid", brief.collection, brief.qtype),
     }
     if brief.qtype not in ACTIVITIES["logic-grid"].types:
         report["message"] = "Custom grids use Multiple Choice, True / False, Type Answer or Riddle."
@@ -427,6 +459,15 @@ def prepare(brief: Brief, dictionary: Dictionary) -> dict:
                       message=" ".join(interpreted["issues"]))
         return report
     fields = interpreted["fields"]
+    if "activity" in fields:
+        resolved = canonical_activity(fields["activity"])
+        interpreted.update(resolved_activity=resolved,
+                           resolved_collection=metadata(resolved)["collection"])
+        if resolved == "pattern" and fields.get("qtype", brief.qtype) == "true-false":
+            report = _prepare(replace(baseline, activity=resolved), dictionary)
+            report.update(ready=False, request=None, instruction=interpreted,
+                          message=PATTERN_TRUE_FALSE_UNAVAILABLE)
+            return report
     subject = combined_subject(brief.subject, interpreted)
     if len(subject) > 200:
         interpreted.update(
@@ -450,6 +491,7 @@ def prepare(brief: Brief, dictionary: Dictionary) -> dict:
                         grid=brief.grid if fields.get("activity") == "logic-grid" else None)
     report = _prepare(effective, dictionary)
     interpreted["resolved_activity"] = report["selected_activity"]
+    interpreted["resolved_collection"] = report["selected_collection"]
     report["instruction"] = interpreted
     if report["ready"]:
         if report["selected_activity"] == "word-wonder" and "difficulty" in fields:

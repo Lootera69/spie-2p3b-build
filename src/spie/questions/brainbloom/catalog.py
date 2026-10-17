@@ -15,7 +15,7 @@ CATEGORIES = {
 }
 QUIZ = ("multiple-choice", "true-false", "type-answer")
 VARIATIONS = {
-    "activities": {"auto": "Mix discovery activities", "pattern": "Discover a number rule",
+    "activities": {"auto": "Choose a core clue puzzle", "pattern": "Discover a number rule",
                    "contradiction": "Find the impossible clue",
                    "most-likely": "Choose the most likely explanation",
                    "best-move": "Plan the best next move",
@@ -188,7 +188,7 @@ class Request:
     instructions: str = ""
     grid: dict | None = None
     crossword_size: int | None = None
-    engine_revision: int = 8
+    engine_revision: int = 17
     reasoning_mode: str = "auto"
     min_supporting_clues: str | int = "auto"
 
@@ -196,7 +196,7 @@ class Request:
         from .topics import validate_meanings
 
         if (type(self.engine_revision) is not int
-                or self.engine_revision not in (1, 2, 3, 4, 5, 6, 7, 8)):
+                or self.engine_revision not in range(1, 18)):
             raise ValueError("Unsupported engine revision")
         from .reasoning_constraints import active, validate
 
@@ -271,6 +271,11 @@ class Request:
             raise ValueError(f"Choose a question type: {', '.join(TYPES)}")
         if self.topic not in TOPICS:
             raise ValueError(f"Choose a supported topic: {', '.join(TOPICS)}")
+        if (self.engine_revision >= 9 and self.topic == "activities"
+                and self.variation == "pattern" and self.qtype == "true-false"):
+            from .activity_policy import PATTERN_TRUE_FALSE_UNAVAILABLE
+
+            raise ValueError(PATTERN_TRUE_FALSE_UNAVAILABLE)
         topic = TOPICS[self.topic]
         if self.category not in topic.categories or self.qtype not in topic.types:
             raise ValueError("This topic does not support the selected category and question type")

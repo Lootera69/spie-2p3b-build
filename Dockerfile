@@ -42,8 +42,8 @@ EXPOSE 10000
 
 # The platform publishes the externally reachable URL; it is the only origin the
 # same-origin check may widen to, and naming it is what enables the request cap.
-# --no-oewn is not optional here: WordNet alone peaks at ~249 MB, but adding the
-# optional OEWN corpus peaks at ~771 MB and would be killed on a 512 MB instance.
+# --no-oewn is not optional here: the revision-17 WordNet release measured ~347 MiB
+# locally; the earlier WordNet + OEWN baseline already exceeded 512 MB. See DEPLOY.md.
 # exec hands SIGTERM to Python so a redeploy stops the server rather than the shell.
 CMD ["sh", "-c", \
      "export BRAINBLOOM_PUBLIC_ORIGIN=\"${BRAINBLOOM_PUBLIC_ORIGIN:-$RENDER_EXTERNAL_URL}\"; \

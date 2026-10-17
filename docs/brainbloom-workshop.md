@@ -54,14 +54,14 @@ Without the Windows launcher:
 | Category | Topics and families | Formats |
 | --- | --- | --- |
 | Logic | Warehouse, library, laboratory and delivery implications; ordering; explicit sequence rules | Multiple Choice, True / False, Type Answer |
-| Logic | Logic vocabulary crossword | Crossword |
+| Logic | Uncommon dictionary vocabulary crossword | Crossword |
 | Riddles | Number mysteries with a unique solution in a stated range | Multiple Choice, True / False, Type Answer, Riddle |
 | Riddles | Reversed-word riddles | Multiple Choice, Type Answer, Riddle |
-| Riddles | Everyday-word crossword | Crossword |
+| Riddles | Uncommon dictionary vocabulary crossword | Crossword |
 | Science | Motion, electric circuits, density; formulas and assumptions are stated | Multiple Choice, True / False, Type Answer |
-| Science | Science glossary crossword | Crossword |
+| Science | Uncommon dictionary vocabulary crossword | Crossword |
 | Puzzles | Everyday arithmetic, explicit sequences, number mysteries | Multiple Choice, True / False, Type Answer; Riddle for number mysteries |
-| Puzzles | Mathematical vocabulary crossword | Crossword |
+| Puzzles | Uncommon dictionary vocabulary crossword | Crossword |
 | Wonder | Doubling, birthday probability, pigeonhole guarantees | Wonder |
 | All five | User topic: sourced vocabulary with checked letter/order constraints, crossword search or permutation counting | All six |
 | All five | Reasoning lab: multi-clue deduction, Bayesian evidence, adaptive question planning | Multiple Choice, True / False, Type Answer, Riddle |
@@ -83,7 +83,9 @@ Topic-specific word pools are bounded, even when using the large WordNet corpus.
 1. Choose the platform category and how players answer.
 2. Enter topics or keywords. The workshop selects suitable meanings automatically
    and shows its choices. **Change meaning (optional)** lets you override a choice.
-   **Choose for me** defaults to hard multi-clue deduction or adaptive planning.
+   **Choose for me** selects a core clue puzzle for scored quiz formats.
+   Use **Practice** or **Experimental** to choose those activities deliberately;
+   **Explore** contains unscored activities. Crossword keeps its own core format.
 3. Choose challenge level and count. Reproduction and search controls are under
    **More options**. Incompatible levels and known finite-count limits are explained.
 4. Generate; solve choices, type an answer, fill crossword cells or consider a Wonder.
@@ -140,7 +142,7 @@ the exact smallest clue subset that forces the question's answer, including the 
 claim for true/false puzzles. A selected minimum is a lower bound, and the certificate
 reports the actual count. This does not measure human difficulty.
 
-New requests use engine revision 8. The synthesis introduced in revision 6 remains:
+New requests use engine revision 13. The synthesis introduced in revision 6 remains:
 custom grids repair one planted arrangement using
 rival arrangements and short answer proofs, sharing at most 48 candidate evaluations,
 2,000 search nodes and 100,000 support subsets across up to eight eligible question/claim
@@ -152,13 +154,37 @@ Requirements are never relaxed to fill a batch. Infeasible settings or exhausted
 return an explanation when no certified candidate meets the requested gates. Automatic
 mode may retain its certified baseline if repair does not improve it. Large grids and
 batches can take several seconds or longer to generate and replay; each answer or grid
-check verifies the whole submitted bundle. Saved revisions 1–7 retain their original
+check verifies the whole submitted bundle. Saved revisions 1–12 retain their original
 replay behaviour, including revision 5's 12/24 proposal limits.
 
 The synthesis proof records actual work, support before/after repair, clue counts and
 budget exhaustion. It reports the best evaluated design, not a globally optimal puzzle
 or a measurement of human difficulty. The fixed-seed comparison and tiny exhaustive
 oracle can be run with `python tools/benchmark_clue_synthesis.py --candidate-revision 6 --oracle`.
+
+### Creator quality checks in revision 9
+
+The main collection contains deduction, generated clue puzzles, custom logic grids and
+crosswords. Practice, Experimental and unscored Explore are separate collections.
+Automatic scored requests stay within the core collection. The two evidence activity
+names route to **Weigh the evidence** in the creator; their saved identifiers still replay.
+
+Deduction records minimum clue support for the actual answer choices or true/false claim.
+Contradiction statements are new inferences rather than copied base clues. Number-rule
+prediction questions require one, two or three observations at easy, medium or hard.
+New number-rule true/false requests are unavailable: the current finite rule family can
+reveal the verdict through unintended cues. Choose multiple choice, typed answer or riddle;
+older true/false drafts still replay. These support counts are measured properties of the
+bounded task, not human difficulty ratings.
+
+Number mysteries use legal near-solutions that require combined clues. Position choices
+stay within the stated range. Letter and reversal puzzles offer same-length rivals; an
+insufficient vocabulary is reported explicitly. Three-value grids offer three genuine
+choices. The optional Studio verifier still requires four choices and can reject these
+native drafts; its import contract has not changed.
+
+The [quality work tracker](creator-quality-work-tracker.md) records implementation checks
+and the remaining planning, scenario and player-study milestones.
 
 ### Deliveries with limited resources
 
@@ -190,13 +216,34 @@ action count or set of optimal first actions when disabled. A direct state inter
 the existing action-puzzle interpreter and Z3 check the result. Only the optimal first
 action is required to be unique; full optimal action sequences may tie.
 
-Each proposal search is bounded at 2,000 candidates. The workshop retries exhausted
+Revision 10 selects one of four strategy profiles before generation: use the start
+switch, visit the charger and recharge before leaving, visit a remote switch before
+recharging, or conserve energy against a viable costlier opening move. The last profile
+requires that costlier move to become optimal when energy limits are removed. Ordering
+claims cover every shortest plan, including tied later continuations.
+
+Revision 13 preserves those profiles and selects complete episodes within
+explicit quality limits. Every shortest route must contain two meaningful decisions
+and a witnessed linked pair. Three concise authored situations support legal actions,
+consequences, undo, saved transcripts and grounded progressive hints. Every legal
+arrival succeeds. The first-move quiz remains available separately. Saved revisions 11
+and 12 retain their original selection and scenario replay. See the
+[current experience contract and validation status](research/planning-experience-v13.md).
+
+Generation starts from a finite bank of physical layouts and makes bounded edits to
+routes, energy and gates. Every accepted edit preserves the selected profile and all
+existing choice and mechanic checks. Each proposal evaluates at most 48 layouts;
+this is a finite strategy family, not unrestricted mechanic invention. Strategy details
+appear in the proof and revealed explanation. The title and unrevealed rules do not
+name the selected profile, and the activity remains in **Experimental**.
+
+The workshop retries exhausted
 searches within its existing batch candidate limit, records them, and returns an error
 if it cannot fill the requested batch. It never exports a partial or uncertified set.
 This is a finite mechanic family, with structural levels rather than player-calibrated
 difficulty. See the [domain, exact checks and benchmark](research/state-planning.md).
 
-Revision 8 adds guided repairs aimed at **spending more energy now to save actions
+Saved revisions 8–9 retain guided repairs aimed at **spending more energy now to save actions
 later**. Every cheapest legal first action must still have a committed solution, yet
 take more total actions than the unique best first action. The independent strategy
 certificate checks every cheapest tie. Repair history and exact comparisons remain
@@ -247,11 +294,13 @@ The [reasoning lab](brainbloom-reasoning.md) uses v4 with the explicit world mod
 search measurements, independently checked answer and structural fingerprint.
 Current topic-based workshop drafts use **v5**, preserving a meaning and vocabulary
 membership for every topic, all source licences and per-puzzle coverage checks.
-v3/v4 remain the legacy single-topic formats. Logic grids use v6, Autopilot v7,
-and discovery/decision activities v8. New requests record `engine_revision: 6`.
+v3/v4 support single-topic formats. Unthemed revision 17 crosswords also use v3
+to retain their automatically discovered vocabulary for replay. Logic grids use
+v6, Autopilot v7, and discovery/decision activities v8. New requests record
+`engine_revision: 17`. Crosswords use [corpus vocabulary discovery](brainbloom-crossword-vocabulary.md).
 Revision 4 uses concise reasoning and contradiction wording that fits Studio's
 120-word question ceiling, with short titles that do not repeat the answer.
-The mathematical models, assumptions and answers remain unchanged.
+That earlier wording revision preserved its mathematical models, assumptions and answers.
 Saved requests without that field replay with revision 1, preserving the old
 rendering and quality calculations without presenting them as current findings.
 
@@ -348,7 +397,9 @@ or enjoyment claims can be made. Session-file authenticity is not verified.
 Every draft passes local field validation. The optional Studio verifier covers the
 four quiz types only. Crosswords and Wonders use local validation against the web
 and Flutter native fields and explicitly report that Studio's quiz verifier does
-not cover them. No live Flutter device test or Studio import was performed.
+not cover them. Native multiple-choice drafts accept three or four genuine choices;
+Studio's separate quiz contract requires four. No live Flutter device test or Studio
+import was performed.
 
 The existing production bank loader handles quiz batches. Crosswords and Wonders
 do not claim comparison against that bank. Within a batch their layouts/content

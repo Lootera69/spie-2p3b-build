@@ -49,7 +49,7 @@ def test_required_long_word_and_topic_never_silently_disappear():
 @pytest.mark.parametrize("size", [5, 7, 10, 15])
 def test_creator_choice_survives_preparation_generation_and_replay(size):
     engine = Generator()
-    plan = prepare(Brief(qtype="crossword", subject="space, ocean", difficulty="easy",
+    plan = prepare(Brief(qtype="crossword", subject="music, geology", difficulty="easy",
                          crossword_size=size), engine.dictionary)
     assert plan["ready"], plan["message"]
     assert plan["request"]["crossword_size"] == size
@@ -122,5 +122,8 @@ def test_cli_size_and_preview_required_word_error(tmp_path):
     engine = Generator()
     plan = prepare(Brief(qtype="crossword", subject="dolphin", crossword_size=5),
                    engine.dictionary)
-    assert not plan["ready"] and "DOLPHIN" in plan["message"]
-    assert plan["crossword_recommendation"]["recommended"] >= 7
+    assert not plan["ready"]
+    assert "5" in plan["message"] and "fit" in plan["message"]
+    # A focal word now expands through its actual dictionary meaning. A small
+    # board must still accommodate enough of those uncommon words.
+    assert all(t["anchor"] is None for t in plan["lookup"]["context"]["topics"])

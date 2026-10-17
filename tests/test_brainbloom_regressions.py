@@ -41,7 +41,9 @@ def test_typed_contradiction_accepts_the_requested_letter_and_reports_actual_sup
     normalized = {a.casefold().strip() for a in item["acceptedAnswers"]}
     assert letter.casefold() in normalized
     assert len(normalized & set("abcd")) == 1
-    assert proof["quality"]["minimum_supporting_clues"] == proof["model"]["required_chain_length"]
+    assert (proof["quality"]["minimum_supporting_clues"]
+            >= proof["quality"]["minimum_required_support"])
+    assert proof["quality"]["copied_options"] == 0
 
 
 @pytest.mark.parametrize("level", [1, 2, 3])

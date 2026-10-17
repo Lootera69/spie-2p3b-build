@@ -127,6 +127,7 @@ class Dictionary:
             )
         with zipfile.ZipFile(path) as archive:
             license_text = archive.read("wordnet/LICENSE").decode("utf-8")
+            pertainyms = []
             for filename, pos in (("noun", "n"), ("verb", "v"), ("adj", "a"), ("adv", "r")):
                 for line in archive.read(f"wordnet/data.{filename}").decode("utf-8").splitlines():
                     if not line or not line[0].isdigit():
@@ -137,14 +138,22 @@ class Dictionary:
                     words = [re.sub(r"\(.*\)$", "", fields[4 + 2 * i]) for i in range(count)]
                     cursor = 4 + 2 * count
                     pointers = int(fields[cursor])
-                    links = []
+                    links, crossword_links = [], []
                     for i in range(pointers):
                         relation, offset, target_pos, _ = fields[cursor + 1 + 4*i:cursor + 5 + 4*i]
                         if relation in RELATIONS or relation in ("@", "@i"):
                             links.append((relation, f"wn:{target_pos}:{offset}"))
+                        if relation == "-c":
+                            crossword_links.append(("domain-member", f"wn:{target_pos}:{offset}"))
+                        if relation == "+":
+                            crossword_links.append(("related-form", f"wn:{target_pos}:{offset}"))
+                        if relation == "\\":
+                            pertainyms.append((f"wn:{target_pos}:{offset}",
+                                               f"wn:{pos}:{fields[0]}"))
                     sid = f"wn:{pos}:{fields[0]}"
                     self.synsets[sid] = {
                         "words": words, "definition": gloss.strip(), "links": links,
+                        "crossword_links": crossword_links,
                     }
                     for word in words:
                         self.index[word.replace("_", " ").lower()].append(sid)
@@ -168,6 +177,9 @@ class Dictionary:
                         for sid in self.index.get(lemma.replace("_", " "), ()):
                             if sid not in self.index[form]:
                                 self.index[form].append(sid)
+        for target, related in pertainyms:
+            if target in self.synsets:
+                self.synsets[target]["crossword_links"].append(("related-form", related))
         self.source = {
             "name": "Princeton WordNet 3.0", "sha256": checksum,
             "url": "https://wordnet.princeton.edu/", "license": license_text,
@@ -491,7 +503,9 @@ def validate_context(context: object) -> dict:
         if any(not isinstance(entry[k], str) or not 1 <= len(entry[k]) <= 2000
                for k in ("definition", "sense")):
             raise ValueError("Invalid dictionary definition or sense")
-        if (not isinstance(entry["path"], list) or not 1 <= len(entry["path"]) <= 3
+        learning = context.get("crossword_learning")
+        max_path = 5 if isinstance(learning, dict) and learning.get("version") == 2 else 3
+        if (not isinstance(entry["path"], list) or not 1 <= len(entry["path"]) <= max_path
                 or any(not isinstance(p, str) or len(p) > 100 for p in entry["path"])):
             raise ValueError("Invalid dictionary relationship path")
     if "topics" in context:

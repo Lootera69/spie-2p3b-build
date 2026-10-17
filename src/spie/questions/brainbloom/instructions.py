@@ -8,6 +8,8 @@ from __future__ import annotations
 
 import re
 
+from .activity_policy import canonical_activity
+
 VERSION = "brainbloom-instructions-v1"
 MAX_LENGTH = 1000
 EXAMPLES = (
@@ -205,7 +207,10 @@ def validate_request(request) -> dict:
         if key in fields and fields[key] != getattr(request, key):
             raise ValueError(f"The {key} setting does not match the written instructions")
     if "activity" in fields:
-        activity = ACTIVITIES[fields["activity"]]
+        activity_id = fields["activity"]
+        if request.engine_revision >= 9:
+            activity_id = canonical_activity(activity_id)
+        activity = ACTIVITIES[activity_id]
         if request.topic != activity.family or request.variation != activity.variation:
             raise ValueError("The puzzle activity does not match the written instructions")
     if combined_subject(request.subject, report).casefold() != request.subject.strip().casefold():

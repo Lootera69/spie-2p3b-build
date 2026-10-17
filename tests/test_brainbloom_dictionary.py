@@ -149,7 +149,8 @@ def test_too_narrow_vocabulary_and_oversized_batch_have_actionable_errors():
     context = Dictionary().resolve("space", "", "logic")
     context["entries"] = context["entries"][:4]
     with pytest.raises(ValueError, match="at least 7 words"):
-        generate(Request("dictionary", "crossword", "hard", subject="space"), context=context)
+        generate(Request("dictionary", "crossword", "hard", subject="space", engine_revision=15),
+                 context=context)
     with pytest.raises(ValueError, match="No partial batch exported"):
         generate(Request("dictionary", "wonder", count=20, subject="space"))
 
@@ -207,7 +208,12 @@ def test_wordnet_bundles_replay_without_the_dictionary_file(wordnet_dictionary, 
     report = dictionary.lookup("vehicle")
     sense = next(c["id"] for c in report["choices"] if "conveyance" in c["definition"])
     request = Request("dictionary", kind, subject="vehicle", sense=sense)
-    context = dictionary.resolve(request.subject, sense, request.category)
+    if kind == "crossword":
+        from spie.questions.brainbloom.crossword_corpus import resolve
+
+        context = resolve(request, dictionary)
+    else:
+        context = dictionary.resolve(request.subject, sense, request.category)
     result = generate(request, context=context)
     monkeypatch.setattr(
         Dictionary, "_load_wordnet", lambda *_: pytest.fail("Replay loaded a corpus")

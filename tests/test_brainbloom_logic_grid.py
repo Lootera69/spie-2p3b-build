@@ -38,7 +38,7 @@ def test_ordering_question_formats_are_valid_and_replay(kind):
     if kind != "true-false":
         assert item["correctAnswer"] == "3"
     if kind == "multiple-choice":
-        assert set(item["choices"]) == {"1", "2", "3", "None of these"}
+        assert set(item["choices"]) == {"1", "2", "3"}
 
 
 def test_attribute_groups_are_jointly_solved_not_independent_word_lists():

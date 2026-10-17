@@ -102,6 +102,8 @@ def test_tampered_full_bundle_is_rejected_before_feedback(
         payload.update(index=0, answer=bundle["items"][0]["correctAnswer"])
     elif path == "/api/check-grid":
         payload.update(index=0, entries=[])
+    elif path == "/api/play-episode":
+        payload.update(index=0, actions=[], hint_level=0)
     status, _, result = post(http_server, path, payload)
     assert status == 400 and "freshly checked" in result["error"]
     assert "correct" not in result
@@ -189,19 +191,20 @@ def test_saved_endpoints_share_the_existing_client_rate_limit(bundle):
         assert status == 429 and "Too many requests" in result["error"]
 
 
-def test_verification_failure_never_returns_feedback(http_server, bundle, monkeypatch):
+def test_verification_failure_never_returns_feedback(bundle, monkeypatch):
     def failed_verifier(value):
         raise RuntimeError("internal verifier detail")
 
     monkeypatch.setattr(web, "verify_bundle", failed_verifier)
-    status, _, result = post(http_server, "/api/check-answer", {
-        "bundle": bundle, "index": 0, "answer": "A",
-    })
+    with running_server() as server:
+        status, _, result = post(server, "/api/check-answer", {
+            "bundle": bundle, "index": 0, "answer": "A",
+        })
     assert status == 500 and set(result) == {"error"}
     assert "internal verifier detail" not in result["error"]
 
 
-@pytest.mark.parametrize("script", ["library.js", "player.js", "workspace.js"])
+@pytest.mark.parametrize("script", ["library.js", "player.js", "episode.js", "workspace.js"])
 def test_library_script_is_served_with_the_same_static_security_headers(http_server, script):
     status, headers, body = http_call(http_server, "GET", "/" + script)
     assert status == 200 and body

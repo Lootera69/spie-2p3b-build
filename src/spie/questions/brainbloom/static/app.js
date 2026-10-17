@@ -173,6 +173,8 @@ async function openSaved(id) {
     const response = await fetch("/api/verify-saved", {method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({bundle:entry.bundle})});
     const data = await response.json();
     if (!response.ok || !data.ok) throw new Error(data.error || "The saved puzzle could not be checked.");
+    // An in-flight action may have completed while this bundle was verified.
+    if (!flushProgress()) return;
     // Read again after replay so another tab's updated progress is respected.
     const latest = library.get(id);
     if (!latest) throw new Error("This saved puzzle was removed while opening it.");
@@ -199,12 +201,18 @@ function populate(select, entries, preferred) {
   entries.forEach(([value, label]) => { const option = element("option", label); option.value = value; select.append(option); });
   if (entries.some(([value]) => value === preferred)) select.value = preferred;
 }
+function chooseAutomaticActivity() {
+  const select = byId("topic");
+  if (![...select.options].some(option => option.value === "auto")) select.append(new Option("Choose for me", "auto"));
+  select.value = "auto";
+}
 function readBrief() {
   const gridMode = byId("topic").value === "logic-grid";
   const grid = {groups:byId("grid-groups").value, rules:byId("grid-rules").value,
     complete:byId("grid-complete").value === "yes", target:byId("grid-target").value,
     answer_group:byId("grid-answer-group").value};
   const brief = {category:byId("category").value, qtype:byId("qtype").value,
+    collection:byId("collection").value,
     activity:byId("topic").value, subject:gridMode ? "" : byId("subject").value.trim(), meanings:gridMode ? {} : {...meanings},
     difficulty:byId("difficulty").value, count:Number(byId("count").value),
     seed:Number(byId("seed").value), search_effort:byId("search-effort").value,
@@ -371,8 +379,10 @@ function renderInstructions(data, brief) {
   if (parsed.status === "clarify") {
     parsed.issues.forEach(issue => feedback.append(element("p", issue)));
   } else {
-    const fields = parsed.fields, activity = fields.activity || parsed.resolved_activity;
+    const fields = parsed.fields, activity = parsed.resolved_activity || fields.activity;
     feedback.append(element("p", `Activity: ${config.workshop.activities[activity]?.label || "Choose a compatible activity"}.`));
+    const collection = parsed.resolved_collection || config.workshop.activities[activity]?.collection;
+    if (collection) feedback.append(element("p", `Collection: ${config.workshop.collections[collection].label}. ${config.workshop.collections[collection].description}`));
     const labels = {subject:"Topics", count:"Puzzles", difficulty:"Challenge", qtype:"Answer format"};
     for (const [key, label] of Object.entries(labels)) {
       if (fields[key] !== undefined) feedback.append(element("p", `${label}: ${key === "qtype" ? typeLabels[fields[key]] : fields[key]}.`));
@@ -392,9 +402,16 @@ function renderPreparation(data, brief) {
     meanings = Object.fromEntries(Object.entries(brief.meanings).filter(([term, sense]) =>
       data.lookup.groups.some(group => group.term === term && group.choices.some(choice => choice.id === sense))));
   }
-  const choices = [["auto", "Choose for me"], ["custom", "Describe it in my own words…"]];
-  data.activities.filter(a => (a.available || a.id === brief.activity) && (a.id !== "logic-grid" || brief.activity === "logic-grid")).forEach(a => choices.push([a.id, a.label]));
-  populate(byId("topic"), choices, brief.activity);
+  const collection = data.selected_collection || brief.collection || "core";
+  populate(byId("collection"), Object.entries(config.workshop.collections).map(([id, details]) => [id, details.label]), collection);
+  if (collection !== "core") byId("activity-collections").open = true;
+  byId("collection-notice").textContent = `${config.workshop.collections[collection].label}: ${data.policy_notice || config.workshop.collections[collection].description}`;
+  const selected = config.workshop.activities[brief.activity]?.canonical_id || brief.activity;
+  const choices = [];
+  if (["core", "explore"].includes(collection) || brief.activity === "auto") choices.push(["auto", "Choose for me"]);
+  choices.push(["custom", "Describe it in my own words…"]);
+  data.activities.filter(a => a.visible && a.collection === collection && (a.available || a.id === selected)).sort((a, b) => a.menu_order - b.menu_order).forEach(a => choices.push([a.id, a.label]));
+  populate(byId("topic"), choices, selected);
   byId("design-mode").value = brief.activity === "logic-grid" ? "manual" : "automatic";
   byId("autopilot-help").hidden = data.selected_activity !== "autopilot";
   byId("activity-help").textContent = data.description || "Choose settings that can include all your topics.";
@@ -447,7 +464,9 @@ function renderPreparation(data, brief) {
   byId("count").max = String(data.max_count);
   byId("count-hint").textContent = data.max_count < 20 ? `These settings allow up to ${data.max_count} distinct drafts.` : "Create up to 20 different drafts. Small word pools may support fewer.";
   byId("topic-status").textContent = data.message;
-  if (data.uses_topics && data.lookup.using_category) byId("topic-status").textContent += ` Using ${config.categories[brief.category]} vocabulary because topics are blank.`;
+  if (data.uses_topics && data.lookup.using_category) byId("topic-status").textContent += brief.qtype === "crossword"
+    ? " Using uncommon English vocabulary because topics are blank."
+    : ` Using ${config.categories[brief.category]} vocabulary because topics are blank.`;
   byId("topic-meanings").replaceChildren();
   byId("topic-words").replaceChildren();
   const showTopics = Boolean(brief.subject || data.uses_topics);
@@ -574,6 +593,7 @@ function crosswordPlayer(item, card) {
 }
 function showCard(item, proof, index = 0) {
   const card = element("article", undefined, "card"), id = ++nextCard;
+  let episodePlayer = null;
   const cardBundle = bundle, saved = progress[index] || {};
   card.dataset.index = String(index);
   const head = element("div", undefined, "card-head");
@@ -656,9 +676,11 @@ function showCard(item, proof, index = 0) {
     }
     if (showGrid) showGrid();
     if (item.type !== "wonder" && item.type !== "crossword") answer.append(element("p", `Answer: ${item.correctAnswer}`));
-    answer.append(element("p", item.correctExplanation));
-    const steps = element("ol", undefined, "reasoning-steps");
-    (proof.steps || []).forEach(step => steps.append(element("li", step))); answer.append(steps);
+    answer.append(element("p", item.correctExplanation, item.type === "crossword" ? "vocabulary-recap" : ""));
+    if (!proof.learning_vocabulary) {
+      const steps = element("ol", undefined, "reasoning-steps");
+      (proof.steps || []).forEach(step => steps.append(element("li", step))); answer.append(steps);
+    }
     if (item.type === "wonder") answer.append(element("p", item.sharePrompt));
     else {
       const lesson = element("details"); lesson.append(element("summary", "Teaching notes"));
@@ -675,7 +697,13 @@ function showCard(item, proof, index = 0) {
     if (proof.source) details.append(element("p", `Dictionary: ${proof.source} · Meaning: ${proof.selected_sense}`));
     if (proof.quality) {
       const quality = proof.quality;
-      if (quality.minimum_supporting_clues) details.append(element("p", `Answer requires at least ${quality.minimum_supporting_clues} supporting clues.${quality.all_clues_necessary_for_full_solution ? " Every displayed clue is necessary for the unique full arrangement." : ""}`));
+      const task = proof.player_task;
+      if (task) {
+        const label = item.type === "true-false" ? "Displayed claim" : "Displayed question";
+        details.append(element("p", `${label} requires at least ${task.minimum_supporting_clues} supporting clues.`));
+        details.append(element("p", `Identifying the card without answer choices requires at least ${task.open_answer_supporting_clues} clues.`));
+        if (quality.all_clues_necessary_for_full_solution) details.append(element("p", "Every displayed clue is necessary for the unique full arrangement."));
+      } else if (quality.minimum_supporting_clues) details.append(element("p", `Answer requires at least ${quality.minimum_supporting_clues} supporting clues.${quality.all_clues_necessary_for_full_solution ? " Every displayed clue is necessary for the unique full arrangement." : ""}`));
       if (quality.evidence_steps) details.append(element("p", `${quality.hypotheses} hypotheses, ${quality.evidence_steps} evidence steps. Exact posterior margin: ${quality.posterior_margin}.`));
       if (quality.expected_questions) details.append(element("p", `Optimal expected cost: ${quality.expected_questions} questions; checked by decision-tree rollout and exhaustive policy evaluation.`));
       details.append(element("p", "Search scores are family-specific structural heuristics, not ratings from players or comparisons with frontier AI models."));
@@ -703,6 +731,7 @@ function showCard(item, proof, index = 0) {
   const remember = () => rememberProgress(index, {
     selected, fields:fields.map(field => field.value),
     hints:Number(hint?.dataset.shown || 0), revealed:card.classList.contains("revealed"),
+    ...(episodePlayer ? {episode:episodePlayer.snapshot()} : {}),
   });
   const edited = () => { ++feedbackRevision; feedback.textContent = ""; delete feedback.dataset.result; remember(); };
   card.addEventListener("input", edited); card.addEventListener("change", edited);
@@ -710,6 +739,17 @@ function showCard(item, proof, index = 0) {
     if (event.target.closest(".option")) edited();
     else remember();
   });
+  if (proof.episode) {
+    const quiz = element("details", undefined, "episode-quiz");
+    quiz.append(element("summary", "First-move challenge & solution · contains spoilers"));
+    [...card.children].filter(child => child !== head).forEach(child => quiz.append(child));
+    episodePlayer = BrainBloomEpisode.mount(card, {
+      bundle:cardBundle, index, saved:saved.episode,
+      isCurrent:() => bundle === cardBundle,
+      onProgress:() => remember(),
+    });
+    card.append(quiz);
+  }
   return card;
 }
 async function generate(event) {
@@ -726,6 +766,7 @@ async function generate(event) {
     const plan = await prepareBrief(brief);
     if (!plan?.ready) throw new Error(plan?.message || "Please check the settings above.");
     const request = plan.request;
+    if (!flushProgress()) return;
     invalidatePlayer();
     bundle = null; savedId = null; progress = {}; progressDirty = false; saveNotice(""); updateControls(); byId("download").disabled = true;
     results.setAttribute("aria-busy", "true"); results.replaceChildren();
@@ -827,6 +868,7 @@ async function loadSharedLink() {
     const data = await response.json();
     if (location.hash !== openedHash) return;
     if (!response.ok || !data.ok || !data.count) throw new Error(data.error || "This link has no playable puzzles.");
+    if (!flushProgress()) return;
     closeSharePanel(false);
     byId("share-link").value = "";
     bundle = shared; savedId = null; progress = {}; progressDirty = false;
@@ -882,14 +924,27 @@ for (const id of ["category", "qtype", "topic", "difficulty", "search-effort", "
       if (byId("topic").value === "custom") byId("instructions").focus();
     }
     if (id === "category" || id === "qtype") {
+      if (id === "qtype" && ["wonder", "crossword"].includes(byId("qtype").value)) byId("collection").value = byId("qtype").value === "wonder" ? "explore" : "core";
+      else if (id === "qtype" && byId("collection").value === "explore") byId("collection").value = "core";
       const activity = config.workshop.activities[byId("topic").value];
-      if (activity && (!activity.categories.includes(byId("category").value) || !activity.types.includes(byId("qtype").value))) byId("topic").value = "auto";
+      if (activity && (!activity.categories.includes(byId("category").value) || !activity.types.includes(byId("qtype").value))) chooseAutomaticActivity();
     }
     schedulePreparation(0);
   });
 }
+byId("collection").addEventListener("change", () => {
+  const collection = byId("collection").value;
+  if (collection === "explore") byId("qtype").value = "wonder";
+  else if (byId("qtype").value === "wonder" || (collection !== "core" && byId("qtype").value === "crossword")) byId("qtype").value = "multiple-choice";
+  const candidates = Object.entries(config.workshop.activities).filter(([, activity]) =>
+    activity.visible && activity.collection === collection && activity.categories.includes(byId("category").value) && activity.types.includes(byId("qtype").value));
+  const selected = ["core", "explore"].includes(collection) ? "auto" : candidates[0]?.[0] || "custom";
+  const choices = [["auto", "Choose for me"], ["custom", "Describe it in my own words…"], ...candidates.map(([id, activity]) => [id, activity.label])];
+  populate(byId("topic"), choices, selected);
+  schedulePreparation(0);
+});
 byId("subject").addEventListener("input", () => {
-  if (byId("subject").value.trim() && config?.workshop.activities[byId("topic").value]?.uses_topics === false) byId("topic").value = "auto";
+  if (byId("subject").value.trim() && config?.workshop.activities[byId("topic").value]?.uses_topics === false) chooseAutomaticActivity();
   byId("topic-meanings").replaceChildren(); byId("topic-words").replaceChildren();
   schedulePreparation();
 });
@@ -916,16 +971,19 @@ function loadGridExample() {
 }
 byId("grid-example").addEventListener("click", () => { loadGridExample(); schedulePreparation(0); });
 byId("design-mode").addEventListener("change", () => {
+  byId("collection").value = "core";
   const manual = byId("design-mode").value === "manual";
   if (manual) {
     if (!["multiple-choice", "true-false", "type-answer", "riddle"].includes(byId("qtype").value)) byId("qtype").value = "multiple-choice";
-    byId("topic").append(new Option("Create a custom logic grid", "logic-grid"));
+    if (![...byId("topic").options].some(option => option.value === "logic-grid")) byId("topic").append(new Option("Create a custom logic grid", "logic-grid"));
     byId("creator-mode").open = true;
   }
-  byId("topic").value = manual ? "logic-grid" : "auto";
+  if (manual) byId("topic").value = "logic-grid";
+  else chooseAutomaticActivity();
   schedulePreparation(0);
 });
 byId("try-autopilot").addEventListener("click", () => {
+  byId("collection").value = "core";
   byId("category").value = "logic"; byId("qtype").value = "multiple-choice";
   if (![...byId("topic").options].some(o => o.value === "autopilot")) byId("topic").append(new Option("Design a clue puzzle for me", "autopilot"));
   byId("topic").value = "autopilot"; byId("subject").value = "animals";

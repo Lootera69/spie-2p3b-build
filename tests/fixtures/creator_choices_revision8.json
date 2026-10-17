@@ -1,0 +1,183 @@
+[
+  {
+    "activity": "ordering",
+    "request": {
+      "topic": "ordering",
+      "qtype": "multiple-choice",
+      "difficulty": "hard",
+      "count": 1,
+      "seed": 7,
+      "category": "logic",
+      "subject": "",
+      "sense": "",
+      "variation": "auto",
+      "search_effort": "balanced",
+      "topic_mode": "single",
+      "meanings": {},
+      "instructions": "",
+      "grid": null,
+      "crossword_size": null,
+      "engine_revision": 8,
+      "reasoning_mode": "auto",
+      "min_supporting_clues": "auto"
+    },
+    "item_sha256": "8367e1f1a8090636fc123d523c7ba71bccc3fa529cce6d9c738742812f29f071",
+    "proof_sha256": "1667334b83cc2428af7a286d087d9af86f67c798fec7e8714aa05c504c02d0e1"
+  },
+  {
+    "activity": "number-riddles",
+    "request": {
+      "topic": "number-riddles",
+      "qtype": "multiple-choice",
+      "difficulty": "hard",
+      "count": 1,
+      "seed": 7,
+      "category": "riddles",
+      "subject": "",
+      "sense": "",
+      "variation": "auto",
+      "search_effort": "balanced",
+      "topic_mode": "single",
+      "meanings": {},
+      "instructions": "",
+      "grid": null,
+      "crossword_size": null,
+      "engine_revision": 8,
+      "reasoning_mode": "auto",
+      "min_supporting_clues": "auto"
+    },
+    "item_sha256": "25d2cd77a5c55b4742b1824263715445e8874225080d48b70c1d8bf7119f5439",
+    "proof_sha256": "6313fdf36376b7382b33568dff5336e3725c7682856fdce629dc137abedb45e7"
+  },
+  {
+    "activity": "word-riddles",
+    "request": {
+      "topic": "word-riddles",
+      "qtype": "multiple-choice",
+      "difficulty": "hard",
+      "count": 1,
+      "seed": 7,
+      "category": "riddles",
+      "subject": "",
+      "sense": "",
+      "variation": "auto",
+      "search_effort": "balanced",
+      "topic_mode": "single",
+      "meanings": {},
+      "instructions": "",
+      "grid": null,
+      "crossword_size": null,
+      "engine_revision": 8,
+      "reasoning_mode": "auto",
+      "min_supporting_clues": "auto"
+    },
+    "item_sha256": "26a826be697e278788a9575c98da2dfad1c1d88569b729e60c715da5d9246f52",
+    "proof_sha256": "aeafcdc1cdec606ac8ac84b8bc08be317d2131444f7ea073e8ae6750e67ef21d"
+  },
+  {
+    "activity": "arithmetic",
+    "request": {
+      "topic": "arithmetic",
+      "qtype": "multiple-choice",
+      "difficulty": "hard",
+      "count": 1,
+      "seed": 7,
+      "category": "puzzles",
+      "subject": "",
+      "sense": "",
+      "variation": "auto",
+      "search_effort": "balanced",
+      "topic_mode": "single",
+      "meanings": {},
+      "instructions": "",
+      "grid": null,
+      "crossword_size": null,
+      "engine_revision": 8,
+      "reasoning_mode": "auto",
+      "min_supporting_clues": "auto"
+    },
+    "item_sha256": "5b62aafd20ae8f1b526560ccb77eac387db8adec1220011eab6c166a11a2157c",
+    "proof_sha256": "a39a1419887a8daad32b06af8010e62856ec8cfb4ecdac0430b5bc01ad163d3b"
+  },
+  {
+    "activity": "anagram",
+    "request": {
+      "topic": "dictionary",
+      "qtype": "multiple-choice",
+      "difficulty": "hard",
+      "count": 1,
+      "seed": 7,
+      "category": "logic",
+      "subject": "space, ocean",
+      "sense": "",
+      "variation": "anagram",
+      "search_effort": "balanced",
+      "topic_mode": "combined",
+      "meanings": {
+        "space": "pack:space",
+        "ocean": "pack:ocean"
+      },
+      "instructions": "",
+      "grid": null,
+      "crossword_size": null,
+      "engine_revision": 8,
+      "reasoning_mode": "auto",
+      "min_supporting_clues": "auto"
+    },
+    "item_sha256": "46400564f4db852c122154a2141216c3e573d5af0e414ec7ceeb6f080c171172",
+    "proof_sha256": "dd054f4a3c4939be90ef646b33376c72cd1ff055a40b51dc5f0801cc068b5234"
+  },
+  {
+    "activity": "missing-letters",
+    "request": {
+      "topic": "dictionary",
+      "qtype": "multiple-choice",
+      "difficulty": "hard",
+      "count": 1,
+      "seed": 7,
+      "category": "logic",
+      "subject": "space, ocean",
+      "sense": "",
+      "variation": "missing-letters",
+      "search_effort": "balanced",
+      "topic_mode": "combined",
+      "meanings": {
+        "space": "pack:space",
+        "ocean": "pack:ocean"
+      },
+      "instructions": "",
+      "grid": null,
+      "crossword_size": null,
+      "engine_revision": 8,
+      "reasoning_mode": "auto",
+      "min_supporting_clues": "auto"
+    },
+    "item_sha256": "ce39b076b065a9fdc92a8ee9404c6df7f231b873ffbcad461d5e9a631dee0e29",
+    "proof_sha256": "98f1d5d1b8f0a8a4160296b57824b7cf5442c4de6a729b8feb04d175ce71df17"
+  },
+  {
+    "activity": "logic-grid",
+    "request": {
+      "topic": "logic-grid",
+      "qtype": "multiple-choice",
+      "difficulty": "hard",
+      "count": 1,
+      "seed": 7,
+      "category": "logic",
+      "subject": "",
+      "sense": "",
+      "variation": "auto",
+      "search_effort": "balanced",
+      "topic_mode": "single",
+      "meanings": {},
+      "instructions": "",
+      "grid": null,
+      "crossword_size": null,
+      "engine_revision": 8,
+      "reasoning_mode": "auto",
+      "min_supporting_clues": "auto"
+    },
+    "item_sha256": "130f911c270865f205b7b75cfe41245294075de82f1aeec899ef4be2999156c6",
+    "proof_sha256": "eca05b7d0f0ae840a0bcf420766b6f410113d7eefbc1ca201d1350197defef4f"
+  }
+]

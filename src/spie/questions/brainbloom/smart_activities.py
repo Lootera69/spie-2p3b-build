@@ -6,6 +6,7 @@ from dataclasses import replace
 
 from ...forge.contract import XP
 from . import contradiction, families, patterns, reasoning, resource_planning, routes
+from .activity_policy import automatic_activities
 from .catalog import Request, lesson_group
 from .topics import sample_words
 
@@ -39,6 +40,13 @@ def _quiz_item(
                 "Check the answer with exact arithmetic or finite enumeration.",
                 "Share this: explain which example gave the decisive clue."))}
     proof = {**draft["proof"], "word_bank": names}
+    if request.engine_revision >= 9 and request.variation == "pattern":
+        item["lessonContent"] = "\n".join((
+            "Test the stated rules against each observation.",
+            "Keep a rule only if it matches every observation.",
+            "Several rules may survive one observation, so combine the evidence.",
+            "Use the surviving rule to work out the new output.",
+            "Share this: explain which observations eliminate each alternative."))
     if request.variation == "best-move":
         item["lessonContent"] = "\n".join((
             "Read every route in its stated direction.",
@@ -85,6 +93,13 @@ def candidate(request: Request, rng, context: dict, seed: int) -> tuple[dict, di
         from .legacy_activities import candidate as legacy
 
         return legacy(request, rng, context, seed)
+    if request.engine_revision >= 9 and request.variation == "auto":
+        if "deduction" not in automatic_activities(request.qtype, "core"):
+            raise ValueError("No Core clue puzzle is available for this answer format.")
+        inner = replace(request, topic="reasoning", variation="deduction", topic_mode="combined")
+        item, proof = reasoning.candidate(inner, rng, context, seed)
+        proof["word_bank"] = proof["model"]["names"]
+        return item, proof
     level = {"easy": 1, "medium": 2, "hard": 3}[request.difficulty]
     names = sample_words(
         context, (4 if request.variation == "most-likely" else
@@ -92,7 +107,8 @@ def candidate(request: Request, rng, context: dict, seed: int) -> tuple[dict, di
     )
     if request.variation == "contradiction":
         model = contradiction.propose(
-            names, {"easy": 1, "medium": 2, "hard": 3}[request.difficulty], rng
+            names, {"easy": 1, "medium": 2, "hard": 3}[request.difficulty], rng,
+            engine_revision=request.engine_revision,
         )
         proof = contradiction.check(model)
         concise = request.engine_revision >= 4
@@ -113,9 +129,17 @@ def candidate(request: Request, rng, context: dict, seed: int) -> tuple[dict, di
                     "One statement must fail while the others remain possible.",
                     "Use the contradiction, not a real-world fact about a label.",
                     "Share this: identify the chain that made the impossible clue fail."))}
-        proof.update(model=model, word_bank=names, quality={
-                     "minimum_supporting_clues": model["required_chain_length"],
-                     "option_count": 4, "exactly_one_impossible": True})
+        proof.update(model=model, word_bank=names)
+        if request.engine_revision >= 9:
+            item["lessonContent"] = "\n".join((
+                "Track possible positions and combine the clues.",
+                "Check each tested relation against those combined constraints.",
+                "A statement is impossible only if no allowed arrangement can satisfy it.",
+                "The card labels do not add real-world facts.",
+                "Share this: explain which clues force the opposite relation."))
+        else:
+            proof["quality"] = {"minimum_supporting_clues": model["required_chain_length"],
+                                "option_count": 4, "exactly_one_impossible": True}
         if request.qtype == "multiple-choice":
             item["choices"] = choices
         elif request.qtype == "true-false":
@@ -125,13 +149,30 @@ def candidate(request: Request, rng, context: dict, seed: int) -> tuple[dict, di
                         question=item["question"] + f"\nTrue or False: {claim} is impossible.",
                         correctExplanation=f"The claim is {str(truth).lower()}. {explanation}")
             proof.update(claim=claim, claim_holds=truth)
+            if request.engine_revision >= 9:
+                index = choices.index(claim)
+                item["question"] = ("Fictional card labels.\n"
+                                    + contradiction.render_claim(model, index, concise=concise))
+                item["correctExplanation"] = (f"The claim is {str(truth).lower()}. "
+                                              + proof["steps"][index])
+                item["incorrectExplanation"] = item["correctExplanation"]
+                proof["quality"] = {
+                    **proof["quality"],
+                    "minimum_option_selection_support":
+                        proof["quality"]["minimum_supporting_clues"],
+                    "minimum_supporting_clues": proof["quality"]["option_minimum_support"][index],
+                    "supporting_clues": proof["quality"]["option_supporting_clues"][index],
+                    "scope": "minimum base-clue support for the single displayed "
+                             "impossible-statement claim"}
         else:
             item["acceptedAnswers"] = [answer, answer[-1], f"answer: {answer[-1]}"]
             if request.qtype == "riddle":
                 item["hintText"] = "\n".join(hint)
         return item, proof
     if request.variation == "pattern":
-        draft = patterns.render(patterns.propose(names, level, rng))
+        draft = patterns.render(patterns.propose(names, level, rng,
+                                                 engine_revision=request.engine_revision,
+                                                 qtype=request.qtype))
         return _quiz_item(request, draft, rng, "Discover the rule", names)
     if request.variation == "resource-plan":
         draft = resource_planning.render(resource_planning.propose(names, level, rng))
@@ -139,13 +180,28 @@ def candidate(request: Request, rng, context: dict, seed: int) -> tuple[dict, di
     if request.variation == "state-planning":
         from . import state_planning
 
-        if request.engine_revision >= 8:
+        if request.engine_revision in (15, 16, 17):
+            from .planning_experience_v5 import propose
+        elif request.engine_revision == 14:
+            from .planning_experience_v4 import propose
+        elif request.engine_revision == 13:
+            from .planning_experience_v3 import propose
+        elif request.engine_revision == 12:
+            from .planning_experience_v2 import propose
+        elif request.engine_revision == 11:
+            from .planning_experience import propose
+        elif request.engine_revision == 10:
+            from .state_planning_variety import propose
+        elif request.engine_revision in (8, 9):
             from .planning_invention import propose
-        else:
+        elif request.engine_revision == 7:
             # Keep saved revision-seven seeds on their original search and RNG path.
             propose = state_planning.propose
+        else:
+            raise ValueError("Unsupported state-planning engine revision")
         draft = state_planning.render(propose(names, level, rng))
-        return _quiz_item(request, draft, rng, "Energy and switches", names)
+        title = draft["proof"].get("episode", {}).get("title", "Energy and switches")
+        return _quiz_item(request, draft, rng, title, names)
     if request.variation == "best-move":
         draft = routes.render(routes.propose(names, level, rng))
         return _quiz_item(request, draft, rng, "Cheapest next stop", names)
