@@ -216,6 +216,15 @@ def _reference_sense(dictionary: Dictionary, modern: bool, phrase: str,
 
 
 def _node_entries(node: dict, sid: str, path: list[str]):
+    candidates = []
+    scores = frequencies()
+    for lemma in node["words"]:
+        word = lemma.upper()
+        if (MIN_ZIPF <= scores.get(word, 0) <= MAX_ZIPF
+                and re.fullmatch(r"[a-z]{3,15}", lemma)):
+            candidates.append((lemma, word))
+    if not candidates:
+        return
     # The source sometimes lowercases an initialism or puts Roman numerals
     # beside spelled-out numbers. Recognize these from their companion lemmas,
     # without a hand-maintained list of accepted or rejected answers.
@@ -224,11 +233,18 @@ def _node_entries(node: dict, sid: str, path: list[str]):
     initialisms = {"".join(part[0] for part in parts).lower()
                    for lemma in node["words"]
                    if len(parts := re.findall(r"[a-zA-Z]+", lemma)) > 1}
-    for lemma in node["words"]:
-        if not re.fullmatch(r"[a-z]{3,15}", lemma) or lemma in initialisms:
+    definition = _definition(node).strip().rstrip(".")
+    ascii_definition = definition.isascii()
+    lowercase_definition = definition.lower()
+    for lemma, word in candidates:
+        if lemma in initialisms:
             continue
-        word = lemma.upper()
-        clue = _clue(lemma, node["definition"]).strip().rstrip(".")
+        clue = definition
+        # Most definitions do not mention the lemma. Avoid compiling a distinct
+        # redaction regex for each of the corpus's 100,000+ words in that case.
+        # Non-ASCII text still needs re.IGNORECASE's full Unicode matching rules.
+        if not ascii_definition or lemma in lowercase_definition:
+            clue = _clue(lemma, node["definition"]).strip().rstrip(".")
         if eligible(word, clue):
             yield {"word": word, "definition": clue, "sense": sid, "path": path}
 

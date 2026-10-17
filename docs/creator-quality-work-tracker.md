@@ -13,12 +13,19 @@ documents retrieval, coverage limits, seed variation and offline saved replay.
 Revision 17 keeps revision-15 planning behavior and its Experimental classification;
 the unmet planning-variety target below remains open.
 
-The focused crossword suite passed 342 checks, including 118 historical signatures.
+The focused crossword suite passed 350 checks, including 118 historical signatures.
 The final source-switch checks passed 131 tests. An isolated release-wheel install
 with production's WordNet-only configuration generated and replayed 54 puzzles
 across 18 supported topics/general English and three difficulty levels; previews
 matched the generated snapshots. Local peak RSS was 347 MiB. See [deployment
 configuration and measurement limits](../DEPLOY.md).
+
+Production verification exposed an expensive first general-English lookup on the
+free CPU allocation. The lookup now screens familiarity before processing clues
+and avoids compiling a word-specific redaction expression when an ASCII definition
+does not contain that word. The full 29,949-entry WordNet candidate pool is
+unchanged; Unicode and word-boundary leak checks remain intact. The installed
+release again passes all 54 generation/replay cases with the same snapshots.
 
 ## Earlier evaluated iteration — revision 15 repairs
 

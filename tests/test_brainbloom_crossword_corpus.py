@@ -104,6 +104,32 @@ def test_one_familiarity_and_definition_policy_applies_to_every_word(word, clue,
     assert corpus.eligible(word, clue) is allowed
 
 
+@pytest.mark.parametrize("definition,allowed", [
+    ("A mountain goat with long curved horns", True),
+    ("A mountain ibex with long curved horns", False),
+    ("A group of wild IBEXES in the mountains", False),
+    ("An ibexlike goat with long curved horns", True),
+    ("A mountain \u0131bex with long curved horns", False),
+])
+def test_fast_clue_screen_preserves_word_boundaries_and_unicode(definition, allowed):
+    node = {"words": ["ibex"], "definition": definition}
+    entries = list(corpus._node_entries(node, "wn:n:90000000", ["wn:n:90000000"]))
+    assert bool(entries) is allowed
+    if entries:
+        assert entries[0]["definition"] == definition
+
+
+def test_general_wordnet_pool_preserves_all_revision17_candidates(installed):
+    if not installed.synsets:
+        pytest.skip("Princeton WordNet is needed for the revision-17 pool fingerprint")
+    dictionary = copy.copy(installed)
+    dictionary.oewn_synsets = {}
+    dictionary.oewn_index = {}
+    entries = corpus._discover(dictionary, corpus.GENERAL)
+    assert len(entries) == 29949
+    assert digest(entries) == "c6a1c8c90075f9d34e757510911ea649cc8695afc34755cdf5970a7550172bc2"
+
+
 @pytest.mark.parametrize("subject", [
     "astronomy", "ocean", "plants", "cricket", "music", "architecture", "geology",
     "neuroscience", "entomology", "heraldry", "dolphin",
