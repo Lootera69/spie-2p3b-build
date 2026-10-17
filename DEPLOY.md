@@ -100,13 +100,20 @@ confirms a cold-start/request-limit mismatch, not a daily expiry of the applicat
 or a health endpoint that grows overnight. The discarded oversized response was
 not available to establish its exact contents.
 
-cron-job.org disables ordinary jobs after more than 25 consecutive failures. Its
-ordinary-job settings do not offer a switch to disable that policy; the notification
-checkbox only controls the warning. If the job becomes inactive, use the GitHub
-workflow's **Run workflow** action to recover the application, confirm the health
-JSON, then re-enable the primary job. A warm test alone does not validate a future
-cold start. Custom `User-Agent` headers are ignored by cron-job.org, so changing
-that header is not a supported remedy. See its [FAQ](https://cron-job.org/en/faq/) and Render's
+cron-job.org disables ordinary jobs after more than 25 consecutive failures. To
+prevent that permanent stop, attach the existing job to a **Status Monitor**. On
+17 October we reused the existing **BrainBloom Status** page, left **Publish status
+page** unchecked, and added **BrainBloom workshop health**, selecting **Keep
+BrainBloom warm**. This switches the job to the provider's supported **monitor
+mode**: failures remain observable but no longer automatically disable the job.
+No additional cronjob or public status page is required. The Add Status Monitor
+dialog documents this behavior explicitly; the failure-notification checkbox on
+the job itself does not change the deactivation policy.
+
+If the application is asleep, use the GitHub workflow's **Run workflow** action
+to recover it and confirm the health JSON. A warm test alone does not validate a
+future cold start. Custom `User-Agent` headers are ignored by cron-job.org, so
+changing that header is not a supported remedy. See its [FAQ](https://cron-job.org/en/faq/) and Render's
 [idle-service documentation](https://render.com/docs/free#spinning-down-on-idle).
 
 The GitHub Actions workflow is a backup, scheduled every ten minutes around the
