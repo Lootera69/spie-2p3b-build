@@ -1,9 +1,8 @@
 name: Keep BrainBloom warm
 
-# Pings /healthz on a schedule so the Render free instance stays warm during the
-# active window and real visitors avoid the ~1 min cold start. Window is
-# 07:00-23:00 IST (= 01:30-17:30 UTC); outside it the service is left to spin
-# down, to conserve the free plan's shared 750 instance-hours/month.
+# Pings /healthz around the clock so the Render free instance does not deliberately
+# sleep overnight. A continuously running instance uses up to 744 of the free
+# plan's shared 750 instance-hours/month; other services share that allowance.
 #
 # Notes: GitHub cron is UTC-only and best-effort: runs can be delayed or skipped,
 # so use an external scheduler when dependable timing is needed. On a public
@@ -13,16 +12,14 @@ name: Keep BrainBloom warm
 
 on:
   schedule:
-    - cron: "30,40,50 1 * * *"     # 01:30-01:50 UTC = 07:00-07:20 IST
-    - cron: "*/10 2-16 * * *"      # 02:00-16:50 UTC = 07:30-22:20 IST
-    - cron: "0,10,20,30 17 * * *"  # 17:00-17:30 UTC = 22:30-23:00 IST
+    - cron: "*/10 * * * *"
   workflow_dispatch: {}            # manual "warm it up now" button
 
 concurrency:
   group: keepalive
   cancel-in-progress: false
 
-permissions: {}                    # outbound curl only; no repo access needed
+permissions: {}                    # outbound health checks only; no repo access needed
 
 jobs:
   ping:
@@ -30,23 +27,63 @@ jobs:
     timeout-minutes: 8
     steps:
       - name: Hit /healthz
+        shell: python
         run: |
-          url="https://brainbloom-workshop.onrender.com/healthz"
-          body=$(mktemp)
-          trap 'rm -f "$body"' EXIT
-          # First hit after a sleep triggers a ~1 min cold start, so allow a
-          # generous timeout and a couple of retries. Check the application's
-          # health JSON too, so an intermediary's response cannot confirm ready.
-          for attempt in 1 2 3; do
-            code=$(curl --silent --show-error --output "$body" --write-out '%{http_code}' \
-              --header 'Accept: application/json' --connect-timeout 15 --max-time 100 "$url") || code="000"
-            echo "attempt $attempt -> HTTP $code"
-            if [ "$code" = "200" ] && python3 -c \
-              'import json, sys; sys.exit(json.load(sys.stdin) != {"status": "ok"})' < "$body" 2>/dev/null; then
-              echo "warm (application health confirmed)"
-              exit 0
-            fi
-            if [ "$attempt" -lt 3 ]; then sleep 10; fi
-          done
-          echo "::error::keepalive could not confirm healthy application JSON from $url after 3 attempts"
-          exit 1
+          import json
+          import subprocess
+          import time
+
+          URL = "https://brainbloom-workshop.onrender.com/healthz"
+          BUDGET = 420
+          MAX_BODY = 4096
+
+          def probe(timeout):
+              # curl's total timeout bounds DNS, connection and body reads together.
+              # The process timeout also keeps every attempt within the remaining budget.
+              # A Render loading page may be large and is never application readiness.
+              try:
+                  result = subprocess.run(
+                      ["curl", "--silent", "--show-error", "--write-out", "\n%{http_code}",
+                       "--header", "Accept: application/json", "--connect-timeout",
+                       str(min(15, timeout)), "--max-time", str(timeout),
+                       "--max-filesize", str(MAX_BODY), URL],
+                      capture_output=True, timeout=timeout, check=False,
+                  )
+              except subprocess.TimeoutExpired:
+                  return False, f"request timed out after {timeout:.1f}s"
+              except OSError as exc:
+                  return False, f"could not run curl: {exc}"
+              body, _, status = result.stdout.rpartition(b"\n")
+              detail = (f"HTTP {status.decode('ascii', errors='replace') or '000'}, "
+                        f"curl exit {result.returncode}, body {len(body)} bytes")
+              if result.returncode != 0 or status != b"200" or len(body) > MAX_BODY:
+                  return False, detail
+              try:
+                  healthy = json.loads(body) == {"status": "ok"}
+              except (ValueError, UnicodeDecodeError):
+                  return False, detail + ", invalid health JSON"
+              return healthy, detail + ("" if healthy else ", unexpected health JSON")
+
+          def warm():
+              started = time.monotonic()
+              deadline = started + BUDGET
+              attempt = 0
+              # Use elapsed time, not a fixed attempt count: quick upstream failures
+              # must not exhaust retries before the application has time to start.
+              while (remaining := deadline - time.monotonic()) > 0:
+                  attempt += 1
+                  healthy, detail = probe(min(100, remaining))
+                  elapsed = time.monotonic() - started
+                  print(f"attempt {attempt} at {elapsed:.1f}s -> {detail}", flush=True)
+                  if healthy:
+                      print("warm (application health confirmed)", flush=True)
+                      return 0
+                  remaining = deadline - time.monotonic()
+                  if remaining > 0:
+                      time.sleep(min(10, remaining))
+              print(f"::error::keepalive could not confirm healthy application JSON from {URL} "
+                    f"after {attempt} attempts over {time.monotonic() - started:.1f}s", flush=True)
+              return 1
+
+          if __name__ == "__main__":
+              raise SystemExit(warm())
